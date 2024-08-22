@@ -1,1 +1,3 @@
+#see notes.txt for library documentation
+
 Faker
