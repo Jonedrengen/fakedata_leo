@@ -9,13 +9,12 @@ fake = Faker()
 def DesiredHeaders(*headers):
     return list(headers)
 
-
-
-
 def RandomName(amount):
+    list = []
     for i in range(amount):
         print(fake.name())
-    return
+        list.append(fake.name())
+    return list
 
-RandomName(25)
-
+data = RandomName(25)
+print(type(data))
