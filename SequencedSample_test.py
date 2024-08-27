@@ -8,9 +8,10 @@ from Sample import SampleData
 fake = Faker()
 
 # global variables #
-record_amount = 10000 ## Change for desired record amount
+record_amount = 100000 ## Change for desired record amount
 Batch_amount = record_amount // 96 + 1  # Ensure enough batch IDs are generated
-# global variables #
+
+#
 
 SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
                            "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]
@@ -64,6 +65,6 @@ def write_to_csv(file_name, data, headers):
 
 
 if __name__ == "__main__":
-    # Use the global record_amount variable to set desired amount
+    # Use the global record_amount variable
     SequencedSample_data = SequencedSample(record_amount)
     write_to_csv('SequencedSample_data.csv', SequencedSample_data, SequencedSample_headers)

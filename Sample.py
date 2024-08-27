@@ -6,7 +6,7 @@ from datetime import datetime
 
 fake = Faker()
 
-#BatchID is primary key
+
 Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
 
 
@@ -34,6 +34,8 @@ def write_to_csv(file_name, data, headers):
         writer.writerows(data)
     print(f"written to {file_name}")
 
-sample_data = SampleData(1000)
+if __name__ == "__main__":
 
-write_to_csv('Sample_data.csv', sample_data, Sample_headers)
+    sample_data = SampleData(1000)
+
+    write_to_csv('Sample_data.csv', sample_data, Sample_headers)
