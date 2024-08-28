@@ -14,7 +14,7 @@ def BatchData(record_amount):
     Batch_data = []
     for i in range(record_amount):
         record = {
-            "BatchID": fake.random_element(elements=("someBatchID","someotherBatchID")) + str(random.randint(0, 999999999)).zfill(9),
+            "BatchID": fake.random_element(elements=("BatchID","ABatchID")) + str(random.randint(0, 999999999)).zfill(9),
             "BatchDate": fake.date(),
             "Platform": fake.random_element(elements=('labA','labB','labC')),
             "BatchSource": fake.random_element(elements=('SourceA','SourceB','SourceC')),

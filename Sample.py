@@ -14,12 +14,12 @@ def SampleData(record_amount):
     Sample_data = []
     for i in range(record_amount):
         record = {
-            "SampleID": fake.random_element(elements=("someID","someotherID")) + str(random.randint(0, 999999999)).zfill(9),
+            "SampleID": fake.random_element(elements=("SampleID","ASampleID")) + str(random.randint(0, 999999999)).zfill(9),
             "SampleDateTime": fake.date(),
             "Host": fake.random_element(elements=("HostA", "HostB", "HostC")),
             "Ct": fake.random_element(elements=("CtA", "CtB", "CtC")),
             "DateSampling": fake.random_element(elements=("DateSamplingX", "DateSamplingY", "DateSamplingZ")),
-            "CurrentConsensusID": fake.random_element(elements=("anID", "anotherID", "thirdID")),
+            "CurrentConsensusID": fake.random_element(elements=("ConsensusID", "anotherID", "thirdID")),
             "TimestampCreated": str(datetime.now()),
             "TimestampUpdated": str(datetime.now())
         }
