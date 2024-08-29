@@ -3,9 +3,14 @@ from faker.providers import BaseProvider #custom providers
 import random
 import csv
 from datetime import datetime
+import time
 
 fake = Faker()
 
+# Global variables #
+record_amount = 10000
+
+# Global variables #
 #BatchID is primary key
 Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]
 
@@ -34,6 +39,11 @@ def write_to_csv(file_name, data, headers):
 
 
 if __name__ == "__main__":
-    batch_data = BatchData(1000)
-
+    start_time = time.time()
+    
+    batch_data = BatchData(record_amount)
     write_to_csv('batch_data.csv', batch_data, Batch_headers)
+
+    end_time = time.time()
+    time_passed = end_time - start_time
+    print(f"Execution time: {time_passed:.5} seconds")

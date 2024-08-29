@@ -19,7 +19,7 @@ def ConsensusData(record_amount):
     Consensus_data = []
     for i in range(record_amount):
         record = {
-            "ConsensusID": fake.random_element(elements=("ConsensusID", "ConsensusSampleID")) + str(random.randint(0, 999999999)).zfill(9),
+            "ConsensusID": fake.random_element(elements=("ConsensusID", "Consensus2ID")) + str(random.randint(0, 999999999)).zfill(9),
             "NCount": random.randint(0, 1000),
             "AmbiguousSites": random.randint(0, 100),
             "NwAmb": random.randint(0, 100),
@@ -54,6 +54,7 @@ def ConsensusData(record_amount):
             "TimestampUpdated": str(datetime.now())
         }
         Consensus_data.append(record)
+    print(f"Consensus data generated {record_amount} times")
     return Consensus_data
 
 def write_to_csv(file_name, data, headers):

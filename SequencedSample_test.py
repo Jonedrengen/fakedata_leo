@@ -3,15 +3,16 @@ from faker.providers import BaseProvider #custom providers
 import random
 import csv
 from datetime import datetime
+import time
 from Batch import BatchData
 from Sample import SampleData
 fake = Faker()
 
-# global variables #
+# Global variables #
 record_amount = 10000 ## Change for desired record amount
-Batch_amount = record_amount // 96 + 1  # Ensure enough batch IDs are generated
+Batch_amount = record_amount // 96 + 1 # Ensure enough batch IDs are generated, and save time
 
-#
+# Global
 
 SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
                            "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]
@@ -28,7 +29,7 @@ def SequencedSample(record_amount):
     extracted_BatchIDs = extract_column(Batch_data, "BatchID")
     extracted_SampleIDs = extract_column(Sample_data, "SampleID")
     SequencedSample_data = []
-    max_samples_per_batch = 500
+    max_samples_per_batch = 96
 
     batch_index = 0
     batch_id = extracted_BatchIDs[batch_index]
@@ -63,6 +64,11 @@ def write_to_csv(file_name, data, headers):
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     # Use the global record_amount variable
     SequencedSample_data = SequencedSample(record_amount)
     write_to_csv('SequencedSample_data.csv', SequencedSample_data, SequencedSample_headers)
+
+    end_time = time.time()
+    time_passed = end_time - start_time
+    print(f"Execution time: {time_passed:.5} seconds")
