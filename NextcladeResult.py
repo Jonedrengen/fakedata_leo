@@ -30,7 +30,23 @@ def NextcladeResult(record_amount):
         nextcladeresult_id = GenerateUniqueNextcladeResultID(existing_Nextclade_ids)
         existing_Nextclade_ids.add(nextcladeresult_id)
         record = {
-            "NextcladeResultID": nextcladeresult_id
+            "NextcladeResultID": nextcladeresult_id,
+            "frameShifts": fake.random_element(elements=("S:159-1274", "ORF1a:3607-4401", "N:21-420;ORF9b:18-98", 
+                                                         "S:70-1274", "S:6-1274", "ORF8:122", None)), #TODO figure out wtf frameShifts are 
+            "aaSubstitutions": fake.random_element(elements=("M:I82T;N:D63G;N:R203M;N:G215C;N:D377Y;ORF1a:A1306S;ORF1a:P2046L;ORF1a:L2146F;ORF1a:P2287S;ORF1a:A2529V;ORF1a:V2930L;ORF1a:T3255I;ORF1a:T3646A;ORF1b:P314L;ORF1b:G662S;ORF1b:P1000L;ORF1b:A1918V;ORF3a:S26L;ORF7a:V82A;ORF7a:T120I;ORF7b:T40I;ORF9b:T60A;S:T19R;S:T95I;S:G142D;S:Y145H",
+                                                             "N:A220V;ORF1a:T614I;ORF1b:P314L;ORF1b:Q813H;ORF3a:L111S;ORF9b:P39L;S:A222V;S:D614G",
+                                                             "N:D3L;N:R203K;N:G204R;N:S235F;ORF1a:T1001I;ORF1a:T1241I;ORF1a:A1708D;ORF1a:I2230T;ORF1b:P314L;ORF3a:L85F;ORF3a:W131C;ORF7a:Q94L;ORF8:Q27*;ORF8:R52I;ORF8:K68*;ORF8:Y73C",
+                                                             "N:T265I;ORF1a:G379E;ORF1a:K1895N;ORF1a:I2501T;ORF1a:M4241I;ORF3a:T32I;ORF3a:P240S;S:N439K;S:D614G;S:S1252F")), #TODO also figure out tf this is
+            "aaDeletions": fake.random_element(elements=("ORF8:D119-;ORF8:F120-;S:E156-;S:F157-;S:R158-",
+                                                         "ORF1a:L3606-",
+                                                         "ORF1a:S3675-;ORF1a:G3676-;ORF1a:F3677-;S:I68-;S:H69-",
+                                                         "S:H69-;S:V70-")), #TODO also figure out this
+            "aaInsertions": fake.random_element(elements=(None,
+                                                          "S:214:EPE",
+                                                          "S:210:IV",
+                                                          "ORF7a:69:NN*;ORF7a:79:T")), #TODO also figure this out
+            "alignmentScore": random.randint(89000, 89700),
+            "clade": 
         }
         NextcladeResult_data.append(record)
     print(f"Sample data generated {record_amount} times")

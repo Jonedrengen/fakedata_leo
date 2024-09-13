@@ -11,7 +11,7 @@ from Consensus import ConsensusData
 fake = Faker()
 
 # Global variables #
-record_amount = 100000 ## Change for desired record amount
+record_amount = 10000 ## Change for desired record amount
 Batch_amount = record_amount // 96 + 1 # Ensures enough batch IDs are generated, and save time
 
 # Global variables #
