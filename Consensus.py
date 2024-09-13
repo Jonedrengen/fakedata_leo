@@ -3,6 +3,7 @@ from faker.providers import BaseProvider #custom providers
 import random
 import csv
 from datetime import datetime
+import time
 
 fake = Faker()
 
@@ -15,11 +16,20 @@ Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCount
                      "Omicron", "BA_1", "BA_2", "BG", "BA_4", "BA_5", "BA_2_75", "BF_7", "WhoVariant", "LineagesOfInterest",
                      "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
 
+def GenerateUniqueConsensusID(existing_ids):
+    while True:
+        consensus_id = "Consensus-" + str(random.randint(0, 999999)).zfill(6)
+        if consensus_id not in existing_ids:
+            return consensus_id
+
 def ConsensusData(record_amount):
     Consensus_data = []
+    existing_consensus_ids = set()
     for i in range(record_amount):
+        consensus_id = GenerateUniqueConsensusID(existing_consensus_ids)
+        existing_consensus_ids.add(consensus_id)
         record = {
-            "ConsensusID": fake.random_element(elements=("ConsensusID", "Consensus2ID")) + str(random.randint(0, 999999999)).zfill(9),
+            "ConsensusID": consensus_id,
             "NCount": random.randint(0, 1000),
             "AmbiguousSites": random.randint(0, 100),
             "NwAmb": random.randint(0, 100),
@@ -65,5 +75,9 @@ def write_to_csv(file_name, data, headers):
     print(f"written to {file_name}")
 
 if __name__ == "__main__":
+    start_time = time.time()
     Consensus_data = ConsensusData(record_amount)
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)
+    end_time = time.time()
+    time_passed = end_time - start_time
+    print(f"Execution time: {time_passed:.5} seconds")
