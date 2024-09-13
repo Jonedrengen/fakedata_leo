@@ -22,17 +22,25 @@ def extract_column(data, column_header):
     column = [record[column_header] for record in data]
     return column
 
+def GenerateUniqueSequencedSampleID(existing_sequenced_ids):
+    while True:
+        SequencedSample_id = "SequencedSample-" + str(random.randint(0, 999999)).zfill(6)
+        if SequencedSample_id not in existing_sequenced_ids:
+            return SequencedSample_id
+
 
 def SequencedSample(record_amount):
+    
     Batch_data = BatchData(Batch_amount) #cross reference
     Sample_data = SampleData(record_amount)
     extracted_BatchIDs = extract_column(Batch_data, "BatchID")
     extracted_SampleIDs = extract_column(Sample_data, "SampleID")
     SequencedSample_data = []
     max_samples_per_batch = 96
-
     batch_index = 0
     batch_id = extracted_BatchIDs[batch_index]
+
+    existing_sequenced_ids = set()
 
     for i in range(record_amount):
         if i > 0 and i % max_samples_per_batch == 0:
@@ -40,9 +48,10 @@ def SequencedSample(record_amount):
             batch_id = extracted_BatchIDs[batch_index]
 
         sample_id = extracted_SampleIDs.pop(0)  # Pop the first SampleID
-
+        sequenced_sample_id = GenerateUniqueSequencedSampleID(existing_sequenced_ids)
+        existing_sequenced_ids.add(sequenced_sample_id)
         record = {
-            "SequencedSampleID": fake.random_element(elements=("SequencedID","SequencedSampleID")) + str(random.randint(0, 999999999)).zfill(9),
+            "SequencedSampleID": sequenced_sample_id,
             "SequencingType": fake.random_element(elements=("SomeSequencingType", "SomeOtherType", "ThirdType")),
             "DateSequencing": fake.random_element(elements=("DatematchingBatchdate?", "SomeDate")), #TODO should match the batch date?
             "SampleContent": fake.random_element(elements=("SomeContent", "SomeotherContent")),

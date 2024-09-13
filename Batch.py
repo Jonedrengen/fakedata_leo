@@ -8,18 +8,26 @@ import time
 fake = Faker()
 
 # Global variables #
-record_amount = 10000
+record_amount = 1000
 
 # Global variables #
 #BatchID is primary key
 Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]
 
+def GenerateUniqueBatchID(existing_ids):
+    while True:
+        batch_id = "Batch-" + str(random.randint(0, 999999)).zfill(6)
+        if batch_id not in existing_ids:
+            return batch_id
 
 def BatchData(record_amount):
     Batch_data = []
+    existing_ids = set()
     for i in range(record_amount):
+        batch_id = GenerateUniqueBatchID(existing_ids)
+        existing_ids.add(batch_id)
         record = {
-            "BatchID": fake.random_element(elements=("BatchID","ABatchID")) + str(random.randint(0, 999999999)).zfill(9),
+            "BatchID": batch_id,
             "BatchDate": fake.date(),
             "Platform": fake.random_element(elements=('labA','labB','labC')),
             "BatchSource": fake.random_element(elements=('SourceA','SourceB','SourceC')),
