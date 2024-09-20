@@ -13,6 +13,7 @@ if __name__ == '__main__':
     #record amount (max is 999999.00)
     record_amount = 50000
 
+
     #headers
     Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
     Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]

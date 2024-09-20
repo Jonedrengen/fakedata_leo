@@ -29,7 +29,6 @@ def SampleData(record_amount, sample_ids, consensus_ids):
     print(f"Sample data generated {record_amount} times")
     return Sample_data
 
-
 if __name__ == "__main__":
     start_time = time.time()
     

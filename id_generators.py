@@ -1,9 +1,5 @@
-from faker import Faker
-from faker.providers import BaseProvider #custom providers
 import random
-import csv
-from datetime import datetime
-import time
+
 
 
 def GenerateUniqueSampleID(existing_sample_ids):
@@ -19,6 +15,13 @@ def GenerateUniqueBatchID(existing_batch_ids):
         if batch_id not in existing_batch_ids:
             existing_batch_ids.add(batch_id)
             return batch_id
+
+def GenerateUniqueSequencedSampleID(existing_sequenced_ids):
+    while True:
+        SequencedSample_id = "SequencedSample-" + str(random.randint(0, 999999)).zfill(6)
+        if SequencedSample_id not in existing_sequenced_ids:
+            existing_sequenced_ids.add(SequencedSample_id)
+            return SequencedSample_id
 
 def GenerateUniqueConsensusID(existing_consensus_ids):
     while True:

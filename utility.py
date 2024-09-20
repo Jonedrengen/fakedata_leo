@@ -12,3 +12,8 @@ def write_to_csv(file_name, data, headers):
         writer.writeheader()
         writer.writerows(data)
     print(f"written to {file_name}")
+
+
+def extract_column(data, column_header):
+    column = [record[column_header] for record in data]
+    return column
