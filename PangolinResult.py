@@ -6,6 +6,7 @@ from datetime import datetime as datetime2
 import datetime as datetime1
 import time
 from Consensus import GenerateUniqueConsensusID, GenerateUniquePangolinResultID
+from utility import write_to_csv
 
 fake = Faker()
 
@@ -41,12 +42,6 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
     print(f"PangolinResult data generated {record_amount} times")
     return PangolinResult_data
 
-def write_to_csv(file_name, data, headers):
-    with open(file_name, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
-        writer.writerows(data)
-    print(f"written to {file_name}")
 
 
 if __name__ == '__main__':

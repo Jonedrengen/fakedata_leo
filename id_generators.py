@@ -13,6 +13,13 @@ def GenerateUniqueSampleID(existing_sample_ids):
             existing_sample_ids.add(sample_id)
             return sample_id
 
+def GenerateUniqueBatchID(existing_batch_ids):
+    while True:
+        batch_id = "Batch-" + str(random.randint(0, 999999)).zfill(6)
+        if batch_id not in existing_batch_ids:
+            existing_batch_ids.add(batch_id)
+            return batch_id
+
 def GenerateUniqueConsensusID(existing_consensus_ids):
     while True:
         consensus_id = "Consensus-" + str(random.randint(0, 999999)).zfill(6)
@@ -26,3 +33,5 @@ def GenerateUniquePangolinResultID(existing_pango_ids):
         if pango_id not in existing_pango_ids:
             existing_pango_ids.add(pango_id)
             return pango_id
+        
+

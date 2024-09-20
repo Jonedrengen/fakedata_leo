@@ -4,33 +4,17 @@ import random
 import csv
 from datetime import datetime
 import time
+from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID
+from utility import write_to_csv
 
 fake = Faker()
 
-
-Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
-
-def GenerateUniqueConsensusID(existing_Consensus_ids):
-    while True:
-        consensus_id = "Consensus-" + str(random.randint(0, 999999)).zfill(6)
-        if consensus_id not in existing_Consensus_ids:
-            return consensus_id
-
-def GenerateUniqueSampleID(existing_ids):
-    while True:
-        sample_id = "Sample-" + str(random.randint(0, 999999)).zfill(6)
-        if sample_id not in existing_ids:
-            return sample_id
-
-def SampleData(record_amount):
+def SampleData(record_amount, sample_ids, consensus_ids):
     Sample_data = []
-    existing_sample_ids = set()
-    existing_consensus_ids = set() # roughly 1 consensusID per 10 SampleIDs
     for i in range(record_amount):
-        sample_id = GenerateUniqueSampleID(existing_sample_ids)
-        consensus_id = GenerateUniqueConsensusID(existing_consensus_ids)
-        existing_sample_ids.add(sample_id)
-        existing_consensus_ids.add(consensus_id)
+        print(f'generating Sample record nr. {i}')
+        sample_id = sample_ids[i]
+        consensus_id = consensus_ids[i]
         record = {
             "SampleID": sample_id,
             "SampleDateTime": fake.date(),
@@ -45,17 +29,21 @@ def SampleData(record_amount):
     print(f"Sample data generated {record_amount} times")
     return Sample_data
 
-def write_to_csv(file_name, data, headers):
-    with open(file_name, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
-        writer.writerows(data)
-    print(f"written to {file_name}")
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    sample_data = SampleData(100) #warning: do not make more that 1000000 records (not enough unique IDs)
+    record_amount = 1000
+
+    Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
+
+    existing_sample_ids = set()
+    existing_consensus_ids = set()
+
+    sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
+    consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
+
+    sample_data = SampleData(record_amount, sample_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
     write_to_csv('Sample_data.csv', sample_data, Sample_headers)
 
     end_time = time.time()
