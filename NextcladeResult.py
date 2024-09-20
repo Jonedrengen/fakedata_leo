@@ -88,7 +88,7 @@ def NextcladeResult(record_amount):
             "TimestampUpdated": str(datetime2.now())
         }
         NextcladeResult_data.append(record)
-    print(f"Sample data generated {record_amount} times")
+    print(f"NextcladeResult data generated {record_amount} times")
     return NextcladeResult_data
 
 def write_to_csv(file_name, data, headers):

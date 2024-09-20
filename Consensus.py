@@ -4,30 +4,17 @@ import random
 import csv
 from datetime import datetime
 import time
+from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID
 
 fake = Faker()
 
-# Global variables #
-record_amount = 1000  # Example record amount
 
-# Global variables #
-Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
-                     "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
-                     "Omicron", "BA_1", "BA_2", "BG", "BA_4", "BA_5", "BA_2_75", "BF_7", "WhoVariant", "LineagesOfInterest",
-                     "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
-
-def GenerateUniqueConsensusID(existing_ids):
-    while True:
-        consensus_id = "Consensus-" + str(random.randint(0, 999999)).zfill(6)
-        if consensus_id not in existing_ids:
-            return consensus_id
-
-def ConsensusData(record_amount):
+def ConsensusData(record_amount, consensus_ids, pangolin_ids):
     Consensus_data = []
-    existing_consensus_ids = set()
     for i in range(record_amount):
-        consensus_id = GenerateUniqueConsensusID(existing_consensus_ids)
-        existing_consensus_ids.add(consensus_id)
+        print(f'generating Consensus record nr. {i}')
+        consensus_id = consensus_ids[i]
+        pango_id = pangolin_ids[i]
         record = {
             "ConsensusID": consensus_id,
             "NCount": random.randint(0, 1000),
@@ -58,7 +45,7 @@ def ConsensusData(record_amount):
             "UnaliasedPango": fake.random_element(elements=("Pango1", "Pango2", "Pango3")),
             "SequencedSampleID": fake.random_element(elements=("SequencedID", "SequencedSampleID")) + str(random.randint(0, 999999999)).zfill(9),
             "CurrentNextcladeID": fake.random_element(elements=("NextcladeID1", "NextcladeID2")),
-            "CurrentPangolinID": fake.random_element(elements=("PangolinID1", "PangolinID2")),
+            "CurrentPangolinID": pango_id,
             "IsCurrent": fake.boolean(),
             "TimestampCreated": str(datetime.now()),
             "TimestampUpdated": str(datetime.now())
@@ -76,8 +63,22 @@ def write_to_csv(file_name, data, headers):
 
 if __name__ == "__main__":
     start_time = time.time()
-    Consensus_data = ConsensusData(record_amount)
+
+    record_amount = 10000  # Example record amount
+
+    Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
+                     "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
+                     "Omicron", "BA_1", "BA_2", "BG", "BA_4", "BA_5", "BA_2_75", "BF_7", "WhoVariant", "LineagesOfInterest",
+                     "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
+    
+    existing_consensus_ids = set()
+    existing_pango_ids = set()
+    consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
+    pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
+
+    Consensus_data = ConsensusData(record_amount, consensus_ids, pangolin_ids)
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)
+
     end_time = time.time()
     time_passed = end_time - start_time
     print(f"Execution time: {time_passed:.5} seconds")
