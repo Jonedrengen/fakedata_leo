@@ -14,9 +14,14 @@ def SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensu
     SequencedSample_data = []
     max_samples_per_batch = 100 #max batch size
     batch_index = 0
-
+    starting_time = time.time()
+    update_time = 0.15
     for i in range(record_amount):
-        print(f'generating SequencedSample record nr. {i}')
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:
+            update_time += 0.15
+            print(f'generated {i} sequencedsample records')
+        
         sequenced_sample_id = sequenced_sample_ids[i]
         consensus_id = consensus_ids[i]
         sample_id = sample_ids[i]
@@ -39,13 +44,13 @@ def SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensu
             "TimestampUpdated": str(datetime2.now())
         }
         SequencedSample_data.append(record)
-    print(f"SequencedSample data generated {record_amount} times")
+    print(f'generated {i + 1} sequencedsample records in total')
     return SequencedSample_data
 
 if __name__ == "__main__":
     start_time = time.time()
     # Use the global record_amount variable
-    record_amount = 1000
+    record_amount = 100000
 
     SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
                            "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]

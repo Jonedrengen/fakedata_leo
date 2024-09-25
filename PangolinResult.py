@@ -15,9 +15,13 @@ fake = Faker()
 def PangolinResult(record_amount, pangolin_ids, consensus_ids):
     
     PangolinResult_data = []
-    
+    starting_time = time.time()
+    update_time = 0.15
     for i in range(record_amount):
-        print(f'generating PangolinResult record nr. {i}')
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:
+            update_time += 0.15
+            print(f'generated {i} pangolin records')
         pango_id = pangolin_ids[i]
         consensus_id = consensus_ids[i]
         record = {
@@ -39,7 +43,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
         
         }
         PangolinResult_data.append(record)
-    print(f"PangolinResult data generated {record_amount} times")
+    print(f'generated {i + 1} pangolin records in total')
     return PangolinResult_data
 
 
@@ -47,7 +51,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
 if __name__ == '__main__':
     start_time = time.time()
     
-    record_amount = 19999
+    record_amount = 50000
 
     PangolinResult_headers = ["PangolinResultID", "lineage", "version", "pangolin_version", "scorpio_version", "constellation_version", 
                            "qc_status", "qc_notes", "note", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]

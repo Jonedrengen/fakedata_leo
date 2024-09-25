@@ -9,14 +9,15 @@ from utility import write_to_csv
 
 fake = Faker()
 
-
-
-
 def BatchData(record_amount, batch_ids):
     Batch_data = []
-
+    starting_time = time.time()
+    update_time = 0.015
     for i in range(record_amount):
-        print(f'generating Batch record nr. {i}')
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:  
+            update_time += 0.015
+            print(f'generated {i} batch records so far')
         batch_id = batch_ids[i]
         record = {
             "BatchID": batch_id,
@@ -27,19 +28,19 @@ def BatchData(record_amount, batch_ids):
             "TimestampUpdated": str(datetime.now())
         }
         Batch_data.append(record)
-    print(f"Batch data generated {record_amount} times")
+    print(f'generated {i + 1} batch records in total')
     return Batch_data
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    record_amount = 10000
+    record_amount = 500000
 
     Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]
 
     existing_batch_ids = set()
 
-    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)]
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount // 100 + 1)]
 
     batch_data = BatchData(record_amount // 100 + 1, batch_ids)
     write_to_csv('Batch_data.csv', batch_data, Batch_headers)

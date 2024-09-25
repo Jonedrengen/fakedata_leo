@@ -16,8 +16,13 @@ fake = Faker()
 
 def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
     NextcladeResult_data = []
-    
+    starting_time = time.time()
+    update_time = 0.15
     for i in range(record_amount):
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:  
+            update_time += 0.15
+            print(f'generated {i} nextclade records')
         nextcladeresult_id = nextcladeresult_ids[i]
         consensus_id = consensus_ids[i]
         record = {
@@ -70,13 +75,13 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
             "TimestampUpdated": str(datetime2.now())
         }
         NextcladeResult_data.append(record)
-    print(f"NextcladeResult data generated {record_amount} times")
+    print(f'generated {i + 1} nextclade records in total')
     return NextcladeResult_data
 
 if __name__ == '__main__':
     start_time = time.time()
 
-    record_amount = 10000 ## Change for desired record amount
+    record_amount = 100000 ## Change for desired record amount
 
 
     NextcladeResult_headers = ["NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore", 

@@ -12,8 +12,13 @@ fake = Faker()
 
 def ConsensusData(record_amount, consensus_ids, pangolin_ids):
     Consensus_data = []
+    starting_time = time.time()
+    update_time = 0.15
     for i in range(record_amount):
-        print(f'generating Consensus record nr. {i}')
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:
+            update_time += 0.15
+            print(f'generated {i} consensus records')
         consensus_id = consensus_ids[i]
         pango_id = pangolin_ids[i]
         record = {
@@ -52,7 +57,7 @@ def ConsensusData(record_amount, consensus_ids, pangolin_ids):
             "TimestampUpdated": str(datetime.now())
         }
         Consensus_data.append(record)
-    print(f"Consensus data generated {record_amount} times")
+    print(f'generated {i + 1} consensus records in total')
     return Consensus_data
 
 

@@ -11,8 +11,14 @@ fake = Faker()
 
 def SampleData(record_amount, sample_ids, consensus_ids):
     Sample_data = []
+    starting_time = time.time()
+    update_time = 0.15
     for i in range(record_amount):
-        print(f'generating Sample record nr. {i}')
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:
+            update_time += 0.15
+            print(f'generated {i} sample records')
+        
         sample_id = sample_ids[i]
         consensus_id = consensus_ids[i]
         record = {
@@ -26,13 +32,13 @@ def SampleData(record_amount, sample_ids, consensus_ids):
             "TimestampUpdated": str(datetime.now())
         }
         Sample_data.append(record)
-    print(f"Sample data generated {record_amount} times")
+    print(f'generated {i + 1} sample records in total')
     return Sample_data
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    record_amount = 1000
+    record_amount = 100000
 
     Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
 
