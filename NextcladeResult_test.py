@@ -14,10 +14,11 @@ fake = Faker()
 
 
 
-def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
+def NextcladeResult(record_amount, nextcladeresult_ids, consensus_ids):
     NextcladeResult_data = []
     
     for i in range(record_amount):
+        print(f'creating nextcladeresult record nr. {i}')
         nextcladeresult_id = nextcladeresult_ids[i]
         consensus_id = consensus_ids[i]
         record = {
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
 
-    NextcladeResult_data = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
+    NextcladeResult_data = NextcladeResult(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
     write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
 
     end_time = time.time()

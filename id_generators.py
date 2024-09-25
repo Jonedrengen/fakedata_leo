@@ -37,4 +37,9 @@ def GenerateUniquePangolinResultID(existing_pango_ids):
             existing_pango_ids.add(pango_id)
             return pango_id
         
-
+def GenerateUniqueNextcladeResultID(existing_NextcladeResult_ids):
+    while True:
+        NextcladeResult_id = "Nextclade-" + str(random.randint(0, 999999)).zfill(6)
+        if NextcladeResult_id not in existing_NextcladeResult_ids:
+            existing_NextcladeResult_ids.add(NextcladeResult_id)
+            return NextcladeResult_id

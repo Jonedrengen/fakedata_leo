@@ -12,7 +12,7 @@ fake = Faker()
 
 
 
-def BatchData(record_amount):
+def BatchData(record_amount, batch_ids):
     Batch_data = []
 
     for i in range(record_amount):
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)]
 
-    batch_data = BatchData(record_amount)
+    batch_data = BatchData(record_amount // 100 + 1, batch_ids)
     write_to_csv('Batch_data.csv', batch_data, Batch_headers)
 
     end_time = time.time()

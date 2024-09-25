@@ -5,56 +5,27 @@ import csv
 import datetime as datetime1 #imported with odd name due to same name issue as below
 from datetime import datetime as datetime2
 import time
-from Batch import BatchData
-from Sample import SampleData
-from Consensus import ConsensusData
+from id_generators import GenerateUniqueSequencedSampleID, GenerateUniqueBatchID, GenerateUniqueConsensusID, GenerateUniqueSampleID
+from utility import extract_column, write_to_csv
+
 fake = Faker()
 
-# Global variables #
-record_amount = 10000 ## Change for desired record amount
-Batch_amount = record_amount // 96 + 1 # Ensures enough batch IDs are generated, and save time
-
-# Global variables #
-
-SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
-                           "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]
-
-
-def extract_column(data, column_header):
-    column = [record[column_header] for record in data]
-    return column
-
-def GenerateUniqueSequencedSampleID(existing_sequenced_ids):
-    while True:
-        SequencedSample_id = "SequencedSample-" + str(random.randint(0, 999999)).zfill(6)
-        if SequencedSample_id not in existing_sequenced_ids:
-            return SequencedSample_id
-
-
-def SequencedSample(record_amount):
-    
-    Batch_data = BatchData(Batch_amount) #cross reference
-    Consensus_data = ConsensusData(record_amount)
-    Sample_data = SampleData(record_amount)
-    extracted_BatchIDs = extract_column(Batch_data, "BatchID")
-    extracted_SampleIDs = extract_column(Sample_data, "SampleID")
-    extracted_ConsensusIDs = extract_column(Consensus_data, "ConsensusID")
+def SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensus_ids, sample_ids):
     SequencedSample_data = []
-    max_samples_per_batch = 96
+    max_samples_per_batch = 100 #max batch size
     batch_index = 0
-    batch_id = extracted_BatchIDs[batch_index]
-
-    existing_sequenced_ids = set()
 
     for i in range(record_amount):
+        print(f'generating SequencedSample record nr. {i}')
+        sequenced_sample_id = sequenced_sample_ids[i]
+        consensus_id = consensus_ids[i]
+        sample_id = sample_ids[i]
+
+        # Assign the same batch_id to every 100 records
         if i > 0 and i % max_samples_per_batch == 0:
             batch_index += 1
-            batch_id = extracted_BatchIDs[batch_index]
+        batch_id = batch_ids[batch_index]
 
-        sample_id = extracted_SampleIDs.pop(0)  # Pop the first SampleID
-        consensus_id = extracted_ConsensusIDs.pop(0)
-        sequenced_sample_id = GenerateUniqueSequencedSampleID(existing_sequenced_ids)
-        existing_sequenced_ids.add(sequenced_sample_id)
         record = {
             "SequencedSampleID": sequenced_sample_id,
             "SequencingType": fake.random_element(elements=("hospital_sequencing", "test", "Hogwarts_sequencing_sent_to_Panem", "historic",
@@ -68,20 +39,28 @@ def SequencedSample(record_amount):
             "TimestampUpdated": str(datetime2.now())
         }
         SequencedSample_data.append(record)
+    print(f"SequencedSample data generated {record_amount} times")
     return SequencedSample_data
-
-def write_to_csv(file_name, data, headers):
-    with open(file_name, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
-        writer.writeheader()
-        writer.writerows(data)
-    print(f"written to {file_name}")
-
 
 if __name__ == "__main__":
     start_time = time.time()
     # Use the global record_amount variable
-    SequencedSample_data = SequencedSample(record_amount)
+    record_amount = 1000
+
+    SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
+                           "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]
+    
+    existing_sequenced_ids = set()
+    existing_batch_ids = set()
+    existing_consensus_ids = set()
+    existing_sample_ids = set()
+
+    sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount // 100 + 1)]
+    consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
+    sequenced_sample_ids = [GenerateUniqueSequencedSampleID(existing_sequenced_ids) for i in range(record_amount)]
+
+    SequencedSample_data = SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensus_ids, sample_ids)
     write_to_csv('SequencedSample_data.csv', SequencedSample_data, SequencedSample_headers)
 
     end_time = time.time()
