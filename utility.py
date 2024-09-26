@@ -1,8 +1,5 @@
-from faker import Faker
-from faker.providers import BaseProvider #custom providers
-import random
+
 import csv
-from datetime import datetime
 import time
 
 
