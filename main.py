@@ -14,7 +14,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 50000
+    record_amount = 500000
 
 
     #headers
@@ -46,15 +46,15 @@ if __name__ == '__main__':
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
-    nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
+    nextclade_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
 
     #generating data
     Sample_data = SampleData(record_amount, sample_ids, consensus_ids)
     Batch_data = BatchData(record_amount // 100 + 1, batch_ids)
-    Consensus_data = ConsensusData(record_amount, consensus_ids, pangolin_ids)
+    Consensus_data = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids)
     PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids)
     SequencedSample_data = SequencedSampleData(record_amount, sequencedsample_ids, batch_ids, consensus_ids, sample_ids)
-    NextcladeResult_data = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids)
+    NextcladeResult_data = NextcladeResultData(record_amount, nextclade_ids, consensus_ids)
 
     #creating csv
     write_to_csv('Sample_data.csv', Sample_data, Sample_headers)
