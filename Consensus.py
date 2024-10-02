@@ -26,19 +26,23 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         'Omicron': {'lineageofinterest': 'Omicron', 'alpha': '0', 'beta': '0', 'gamma': '0', 'delta': '0', 'eta': '0', 'omicron': '1', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.1.529.2'}
 
     } 
-    #map og exclusion
+    #map og exclusion #TODO make sure there is an evenly distributed amount across Mixed strain, neg contam, etc. Make sure it happens in the loop
     manualExclusion_mapping = {
         None: {'sequenceexclude': fake.random_element(elements=(None, "MixedStrain")), 
                'qcscore': fake.random_element(elements=(None, "Fail: Mixed strain"))},
 
         'Manually_Excluded_Run': {'sequenceexclude': fake.random_element(elements=(None, "MixedStrain;ManuallyExcluded")), 
-                                  'qcscore': fake.random_element(elements=(None, "Fail: Mixed strain"))},
+                                  'qcscore': fake.random_element(elements=(None, "Fail: Mixed strain"))
+                                  },
 
         'Manually_Excluded_Plate': {'sequenceexclude': fake.random_element(elements=(None, "NegContamination;ManuallyExcluded")), 
-                                    'qcscore': fake.random_element(elements=(None, "Fail: Neg. Contamination"))},
+                                    'qcscore': fake.random_element(elements=(None, "Fail: Neg. Contamination"))
+                                    
+                                    },
 
         'Manually_Excluded_Sample': {'sequenceexclude': fake.random_element(elements=(None, "TooManyNs;ManuallyExcluded")), 
-                                     'qcscore': fake.random_element(elements=(None, "Fail: Too many Ns"))}
+                                     'qcscore': fake.random_element(elements=(None, "Fail: Too many Ns"))
+                                     }
     }
 
     for i in range(record_amount):
@@ -51,12 +55,28 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         nextclade_id = nextclade_ids[i]
         pango_id = pangolin_ids[i]
 
-        #exclusions
+        #exclusions (manualexclusion)
         manualExclusion = fake.random_element(elements=(None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
                                                         "Manually_Excluded_Sample",))
         manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
 
-        #exclusion specifics
+        #exclusion specifics (NumAlignedReads)
+        if manualExclusion_values['qcscore'] == None:
+            manualExclusion_values['numalignedreads'] = None
+        else:
+            manualExclusion_values['numalignedreads'] = random.randint(0, 1000000) 
+        
+        #exclusion specifics (NCount, AmbiguousSites, NwAmb, PctCoveredBases, SeqLength)
+        if manualExclusion == None and random.randint(0, 71) == 1:
+            manualExclusion_values['ncount'] = None
+            manualExclusion_values['ambiguoussites'] = None
+            manualExclusion_values['NwAmb'] = None
+        else:
+            manualExclusion_values['ncount'] = random.randint(0, 30000)
+            manualExclusion_values['ambiguoussites'] = random.randint(0, 157)
+            manualExclusion_values['NwAmb'] = random.randint(0, 29903)
+        
+
 
         #WhoVariants interconnections
         whovariant = fake.random_element(elements=(None, "Alpha", "Beta", "Delta", "Eta", "Gamma", "Omicron"))
@@ -78,11 +98,11 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
         record = { #TODO expand on consensus data, especially different variant and how they are connected
             "ConsensusID": consensus_id,
-            "NCount": random.randint(0, 30000),
-            "AmbiguousSites": random.randint(0, 157),
-            "NwAmb": random.randint(0, 29903),
+            "NCount": manualExclusion_values['ncount'],
+            "AmbiguousSites": manualExclusion_values['ambiguoussites'],
+            "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": fake.random_element(elements=("HQ", "MQ", "Fail")),
-            "NumAlignedReads": random.randint(0, 1000000),
+            "NumAlignedReads": manualExclusion_values['numalignedreads'],
             "PctCoveredBases": round(random.uniform(0, 100), 2),
             "SeqLength": random.randint(0, 30000),
             "QcScore": manualExclusion_values['qcscore'],
