@@ -14,7 +14,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 500000
+    record_amount = 100000
 
 
     #headers

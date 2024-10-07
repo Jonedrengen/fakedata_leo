@@ -11,9 +11,6 @@ from utility import write_to_csv
 
 fake = Faker()
 
-
-
-
 def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
     NextcladeResult_data = []
     starting_time = time.time()
@@ -25,6 +22,16 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
             print(f'generated {i} nextclade records')
         nextcladeresult_id = nextcladeresult_ids[i]
         consensus_id = consensus_ids[i]
+        
+        # Generate Nextclade_pango value
+        nextclade_pango = fake.random_element(elements=("AY.4.6", "B.1.177.12", "AY.4.2.3", "AY.60", "BA.1.1.13", "BC.2", "XV", None))
+        
+        # Set NextcladeVersion based on Nextclade_pango
+        if nextclade_pango is None:
+            nextclade_version = None
+        else:
+            nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
+        
         record = {
             "NextcladeResultID": nextcladeresult_id,
             "frameShifts": fake.random_element(elements=("S:159-1274", "ORF1a:3607-4401", "N:21-420;ORF9b:18-98", 
@@ -46,10 +53,10 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
                                                    "21D (Eta)", "20I (Alpha; V1)", "21J (Delta)", "21C (Epsilon)", "21L (Omicron)", "20H (Beta; V2)",
                                                    "21M (Omicron)", "21B (Kappa)", "21K (Omicron)", "19B", "21I (Delta)", "20C", "19A", "21A (Delta)",
                                                    "20J (Gamma; V3)")), #contains all possible clades as per dataset from Leo
-            "Nextclade_pango": fake.random_element(elements=("AY.4.6", "B.1.177.12", "AY.4.2.3", "AY.60", "BA.1.1.13", "BC.2", "XV")),
+            "Nextclade_pango": nextclade_pango,
             "substitutions": fake.random_element(elements=("C241T;C3037T;T7767C;C8047T;G12988T;C14408T;G15598A;C17104T;G18028T;A18030G;C18681T;A20268G;C20451T;C22879A;A23403G;T24910C;C25919T;T26972C;C27800A;G29734C", 
                                                            "T670G;C2790T;C3037T;G4184A;C4321T;C9344T;A9424G;C9534T;C9866T;C10029T;C10198T;G10447A;C10449A;C12880T;C14408T;C15714T;T17112C;C17410T;A18163G;C19955T;A20055G;G21987A;T22200G;G22578A;C22674T;T22679C;C22686T;A22688G;G22775A;A22786C;C22792T;G22813T;A23403G;C23525T;T23599G;C23604A;C23854A;G23948T;A24424T;T24469A;C25000T;C25584T;C25624T;C26060T;C26270T;C26577G;G26709A;C26858T;A27259C;G27382C;A27383T;T27384C;C27807T;A28271T;C28311T;G28881A;G28882A;G28883C;A29510C", 
-                                                           "G210T;C241T;C3037T;G4181T;C6402T;C7124T;C7851T;C8986T;G9053T;C10029T;A11201G;A11332G;C14408T;G14829T;G15451A;C16466T;G17193T;C19220T;C21618G;C21846T;T22917G;C22995A;A23403G;C23604G;G24410A;C25469T;G26416T;T26767C;T27638C;C27752T;C27874T;C28291T;A28461G;G28881T;G28916T;G29402T;G29742T", 
+                                                           "G210T;C241T;C3037T;G4181T;C6402T;C7124T;C7851T;C8986T;G9053T;C10029T;A11201G;A11332G;C14408T;G14829T;G15451A;C16466T;G17193T;C19220T;C21618G;C21846T;T22917G;C22995A;A23403G;C23604G;G24410A;C25469T;T26767C;T27638C;C27752T;C27874T;C28291T;A28461G;G28881T;G28916T;G29402T;G29742T", 
                                                            "G61T;C140T;T209C;G210T;C241T;A2276G;T2308C;C3037T;G4181T;C6402T;C7124T;C7851T;C8964T;C8986T;G9053T;A9685G;C10029T;T10084A;A10323G;G10688T;A11201G;A11332G;C14408T;G15451A;C16293T;C16466T;T17040C;C19220T;C19524T;C20404T;C21618G;C21846T;G21987A;T22917G;C22995A;G23012C;A23403G;C23604G;G24410A;C25469T;T26767C;T27638C;C27752T;C27874T;A28461G;G28881T;G28916T;A28967G;G28979T;G28980T;G29402T;G29742T", 
                                                            )),
             "deletions": fake.random_element(elements=("22029-22034;28248-28253;28271", 
@@ -68,7 +75,7 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
             "qc_overallStatus": fake.random_element(elements=(None, "good", "mediocre", "bad")),
             "qc_frameShifts_status": None,
             "qc_frameShifts_frameShiftsIgnored": None,
-            "NextcladeVersion": fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0")),
+            "NextcladeVersion": nextclade_version,
             "ConsensusID": consensus_id,
             "IsCurrent": '1',
             "TimestampCreated": str(datetime2.now()),

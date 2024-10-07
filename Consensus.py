@@ -28,22 +28,26 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
     } 
     #map og exclusion #TODO make sure there is an evenly distributed amount across Mixed strain, neg contam, etc. Make sure it happens in the loop
     manualExclusion_mapping = {
-        None: {'sequenceexclude': fake.random_element(elements=(None, "MixedStrain")), 
-               'qcscore': fake.random_element(elements=(None, "Fail: Mixed strain"))},
+        None: {'sequenceexclude': None, 
+               'qcscore': None},
 
-        'Manually_Excluded_Run': {'sequenceexclude': fake.random_element(elements=(None, "MixedStrain;ManuallyExcluded")), 
-                                  'qcscore': fake.random_element(elements=(None, "Fail: Mixed strain"))
+        'Manually_Excluded_Run': {'sequenceexclude': None,
+                                  'qcscore': None
                                   },
 
-        'Manually_Excluded_Plate': {'sequenceexclude': fake.random_element(elements=(None, "NegContamination;ManuallyExcluded")), 
-                                    'qcscore': fake.random_element(elements=(None, "Fail: Neg. Contamination"))
+        'Manually_Excluded_Plate': {'sequenceexclude': None, 
+                                    'qcscore': None
                                     
                                     },
 
-        'Manually_Excluded_Sample': {'sequenceexclude': fake.random_element(elements=(None, "TooManyNs;ManuallyExcluded")), 
-                                     'qcscore': fake.random_element(elements=(None, "Fail: Too many Ns"))
+        'Manually_Excluded_Sample': {'sequenceexclude': None, 
+                                     'qcscore': None
                                      }
     }
+
+    # how often they show up
+    NCountQCs = ['MQ', 'HQ', 'Fail']
+    NCountQCs_weights = [228702, 296741, 85643]
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -54,6 +58,9 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         sequencedsample_id = sequencedsample_ids[i]
         nextclade_id = nextclade_ids[i]
         pango_id = pangolin_ids[i]
+
+        #random NCountQC
+        ncountqc = random.choices(NCountQCs, NCountQCs_weights)[0]
 
         #exclusions (manualexclusion)
         manualExclusion = fake.random_element(elements=(None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
@@ -66,8 +73,22 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         else:
             manualExclusion_values['numalignedreads'] = random.randint(0, 1000000) 
         
+        #exclusion specifics (sequenceexlude and qcscore)
+        if manualExclusion == None:
+            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "MixedStrain"))
+            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Mixed strain"))
+        elif manualExclusion == 'Manually_Excluded_Run':
+            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "MixedStrain;ManuallyExcluded"))
+            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Mixed strain"))
+        elif manualExclusion == 'Manually_Excluded_Plate':
+            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "NegContamination;ManuallyExcluded"))
+            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Neg. Contamination"))
+        elif manualExclusion == 'Manually_Excluded_Sample':
+            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "TooManyNs;ManuallyExcluded"))
+            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Too many Ns"))
+
         #exclusion specifics (NCount, AmbiguousSites, NwAmb, PctCoveredBases, SeqLength)
-        if manualExclusion == None and random.randint(0, 71) == 1:
+        if manualExclusion == None and random.randint(0, 71) == 1: # for every "NULL" ncount, there was 71 "NULL" manualexclusions in the test data set
             manualExclusion_values['ncount'] = None
             manualExclusion_values['ambiguoussites'] = None
             manualExclusion_values['NwAmb'] = None
@@ -76,7 +97,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             manualExclusion_values['ambiguoussites'] = random.randint(0, 157)
             manualExclusion_values['NwAmb'] = random.randint(0, 29903)
         
-
 
         #WhoVariants interconnections
         whovariant = fake.random_element(elements=(None, "Alpha", "Beta", "Delta", "Eta", "Gamma", "Omicron"))
@@ -101,7 +121,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "NCount": manualExclusion_values['ncount'],
             "AmbiguousSites": manualExclusion_values['ambiguoussites'],
             "NwAmb": manualExclusion_values['NwAmb'],
-            "NCountQC": fake.random_element(elements=("HQ", "MQ", "Fail")),
+            "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
             "PctCoveredBases": round(random.uniform(0, 100), 2),
             "SeqLength": random.randint(0, 30000),
@@ -127,7 +147,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "SequencedSampleID": sequencedsample_id,
             "CurrentNextcladeID": nextclade_id,
             "CurrentPangolinID": pango_id,
-            "IsCurrent": fake.random_element(elements=('0', '1')),
+            "IsCurrent": '1', #always current in test data
             "TimestampCreated": str(datetime.now()),
             "TimestampUpdated": str(datetime.now())
         }
