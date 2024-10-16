@@ -17,14 +17,13 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
     #map of different vatiants and their connections
     variant_mapping = {
-        None: {'lineageofinterest': None, 'alpha': '0', 'beta': '0', 'gamma': '0', 'delta': '0', 'eta': '0', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': None},
-        'Alpha': {'lineageofinterest': 'Alpha', 'alpha': '1', 'beta': '0', 'gamma': '0', 'delta': '0', 'eta': '0', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.1.7'},
-        'Beta': {'lineageofinterest': 'Beta', 'alpha': '0', 'beta': '1', 'gamma': '0', 'delta': '0', 'eta': '0', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.351'},
-        'Gamma': {'lineageofinterest': 'Gamma', 'alpha': '0', 'beta': '0', 'gamma': '1', 'delta': '0', 'eta': '0', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.1.28'},
-        'Delta': {'lineageofinterest': 'Delta', 'alpha': '0', 'beta': '0', 'gamma': '0', 'delta': '1', 'eta': '0', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.617.2'},
-        'Eta': {'lineageofinterest': 'Eta', 'alpha': '0', 'beta': '0', 'gamma': '0', 'delta': '0', 'eta': '1', 'omicron': '0', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.525'},
-        'Omicron': {'lineageofinterest': 'Omicron', 'alpha': '0', 'beta': '0', 'gamma': '0', 'delta': '0', 'eta': '0', 'omicron': '1', 'ba_1': '0', 'ba_2': '0', 'bg': '0', 'ba_4': '0', 'ba_5': '0', 'ba_2_75': '0', 'bf_7': '0', 'unaliasedpango': 'B.1.1.529.2'}
-
+        None: {'lineageofinterest': None, 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': None},
+        'Alpha': {'lineageofinterest': 'Alpha', 'alpha': True, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.7'},
+        'Beta': {'lineageofinterest': 'Beta', 'alpha': False, 'beta': True, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.351'},
+        'Gamma': {'lineageofinterest': 'Gamma', 'alpha': False, 'beta': False, 'gamma': True, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.28'},
+        'Delta': {'lineageofinterest': 'Delta', 'alpha': False, 'beta': False, 'gamma': False, 'delta': True, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.617.2'},
+        'Eta': {'lineageofinterest': 'Eta', 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': True, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.525'},
+        'Omicron': {'lineageofinterest': 'Omicron', 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': True, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.529.2'}
     } 
     #map og exclusion #TODO make sure there is an evenly distributed amount across Mixed strain, neg contam, etc. Make sure it happens in the loop
     manualExclusion_mapping = {
@@ -63,7 +62,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         ncountqc = random.choices(NCountQCs, NCountQCs_weights)[0]
 
         #exclusions (manualexclusion)
-        manualExclusion = fake.random_element(elements=(None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
+        manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
                                                         "Manually_Excluded_Sample",))
         manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
 
@@ -104,14 +103,14 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
         #handling omicron 
         if whovariant == 'Omicron':
-            variant_values['omicron'] = '1'
+            variant_values['omicron'] = True
             if random.choice([True, False]):
-                variant_values['ba_1'] = '1'
-                variant_values['ba_2'] = '0'
+                variant_values['ba_1'] = True
+                variant_values['ba_2'] = False
                 variant_values['lineageofinterest'] = 'BA.1'
             else:
-                variant_values['ba_1'] = '0'
-                variant_values['ba_2'] = '1'
+                variant_values['ba_1'] = False
+                variant_values['ba_2'] = True
                 variant_values['lineageofinterest'] = 'BA.2'
         if whovariant == None:
             variant_values['unaliasedpango'] = random.choice([None, 'XN', 'B.1.111', 'B.1.619', 'A.21', 'B.1.36'])
@@ -136,11 +135,11 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "Omicron": variant_values['omicron'],
             "BA_1": variant_values['ba_1'],
             "BA_2": variant_values['ba_2'],
-            "BG": '0',
-            "BA_4": '0',
-            "BA_5": '0',
-            "BA_2_75": '0',
-            "BF_7": '0',
+            "BG": False,
+            "BA_4": False,
+            "BA_5": False,
+            "BA_2_75": False,
+            "BF_7": False,
             "WhoVariant": whovariant,
             "LineagesOfInterest": variant_values['lineageofinterest'],
             "UnaliasedPango": variant_values['unaliasedpango'],
