@@ -2,7 +2,7 @@ from faker import Faker
 from faker.providers import BaseProvider #custom providers
 import random
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID
 from utility import write_to_csv
@@ -13,6 +13,10 @@ def SampleData(record_amount, sample_ids, consensus_ids):
     Sample_data = []
     starting_time = time.time()
     update_time = 0.15
+    
+    #random date 2 years back (can be changed)
+    two_years = datetime.now() - timedelta(days=2*365)
+
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:
@@ -21,12 +25,21 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         
         sample_id = sample_ids[i]
         consensus_id = consensus_ids[i]
+
+        #random date (can be changed)
+        random_date = fake.date_between(start_date=two_years, end_date='today')
+        formatted_date = random_date.strftime("%Y-%m-%d")
+        # Generate a random time of day
+        random_time = fake.time_object()
+        # Combine date and time to create a datetime object
+        sample_datetime = datetime.combine(random_date, random_time)
+
         record = {
             "SampleID": sample_id,
-            "SampleDateTime": fake.date(),
+            "SampleDateTime": sample_datetime,
             "Host": 'Human',
             "Ct": round(random.uniform(10, 42), 13),
-            "DateSampling": fake.random_element(elements=("DateSamplingX", "DateSamplingY", "DateSamplingZ")),
+            "DateSampling": formatted_date,
             "CurrentConsensusID": consensus_id,
             "TimestampCreated": str(datetime.now()),
             "TimestampUpdated": str(datetime.now())
