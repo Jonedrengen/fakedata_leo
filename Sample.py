@@ -24,7 +24,7 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         record = {
             "SampleID": sample_id,
             "SampleDateTime": fake.date(),
-            "Host": 'Human ',
+            "Host": 'Human',
             "Ct": round(random.uniform(10, 42), 13),
             "DateSampling": fake.random_element(elements=("DateSamplingX", "DateSamplingY", "DateSamplingZ")),
             "CurrentConsensusID": consensus_id,

@@ -74,7 +74,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
 if __name__ == '__main__':
     start_time = time.time()
     
-    record_amount = 1000000
+    record_amount = 100000
 
     PangolinResult_headers = ["PangolinResultID", "lineage", "version", "pangolin_version", "scorpio_version", "constellation_version", 
                            "qc_status", "qc_notes", "note", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]

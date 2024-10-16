@@ -116,15 +116,15 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         if whovariant == None:
             variant_values['unaliasedpango'] = random.choice([None, 'XN', 'B.1.111', 'B.1.619', 'A.21', 'B.1.36'])
 
-        record = { #TODO expand on consensus data, especially different variant and how they are connected
+        record = { 
             "ConsensusID": consensus_id,
             "NCount": manualExclusion_values['ncount'],
             "AmbiguousSites": manualExclusion_values['ambiguoussites'],
             "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
-            "PctCoveredBases": round(random.uniform(0, 100), 2),
-            "SeqLength": random.randint(0, 30000),
+            "PctCoveredBases": round(random.uniform(0, 100), 2), #TODO 
+            "SeqLength": random.randint(0, 30000), #TODO måske afhængig af Ncount
             "QcScore": manualExclusion_values['qcscore'],
             "SequenceExclude": manualExclusion_values['sequenceexclude'],
             "ManualExclude": manualExclusion,
