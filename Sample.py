@@ -31,18 +31,18 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         formatted_date = random_date.strftime("%Y-%m-%d")
         # Generate a random time of day
         random_time = fake.time_object()
-        # Combine date and time to create a datetime object
+        # Combine date and time to create a datetime object (TODO maybe change so that only first 2 pairs of numbers show)
         sample_datetime = datetime.combine(random_date, random_time)
 
         record = {
             "SampleID": sample_id,
-            "SampleDateTime": sample_datetime,
             "Host": 'Human',
             "Ct": round(random.uniform(10, 42), 13),
             "DateSampling": formatted_date,
             "CurrentConsensusID": consensus_id,
             "TimestampCreated": str(datetime.now()),
-            "TimestampUpdated": str(datetime.now())
+            "TimestampUpdated": str(datetime.now()),
+            "SampleDateTime": sample_datetime
         }
         Sample_data.append(record)
     print(f'generated {i + 1} sample records in total')
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     
     record_amount = 100000
 
-    Sample_headers = ["SampleID", "SampleDateTime", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated"]
+    Sample_headers = ["SampleID", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated", "SampleDateTime"]
 
     existing_sample_ids = set()
     existing_consensus_ids = set()
