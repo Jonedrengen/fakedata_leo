@@ -70,11 +70,11 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
                                                               "Charit├⌐_RdRp_F:G15451A;ChinaCDC_N_F:G28881T;ChinaCDC_N_R:A28967G", 
                                                               "ChinaCDC_N_F:G28881A;G28882A;G28883C;ChinaCDC_N_R:C28977T", 
                                                               "Charit├⌐_E_F:C26270T;ChinaCDC_N_F:G28881A;G28882A;G28883C;USCDC_N1_P:C28311T")),
-            "qc_mixedSites_totalMixedSited": fake.random_element(elements=(None, "0", "1", "2", "3", "7", "11")),
-            "qc_overallScore": fake.random_element(elements=(None, "0", "20", "8", "6", "157", "121")),
-            "qc_overallStatus": fake.random_element(elements=(None, "good", "mediocre", "bad")),
-            "qc_frameShifts_status": None,
-            "qc_frameShifts_frameShiftsIgnored": None,
+            "qc.mixedSites.totalMixedSites": fake.random_element(elements=(None, "0", "1", "2", "3", "7", "11")),
+            "qc.overallScore": fake.random_element(elements=(None, "0", "20", "8", "6", "157", "121")),
+            "qc.overallStatus": fake.random_element(elements=(None, "good", "mediocre", "bad")),
+            "qc.frameShifts.status": None,
+            "qc.frameShifts.frameShiftsIgnored": None,
             "NextcladeVersion": nextclade_version,
             "ConsensusID": consensus_id,
             "IsCurrent": '1',
@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
     NextcladeResult_headers = ["NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore", 
                             "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs", 
-                            "pcrPrimerChanges", "qc_mixedSites_totalMixedSited", "qc_overallScore", "qc_overallStatus", "qc_frameShifts_status", 
-                            "qc_frameShifts_frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
+                            "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", "qc.frameShifts.status", 
+                            "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
 
     existing_nextcladeresult_ids = set()
     existing_consensus_ids = set()

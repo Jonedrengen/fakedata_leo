@@ -133,13 +133,13 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "Delta": variant_values['delta'],
             "Eta": variant_values['eta'],
             "Omicron": variant_values['omicron'],
-            "BA_1": variant_values['ba_1'],
-            "BA_2": variant_values['ba_2'],
+            "BA.1": variant_values['ba_1'],
+            "BA.2": variant_values['ba_2'],
             "BG": False,
-            "BA_4": False,
-            "BA_5": False,
-            "BA_2_75": False,
-            "BF_7": False,
+            "BA.4": False,
+            "BA.5": False,
+            "BA.2.75": False,
+            "BF.7": False,
             "WhoVariant": whovariant,
             "LineagesOfInterest": variant_values['lineageofinterest'],
             "UnaliasedPango": variant_values['unaliasedpango'],
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                      "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
-                     "Omicron", "BA_1", "BA_2", "BG", "BA_4", "BA_5", "BA_2_75", "BF_7", "WhoVariant", "LineagesOfInterest",
+                     "Omicron", "BA.1", "BA.2", "BG", "BA.4", "BA.5", "BA.2.75", "BF.7", "WhoVariant", "LineagesOfInterest",
                      "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
     
     existing_consensus_ids = set()

@@ -33,7 +33,7 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         random_time = fake.time_object()
         # Combine date and time to create a datetime object (TODO maybe change so that only first 2 pairs of numbers show)
         sample_datetime = datetime.combine(random_date, random_time)
-
+        
         record = {
             "SampleID": sample_id,
             "Host": 'Human',
