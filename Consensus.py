@@ -123,7 +123,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
             "PctCoveredBases": round(random.uniform(0, 100), 2), #TODO 
-            "SeqLength": random.randint(0, 30000), #TODO måske afhængig af Ncount
+            "SeqLength": random.randint(29000, 31500), #TODO måske afhængig af Ncount
             "QcScore": manualExclusion_values['qcscore'],
             "SequenceExclude": manualExclusion_values['sequenceexclude'],
             "ManualExclude": manualExclusion,
