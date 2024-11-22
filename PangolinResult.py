@@ -58,7 +58,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
             "constellation_version": constellation_version,
             "qc_status": qc_status,
             "qc_notes": qc_notes,
-            "note": note,
+            "note": None, # kan udelades    
             "ConsensusID": consensus_id,
             "IsCurrent": '1',
             "TimestampCreated": str(datetime2.now()),

@@ -35,22 +35,22 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         
         record = {
             "NextcladeResultID": nextcladeresult_id,
-            "frameShifts": random.choice(frameShifts_elements),                                                   
-            "aaSubstitutions": random.choice(aaSubstitutions),
-            "aaDeletions": random.choice(aaDeletions),
-            "aaInsertions": random.choice(aaInsertions), 
+            "frameShifts": None, # kan udelades                                              
+            "aaSubstitutions": None,# kan udelades    
+            "aaDeletions": None,# kan udelades    
+            "aaInsertions": None, # kan udelades    
             "alignmentScore": random.randint(89000, 89700),
             "clade": fake.random_element(elements=(None, "20A", "20E (EU1)", "20D", "21F (Iota)", "21H (Mu)", "21G (Lambda)", "20B", "20G", "recombinant", 
                                                    "21D (Eta)", "20I (Alpha; V1)", "21J (Delta)", "21C (Epsilon)", "21L (Omicron)", "20H (Beta; V2)",
                                                    "21M (Omicron)", "21B (Kappa)", "21K (Omicron)", "19B", "21I (Delta)", "20C", "19A", "21A (Delta)",
                                                    "20J (Gamma; V3)")), #contains all possible clades as per dataset from Leo
             "Nextclade_pango": nextclade_pango,
-            "substitutions": random.choice(substitutions),
-            "deletions": random.choice(deletions),
-            "insertions": random.choice(insertions),
-            "missing": random.choice(missing),
-            "nonACGTNs": random.choice(nonACGTNs),
-            "pcrPrimerChanges": random.choice(pcrPrimerChanges),
+            "substitutions": None,# kan udelades    
+            "deletions": None,# kan udelades    
+            "insertions": None,# kan udelades    
+            "missing": None,# kan udelades    
+            "nonACGTNs": None,# kan udelades    
+            "pcrPrimerChanges": None, # kan udelades    
             "qc.mixedSites.totalMixedSites": fake.random_element(elements=(None, "0", "1", "2", "3", "7", "11")),
             "qc.overallScore": fake.random_element(elements=(None, "0", "20", "8", "6", "157", "121")),
             "qc.overallStatus": fake.random_element(elements=(None, "good", "mediocre", "bad")),

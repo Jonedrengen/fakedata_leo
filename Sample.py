@@ -37,7 +37,7 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         record = {
             "SampleID": sample_id,
             "Host": 'Human',
-            "Ct": round(random.uniform(10, 42), 13),
+            "Ct": round(random.uniform(10, 42), 13), #check korreletion med ncount eller ncountQC eller SeqLength
             "DateSampling": formatted_date,
             "CurrentConsensusID": consensus_id,
             "TimestampCreated": str(datetime.now()),
