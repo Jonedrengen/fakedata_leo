@@ -5,7 +5,7 @@ import csv
 from datetime import datetime
 import time
 from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID
-from utility import write_to_csv
+from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites
 
 fake = Faker()
 
@@ -92,8 +92,8 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             manualExclusion_values['ambiguoussites'] = None
             manualExclusion_values['NwAmb'] = None
         else:
-            manualExclusion_values['ncount'] = random.randint(0, 30000)
-            manualExclusion_values['ambiguoussites'] = random.randint(0, 157)
+            manualExclusion_values['ncount'] = generate_ncount_value()
+            manualExclusion_values['ambiguoussites'] = generate_ambiguoussites()
             manualExclusion_values['NwAmb'] = random.randint(0, 29903)
         
 

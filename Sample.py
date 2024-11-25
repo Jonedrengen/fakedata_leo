@@ -5,7 +5,7 @@ import csv
 from datetime import datetime, timedelta
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID
-from utility import write_to_csv
+from utility import write_to_csv, generate_ct_value
 
 fake = Faker()
 
@@ -37,7 +37,7 @@ def SampleData(record_amount, sample_ids, consensus_ids):
         record = {
             "SampleID": sample_id,
             "Host": 'Human',
-            "Ct": round(random.uniform(10, 42), 13), #check korreletion med ncount eller ncountQC eller SeqLength
+            "Ct": generate_ct_value(), #check korreletion med ncount eller ncountQC eller SeqLength
             "DateSampling": formatted_date,
             "CurrentConsensusID": consensus_id,
             "TimestampCreated": str(datetime.now()),

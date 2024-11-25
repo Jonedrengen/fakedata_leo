@@ -4,9 +4,11 @@ import csv
 import datetime as datetime1
 from datetime import datetime as datetime2, timedelta
 import time
+
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, 
                            GenerateUniqueNextcladeResultID, GenerateUniqueBatchID, GenerateUniqueSampleID)
-from utility import write_to_csv
+from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites
+
 
 fake = Faker
 
@@ -118,11 +120,11 @@ if __name__ == '__main__':
             if manualExclusion == None and random.randint(0, 71) == 1: # for every "NULL" ncount, there was 71 "NULL" manualexclusions in the test data set
                 manualExclusion_values['ncount'] = None
                 manualExclusion_values['ambiguoussites'] = None
-                manualExclusion_values['NwAmb'] = None
+                manualExclusion_values['nwamb'] = None
             else:
-                manualExclusion_values['ncount'] = random.randint(0, 30000)
-                manualExclusion_values['ambiguoussites'] = random.randint(0, 157)
-                manualExclusion_values['NwAmb'] = random.randint(0, 29903)
+                manualExclusion_values['ncount'] = generate_ncount_value()
+                manualExclusion_values['ambiguoussites'] = generate_ambiguoussites()
+                manualExclusion_values['nwamb'] = random.randint(0, 29903)
 
             record = {
                 "SequencedSampleID": sequencedsample_id,
@@ -133,14 +135,16 @@ if __name__ == '__main__':
                 "SampleID": sample_id,
                 "SampleDateTime": sample_SampleDateSequencing,
                 "Host": 'human',
-                "Ct": round(random.uniform(10, 42), 13), #TODO this should follow the real data
+                "Ct": generate_ct_value(), #TODO this should follow the real data
                 "DateSampling": formatted_date_SampleDateSequencing,
                 "BatchID": batch_id,
                 "BatchDate": formatted_date_BateDate,
                 "Platform": Batch_platform,
                 "BatchSource": Batch_source, 
                 "ConsensusID": consensus_id,
-                "NCount": #TODO
+                "NCount": manualExclusion_values['ncount'], #TODO this should match real data
+                "AmbiguousSites": manualExclusion_values["ambiguoussites"], #TODO this should match real data
+                "NwAmb": manualExclusion_values['nwamb'], #TODO this should match real data
 
 
             }
