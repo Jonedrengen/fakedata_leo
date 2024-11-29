@@ -61,12 +61,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
                                                         "Manually_Excluded_Sample",))
         manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
-
-        #exclusion specifics (NumAlignedReads)
-        if manualExclusion_values['qcscore'] == None:
-            manualExclusion_values['numalignedreads'] = None
-        else:
-            manualExclusion_values['numalignedreads'] = generate_NumbAlignedReads()
         
         #exclusion specifics (sequenceexlude and qcscore)
         if manualExclusion == None:
@@ -81,6 +75,13 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         elif manualExclusion == 'Manually_Excluded_Sample':
             manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "TooManyNs;ManuallyExcluded"))
             manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Too many Ns"))
+
+
+        #exclusion specifics (NumAlignedReads)
+        if manualExclusion_values['qcscore'] == None:
+            manualExclusion_values['numalignedreads'] = None
+        else:
+            manualExclusion_values['numalignedreads'] = generate_NumbAlignedReads()
 
         #exclusion specifics (NCount, AmbiguousSites, NwAmb, PctCoveredBases, SeqLength)
             # defining ncount, ambiguous and nwamb
@@ -112,18 +113,18 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         else:
             ncountqc = 'Fail'
 
-        #PctCoveredBases based on NCountQC 
+        #PctCoveredBases based on NCountQC (based on the real data)
         #HQ = 99.56-100.00
-        #MQ = 89.83-99.55
+        #MQ = 89.83-99.57
         #Fail = 0.00-90.12
         if ncount == None:
             pctcoveredbases = None
         elif ncountqc == 'HQ':
             pctcoveredbases = round(random.uniform(99.56, 100.00), 2)
         elif ncountqc == 'MQ':
-            pctcoveredbases = round(random.uniform(89.83, 99.55), 2)
+            pctcoveredbases = round(random.uniform(89.83, 99.57), 2)
         else:
-            pctcoveredbases = round(random.uniform(0.00, 89.82), 2)
+            pctcoveredbases = round(random.uniform(0.00, 90.12), 2)
 
         #WhoVariants interconnections
         whovariant = fake.random_element(elements=(None, "Alpha", "Beta", "Delta", "Eta", "Gamma", "Omicron"))
@@ -150,8 +151,8 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
-            "PctCoveredBases": pctcoveredbases, #TODO 
-            "SeqLength": random.randint(29000, 31500), #TODO måske afhængig af Ncount
+            "PctCoveredBases": pctcoveredbases, 
+            "SeqLength": random.randint(29300, 30402),
             "QcScore": manualExclusion_values['qcscore'],
             "SequenceExclude": manualExclusion_values['sequenceexclude'],
             "ManualExclude": manualExclusion,
