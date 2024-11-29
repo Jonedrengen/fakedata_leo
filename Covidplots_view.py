@@ -7,7 +7,7 @@ import time
 
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, 
                            GenerateUniqueNextcladeResultID, GenerateUniqueBatchID, GenerateUniqueSampleID)
-from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites
+from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads
 
 
 fake = Faker
@@ -117,14 +117,42 @@ if __name__ == '__main__':
                                                       "Manually_Excluded_Sample",))
             manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
             #exclusion specifics (NCount, AmbiguousSites, NwAmb, PctCoveredBases, SeqLength)
+            
+            # defining ncount, ambiguous and nwamb
+            ncount = generate_ncount_value()
+            if ncount == None:
+                nwamb = None
+                ambiguoussites = None
+            else:
+                ambiguoussites = generate_ambiguoussites()
+                nwamb = ncount + ambiguoussites
+
             if manualExclusion == None and random.randint(0, 71) == 1: # for every "NULL" ncount, there was 71 "NULL" manualexclusions in the test data set
                 manualExclusion_values['ncount'] = None
                 manualExclusion_values['ambiguoussites'] = None
-                manualExclusion_values['nwamb'] = None
+                manualExclusion_values['NwAmb'] = None
             else:
-                manualExclusion_values['ncount'] = generate_ncount_value()
-                manualExclusion_values['ambiguoussites'] = generate_ambiguoussites()
-                manualExclusion_values['nwamb'] = random.randint(0, 29903)
+                manualExclusion_values['ncount'] = ncount
+                manualExclusion_values['ambiguoussites'] = ambiguoussites
+                manualExclusion_values['NwAmb'] = nwamb
+
+            #NCountQC: Depends on the value of NwAmb
+            if manualExclusion_values['NwAmb'] is not None:
+                if manualExclusion_values['NwAmb'] <= 130:
+                    ncountqc = 'HQ'
+                elif manualExclusion_values["NwAmb"] > 130 and manualExclusion_values["NwAmb"] <= 3000:
+                    ncountqc = 'MQ'
+                else:
+                    ncountqc = 'Fail'
+            else:
+                ncountqc = 'Fail'
+
+            if manualExclusion_values['qcscore'] == None:
+                manualExclusion_values['numalignedreads'] = None
+            else:
+                manualExclusion_values['numalignedreads'] = generate_NumbAlignedReads()
+
+
 
             record = {
                 "SequencedSampleID": sequencedsample_id,
@@ -145,6 +173,8 @@ if __name__ == '__main__':
                 "NCount": manualExclusion_values['ncount'], #TODO this should match real data
                 "AmbiguousSites": manualExclusion_values["ambiguoussites"], #TODO this should match real data
                 "NwAmb": manualExclusion_values['nwamb'], #TODO this should match real data
-
+                "NCountQC": ncountqc,
+                "NumAlignedReads": manualExclusion_values['numalignedreads'],
+                "PctCoveredBases": 
 
             }

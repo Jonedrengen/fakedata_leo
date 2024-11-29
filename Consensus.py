@@ -5,7 +5,7 @@ import csv
 from datetime import datetime
 import time
 from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID
-from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites
+from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_pctcoveredbases
 
 fake = Faker()
 
@@ -44,9 +44,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
                                      }
     }
 
-    # how often they show up
-    NCountQCs = ['MQ', 'HQ', 'Fail']
-    NCountQCs_weights = [228702, 296741, 85643]
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -58,8 +55,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         nextclade_id = nextclade_ids[i]
         pango_id = pangolin_ids[i]
 
-        #random NCountQC
-        ncountqc = random.choices(NCountQCs, NCountQCs_weights)[0]
+
 
         #exclusions (manualexclusion)
         manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate",
@@ -70,7 +66,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         if manualExclusion_values['qcscore'] == None:
             manualExclusion_values['numalignedreads'] = None
         else:
-            manualExclusion_values['numalignedreads'] = random.randint(0, 1000000) 
+            manualExclusion_values['numalignedreads'] = generate_NumbAlignedReads()
         
         #exclusion specifics (sequenceexlude and qcscore)
         if manualExclusion == None:
@@ -87,15 +83,47 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Too many Ns"))
 
         #exclusion specifics (NCount, AmbiguousSites, NwAmb, PctCoveredBases, SeqLength)
+            # defining ncount, ambiguous and nwamb
+        ncount = generate_ncount_value()
+        if ncount == None:
+            nwamb = None
+            ambiguoussites = None
+        else:
+            ambiguoussites = generate_ambiguoussites()
+            nwamb = ncount + ambiguoussites
+
         if manualExclusion == None and random.randint(0, 71) == 1: # for every "NULL" ncount, there was 71 "NULL" manualexclusions in the test data set
             manualExclusion_values['ncount'] = None
             manualExclusion_values['ambiguoussites'] = None
             manualExclusion_values['NwAmb'] = None
         else:
-            manualExclusion_values['ncount'] = generate_ncount_value()
-            manualExclusion_values['ambiguoussites'] = generate_ambiguoussites()
-            manualExclusion_values['NwAmb'] = random.randint(0, 29903)
+            manualExclusion_values['ncount'] = ncount
+            manualExclusion_values['ambiguoussites'] = ambiguoussites
+            manualExclusion_values['NwAmb'] = nwamb
         
+        #NCountQC: Depends on the value of NwAmb
+        if manualExclusion_values['NwAmb'] is not None:
+            if manualExclusion_values['NwAmb'] <= 130:
+                ncountqc = 'HQ'
+            elif manualExclusion_values["NwAmb"] > 130 and manualExclusion_values["NwAmb"] <= 3000:
+                ncountqc = 'MQ'
+            else:
+                ncountqc = 'Fail'
+        else:
+            ncountqc = 'Fail'
+
+        #PctCoveredBases based on NCountQC 
+        #HQ = 99.56-100.00
+        #MQ = 89.83-99.55
+        #Fail = 0.00-90.12
+        if ncount == None:
+            pctcoveredbases = None
+        elif ncountqc == 'HQ':
+            pctcoveredbases = round(random.uniform(99.56, 100.00), 2)
+        elif ncountqc == 'MQ':
+            pctcoveredbases = round(random.uniform(89.83, 99.55), 2)
+        else:
+            pctcoveredbases = round(random.uniform(0.00, 89.82), 2)
 
         #WhoVariants interconnections
         whovariant = fake.random_element(elements=(None, "Alpha", "Beta", "Delta", "Eta", "Gamma", "Omicron"))
@@ -122,7 +150,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
-            "PctCoveredBases": round(random.uniform(0, 100), 2), #TODO 
+            "PctCoveredBases": pctcoveredbases, #TODO 
             "SeqLength": random.randint(29000, 31500), #TODO måske afhængig af Ncount
             "QcScore": manualExclusion_values['qcscore'],
             "SequenceExclude": manualExclusion_values['sequenceexclude'],
@@ -159,7 +187,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 if __name__ == "__main__":
     start_time = time.time()
 
-    record_amount = 10000  # Example record amount
+    record_amount = 100000  # Example record amount
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                      "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
