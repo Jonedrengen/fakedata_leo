@@ -4,6 +4,7 @@ import random
 import csv
 from datetime import datetime
 import time
+import pandas as pd
 from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID
 from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_pctcoveredbases
 
@@ -44,6 +45,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
                                      }
     }
 
+    UnaliasedPango_possibilities = pd.read_excel('UnaliasedPango.xlsx')
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -142,7 +144,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
                 variant_values['ba_2'] = True
                 variant_values['lineageofinterest'] = 'BA.2'
         if whovariant == None:
-            variant_values['unaliasedpango'] = random.choice([None, 'XN', 'B.1.111', 'B.1.619', 'A.21', 'B.1.36'])
+            variant_values['unaliasedpango'] = str(UnaliasedPango_possibilities['UnaliasedPango'].sample().values[0])
 
         record = { 
             "ConsensusID": consensus_id,

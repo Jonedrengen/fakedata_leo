@@ -5,6 +5,7 @@ import csv
 from datetime import datetime as datetime2
 import datetime as datetime1
 import time
+import pandas as pd
 from Consensus import GenerateUniqueConsensusID, GenerateUniquePangolinResultID
 from utility import write_to_csv
 
@@ -17,6 +18,9 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
     PangolinResult_data = []
     starting_time = time.time()
     update_time = 0.15
+
+    lineage_possibilities = pd.read_excel('lineage.xlsx')
+
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:
@@ -26,7 +30,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
         consensus_id = consensus_ids[i]
 
 
-        lineage = fake.random_element(elements=(None, "AY.4.2", "BA.2.14", "AY.43", "BA.1.17.2"))
+        lineage = lineage_possibilities['lineage'].sample().values[0]
         if lineage is None:
             version = None
             pangolin_version = None
