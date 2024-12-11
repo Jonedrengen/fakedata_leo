@@ -5,3 +5,5 @@ Faker
 pandas
 numpy
 matplotlib
+xlrd
+openpyxl

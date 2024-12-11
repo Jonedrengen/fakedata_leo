@@ -45,7 +45,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
                                      }
     }
 
-    UnaliasedPango_possibilities = pd.read_excel('UnaliasedPango.xlsx')
+    UnaliasedPango_possibilities = pd.read_excel('xlsx_files/UnaliasedPango.xlsx').dropna()
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time

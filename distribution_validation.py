@@ -1,13 +1,19 @@
-# import pandas lib as pd
 import pandas as pd
+import random
 
-# read by default 1st sheet of an excel file
-dataframe1 = pd.read_excel('version.xlsx').dropna()
+# Read the CSV file
+dataframe = pd.read_csv('important_files/qc_mixedsites_possibilities.csv').dropna()
 
-#print(dataframe1)
 
-sample = str(dataframe1['version'].sample().values[0])
 
-print(type(sample))
+#print(qc_mixedsites_totalmixedsites['qc.mixedSites.totalMixedSites'].tolist())
 
-print(str(sample))
+qc_sites_weights = dataframe['counted']
+
+sample = dataframe.sample(n=1, weights=qc_sites_weights).iloc[0]
+print(sample)
+
+qc_mixedsites_totalmixedsites = sample['qc.mixedSites.totalMixedSites']
+print(qc_mixedsites_totalmixedsites)
+qc_overallscore = random.randint(int(sample['Min_score']),int(sample['Max_score']))
+print(qc_overallscore)
