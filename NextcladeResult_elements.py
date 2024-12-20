@@ -2,6 +2,8 @@
 ## Tuples of data for NextcladeResults ##
 #########################################
 
+#NOTE: THESE ARE NOT CURRENTLY BEING USED
+
 frameShifts_elements = ( #only datapoints that appear more than 100 times in the original dataset
     None,
     "ORF7a:78-122",

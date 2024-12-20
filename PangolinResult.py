@@ -19,7 +19,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
     starting_time = time.time()
     update_time = 0.15
 
-    lineage_possibilities = pd.read_excel('lineage.xlsx')
+    lineage_possibilities = pd.read_excel('xlsx_files/lineage.xlsx').dropna()
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -30,7 +30,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids):
         consensus_id = consensus_ids[i]
 
 
-        lineage = lineage_possibilities['lineage'].sample().values[0]
+        lineage = str(lineage_possibilities['lineage'].sample().values[0])
         if lineage is None:
             version = None
             pangolin_version = None

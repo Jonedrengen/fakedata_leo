@@ -3,7 +3,7 @@ import csv
 import time
 import random
 import numpy as np
-
+import pandas as pd
 
 def write_to_csv(file_name, data, headers):
     with open(file_name, mode='w', newline='') as file:
@@ -100,27 +100,27 @@ def generate_NumbAlignedReads():
     return round(value)
 
 
-# PctCoveredBases (left skewed generation)
-#cjharacteristics based on R summary
-pctcoveredbases_min = 0.00
-pctcoveredbases_first_quartile = 98.99
-pctcoveredbases_median = 99.55
-pctcoveredbases_mean = 90.48
-pctcoveredbases_third_quartile = 99.60
-pctcoveredbases_max = 100.00
+def generate_qc_values(csv_file):
+    dataframe = pd.read_csv(csv_file).dropna()
 
-# Calculate the parameters for the beta distribution
-# Using method of moments to estimate alpha and beta
-mean = pctcoveredbases_mean / 100
-variance = ((pctcoveredbases_third_quartile - pctcoveredbases_first_quartile) / 1.35) ** 2
-alpha = mean * (mean * (1 - mean) / variance - 1)
-beta = (1 - mean) * (mean * (1 - mean) / variance - 1)
+    # extract the weights (last column)
+    qc_sites_weights = dataframe['counted']
 
-def generate_pctcoveredbases():
-    # Generate a value from a beta distribution
-    value = np.random.beta(alpha, beta)
+    # Sample a row from the dataframe based on the weights
+    sample = dataframe.sample(n=1, weights=qc_sites_weights).iloc[0]
+
+    # Extract the values from the sampled row
+    qc_mixedsites_totalmixedsites = int(sample['qc.mixedSites.totalMixedSites'])
     
-    # Transform the value to the original range
-    value = pctcoveredbases_min + value * (pctcoveredbases_max - pctcoveredbases_min)
-    
-    return round(value, 2)
+    #random overall score based on the distribution from real data
+    qc_overallstatus = random.choices(['good', 'mediocre', 'bad'],
+                                    weights=[0.806, 0.140, 0.038], #weights based on real data
+                                    k=1)[0] # k=take only 1
+    if qc_overallstatus == 'good':
+        qc_overallscore = random.randint(0, 29)
+    elif qc_overallstatus == 'mediocre':
+        qc_overallscore = random.randint(30, 99)
+    else:
+        qc_overallscore = random.randint(100, 24702)
+
+    return qc_mixedsites_totalmixedsites, qc_overallscore, qc_overallstatus
