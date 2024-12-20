@@ -62,7 +62,6 @@ def Covidplots_view(record_amount, sequencedsample_ids, sample_ids, batch_ids, c
     } 
 
     version_possibilities = pd.read_csv('important_files/versions.csv').dropna()
-    version_possibilities_weights = version_possibilities.iloc[:, -1].tolist
 
     # Read the CSV file
     Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
@@ -275,7 +274,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 5000
+    record_amount = 50000
 
     Covidplots_view_headers = [
         "SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "SampleID", "SampleDateTime", "Host", "Ct", "DateSampling",
@@ -298,7 +297,9 @@ if __name__ == '__main__':
     existing_nextcladeresult_ids = set()
 
     sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
-    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)] #change for batch size
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range((record_amount))]  #generate enough batch IDs
+    batch_ids = [batch_id for batch_id in batch_ids for i in range(100)]  # repeat each batch ID 100 times
+    batch_ids = batch_ids[:record_amount]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
