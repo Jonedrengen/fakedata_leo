@@ -7,7 +7,7 @@ import time
 import pandas as pd
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, 
                            GenerateUniqueNextcladeResultID, GenerateUniqueBatchID, GenerateUniqueSampleID)
-from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values
+from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values, gen_whovariant_samplingdate
 
 
 fake = Faker()
@@ -81,10 +81,29 @@ def Covidplots_view(record_amount, sequencedsample_ids, sample_ids, batch_ids, c
         pangolin_id = pangolin_ids[i]
         nextclade_id = nextclade_ids[i]
 
+        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
+
+        if essentials['LineagesOfInterest'] == "Alpha":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2020-09-18", "2022-02-01", "2021-04-22", 501) #501 = sd/days between min and max
+        elif essentials['LineagesOfInterest'] == "Beta":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-01-10", "2021-07-19", "2021-04-03", 190)
+        elif essentials['LineagesOfInterest'] == "Gamma":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2020-10-12", "2021-07-30", "2021-04-22", 291)
+        elif essentials['LineagesOfInterest'] == "Delta":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-03-30", "2022-02-27", "2021-10-12", 334)
+        elif essentials['LineagesOfInterest'] == "Eta":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-01-14", "2021-07-21", "2021-03-12", 188)
+        elif essentials['LineagesOfInterest'] == "Omicron":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-01-26", 374)
+        elif essentials['LineagesOfInterest'] == "BA.2":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-02-03", 374)
+        elif essentials['LineagesOfInterest'] == "BA.1":
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-11-22", "2022-03-01", "2022-01-17", 99)
 
         #random date for DateSequencing and SampleDateTime
-        random_date_SampleDateSequencing = fake.date_between(start_date=two_years_SampleDateSequencing, end_date='today')
         formatted_date_SampleDateSequencing = random_date_SampleDateSequencing.strftime("%Y-%m-%d")
+        
+        
         # Generate a random time of day
         random_time = fake.time_object()
         # Combine date and time to create a datetime object (TODO maybe change so that only first 2 pairs of numbers show)
@@ -187,7 +206,6 @@ def Covidplots_view(record_amount, sequencedsample_ids, sample_ids, batch_ids, c
 
         version = str(version_possibilities['version'].sample(n=1, weights=version_possibilities['amount_nextclade_pangos'].tolist()).values[0])
 
-        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
         
         qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
         qc_mixedsites_totalmixedsites = qc_data[0]
@@ -204,7 +222,7 @@ def Covidplots_view(record_amount, sequencedsample_ids, sample_ids, batch_ids, c
             "SampleDateTime": sample_SampleDateSequencing,
             "Host": 'human',
             "Ct": generate_ct_value(),
-            "DateSampling": formatted_date_SampleDateSequencing,
+            "DateSampling": formatted_date_SampleDateSequencing, #based on lineageofinterest
             "BatchID": batch_id,
             "BatchDate": formatted_date_BateDate,
             "Platform": Batch_platform,
@@ -274,7 +292,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 50000
+    record_amount = 1000
 
     Covidplots_view_headers = [
         "SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "SampleID", "SampleDateTime", "Host", "Ct", "DateSampling",

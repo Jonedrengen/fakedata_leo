@@ -7,7 +7,7 @@ import time
 import pandas as pd
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, 
                            GenerateUniqueNextcladeResultID, GenerateUniqueBatchID, GenerateUniqueSampleID)
-from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values
+from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values, gen_whovariant_samplingdate
 
 
 fake = Faker()

@@ -4,6 +4,7 @@ import time
 import random
 import numpy as np
 import pandas as pd
+from datetime import datetime, timedelta
 
 def write_to_csv(file_name, data, headers):
     with open(file_name, mode='w', newline='') as file:
@@ -124,3 +125,24 @@ def generate_qc_values(csv_file):
         qc_overallscore = random.randint(100, 24702)
 
     return qc_mixedsites_totalmixedsites, qc_overallscore, qc_overallstatus
+
+def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", mean_date="2021-07-11", std_deviation_days=1000):
+    
+    #convert strings to dates
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    mean_date = datetime.strptime(mean_date, "%Y-%m-%d")
+
+    
+    mean_timestamp = mean_date.timestamp()
+    std_dev_seconds = std_deviation_days * 24 * 60 * 60
+
+    while True:
+        random_timestamp = np.random.normal(mean_timestamp, std_dev_seconds)
+        random_date = datetime.fromtimestamp(random_timestamp)
+        if start_date <= random_date <= end_date:
+            return random_date
+
+random_date = gen_whovariant_samplingdate("1999-09-01", "2001-02-03", "2000-11-11")
+
+print(random_date)
