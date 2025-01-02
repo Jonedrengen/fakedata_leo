@@ -126,7 +126,7 @@ def generate_qc_values(csv_file):
 
     return qc_mixedsites_totalmixedsites, qc_overallscore, qc_overallstatus
 
-def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", mean_date="2021-07-11", std_deviation_days=1000):
+def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", mean_date="2021-07-11", std_deviation_days=100):
     
     #convert strings to dates
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
@@ -143,6 +143,3 @@ def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", 
         if start_date <= random_date <= end_date:
             return random_date
 
-random_date = gen_whovariant_samplingdate("1999-09-01", "2001-02-03", "2000-11-11")
-
-print(random_date)
