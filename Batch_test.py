@@ -18,7 +18,7 @@ def BatchData(record_amount, batch_ids):
     # Random date 2 years back for BatchDate
     two_years_BatchDate = datetime2.now() - timedelta(days=2*365)
 
-    # Variables and their weights for batch_data
+    #variables and their weights for batch_data
     platforms = [None, 'illumina qiaseq', 'nanopore', 'Illumina']
     platform_weights = [17, 20, 879, 1044]
     Batch_sources = ['Neverland', 'Gilead', 'Asgard', 'Agrabah', 'Panem', 'Narnia', 'Hogwarts', 'Middle-Earth', 'Wakanda', 'Pandora', 'Westeros']
@@ -31,11 +31,11 @@ def BatchData(record_amount, batch_ids):
             print(f'generated {i} batch records')
         batch_id = batch_ids[i]
 
-        # Random date for BatchDate
+        # random date for BatchDate
         random_date_BatchDate = fake.date_between(start_date=two_years_BatchDate, end_date='today')
         formatted_date_BatchDate = random_date_BatchDate.strftime("%Y-%m-%d")
 
-        # Selecting platform based on weight
+        # selecting platform based on weight
         Batch_platform = random.choices(platforms, platform_weights)[0]
         Batch_source = random.choices(Batch_sources, Batch_sources_weights)[0]
 
@@ -43,7 +43,7 @@ def BatchData(record_amount, batch_ids):
             "BatchID": batch_id,
             "BatchDate": formatted_date_BatchDate,
             "Platform": Batch_platform,
-            "BatchSource": Batch_source,
+            "BatchSource": Batch_source, 
             "TimestampCreated": str(datetime2.now()),
             "TimestampUpdated": str(datetime2.now())
         }
@@ -54,7 +54,7 @@ def BatchData(record_amount, batch_ids):
 if __name__ == '__main__':
     start_time = time.time()
 
-    record_amount = 1000  # Change for desired record amount
+    record_amount = 1000  #change for desired record amount
 
     Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]
 

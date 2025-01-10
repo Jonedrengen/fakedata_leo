@@ -1,11 +1,12 @@
-from PangolinResult import PangolinResult
-from Consensus import ConsensusData, write_to_csv
-from Sample import SampleData
-from Batch import BatchData
-from NextcladeResult import NextcladeResultData
-from SequencedSample import SequencedSampleData
+from PangolinResult_test import PangolinResult
+from Consensus_test import ConsensusData
+from Sample_test import SampleData
+from Batch_test import BatchData
+from NextcladeResult_test import NextcladeResultData
+from SequencedSample_test import SequencedSampleData
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSampleID,
                            GenerateUniqueBatchID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID)
+from utility import write_to_csv
 
 import time
 import csv
@@ -52,17 +53,17 @@ if __name__ == '__main__':
     Sample_data = SampleData(record_amount, sample_ids, consensus_ids)
     Batch_data = BatchData(record_amount // 100 + 1, batch_ids)
     Consensus_data = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids)
-    PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids)
+    NextcladeResult_data, global_essentials_list = NextcladeResultData(record_amount, nextclade_ids, consensus_ids)
+    PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids, global_essentials_list)
     SequencedSample_data = SequencedSampleData(record_amount, sequencedsample_ids, batch_ids, consensus_ids, sample_ids)
-    NextcladeResult_data = NextcladeResultData(record_amount, nextclade_ids, consensus_ids)
 
     #creating csv
     write_to_csv('Sample_data.csv', Sample_data, Sample_headers)
     write_to_csv('Batch_data.csv', Batch_data, Batch_headers)
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)
+    write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
     write_to_csv('PangolinResult_data.csv', PangolinResult_data, PangolinResult_headers)
     write_to_csv('SequencedSample_data.csv', SequencedSample_data, SequencedSample_headers)
-    write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
 
     end_time = time.time()
 

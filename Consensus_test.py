@@ -18,14 +18,42 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
     #map of different vatiants and their connections
     variant_mapping = {
-        None: {'lineageofinterest': None, 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': None},
-        'Alpha': {'lineageofinterest': 'Alpha', 'alpha': True, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.7'},
-        'Beta': {'lineageofinterest': 'Beta', 'alpha': False, 'beta': True, 'gamma': False, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.351'},
-        'Gamma': {'lineageofinterest': 'Gamma', 'alpha': False, 'beta': False, 'gamma': True, 'delta': False, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.28'},
-        'Delta': {'lineageofinterest': 'Delta', 'alpha': False, 'beta': False, 'gamma': False, 'delta': True, 'eta': False, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.617.2'},
-        'Eta': {'lineageofinterest': 'Eta', 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': True, 'omicron': False, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.525'},
-        'Omicron': {'lineageofinterest': 'Omicron', 'alpha': False, 'beta': False, 'gamma': False, 'delta': False, 'eta': False, 'omicron': True, 'ba_1': False, 'ba_2': False, 'bg': False, 'ba_4': False, 'ba_5': False, 'ba_2_75': False, 'bf_7': False, 'unaliasedpango': 'B.1.1.529.2'}
-    } 
+    'Alpha': {
+        'alpha': 1, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Alpha',
+        'unaliasedpango': 'B.1.1.7'
+    },
+    'Beta': {
+        'alpha': 0, 'beta': 1, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Beta',
+        'unaliasedpango': 'B.1.351'
+    },
+    'Gamma': {
+        'alpha': 0, 'beta': 0, 'gamma': 1, 'delta': 0, 'eta': 0, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Gamma',
+        'unaliasedpango': 'P.1'
+    },
+    'Delta': {
+        'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 1, 'eta': 0, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Delta',
+        'unaliasedpango': 'B.1.617.2'
+    },
+    'Eta': {
+        'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 1, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Eta',
+        'unaliasedpango': 'B.1.525'
+    },
+    'Omicron': {
+        'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 1,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': 'Omicron',
+        'unaliasedpango': 'B.1.1.529'
+    },
+    None: {
+        'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 0,
+        'ba_1': 0, 'ba_2': 0, 'lineageofinterest': None,
+        'unaliasedpango': None
+    }
+}
     #map og exclusion #TODO make sure there is an evenly distributed amount across Mixed strain, neg contam, etc. Make sure it happens in the loop
     manualExclusion_mapping = {
         None: {'sequenceexclude': None, 
@@ -137,26 +165,30 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         whovariant = fake.random_element(elements=(None, "Alpha", "Beta", "Delta", "Eta", "Gamma", "Omicron"))
         variant_values = variant_mapping.get(whovariant, variant_mapping[None])
 
-        #handling omicron 
+        # 2. Update omicron handling
         if whovariant == 'Omicron':
-            variant_values['omicron'] = True
-            if random.choice([True, False]):
-                variant_values['ba_1'] = True
-                variant_values['ba_2'] = False
+            variant_values['omicron'] = 1
+            if random.choice([1, 0]):  # Change to 1/0
+                variant_values['ba_1'] = 1
+                variant_values['ba_2'] = 0
                 variant_values['lineageofinterest'] = 'BA.1'
             else:
-                variant_values['ba_1'] = False
-                variant_values['ba_2'] = True
+                variant_values['ba_1'] = 0
+                variant_values['ba_2'] = 1
                 variant_values['lineageofinterest'] = 'BA.2'
 
         version = str(version_possibilities['version'].sample(n=1, weights=version_possibilities['amount_nextclade_pangos'].tolist()).values[0])
 
         essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
+        if pd.isna(essentials["WhoVariant"]):
+            essentials['WhoVariant'] = None
+        if pd.isna(essentials["LineagesOfInterest"]):
+            essentials['LineagesOfInterest'] = None
+        if pd.isna(essentials["UnaliasedPango"]):
+            essentials['UnaliasedPango'] = None
+        
 
-        qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
-        qc_mixedsites_totalmixedsites = qc_data[0]
-        qc_overallscore = qc_data[1]
-        qc_ocerallstatus = qc_data[2]
+
 
         record = { 
             "ConsensusID": consensus_id,
@@ -178,11 +210,11 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "Omicron": variant_values['omicron'],
             "BA.1": variant_values['ba_1'],
             "BA.2": variant_values['ba_2'],
-            "BG": False,
-            "BA.4": False,
-            "BA.5": False,
-            "BA.2.75": False,
-            "BF.7": False,
+            "BG": 0,
+            "BA.4": 0,
+            "BA.5": 0,
+            "BA.2.75": 0,
+            "BF.7": 0,
             "WhoVariant": essentials["WhoVariant"], #skal vælges ud fra nextclade_pango
             "LineagesOfInterest": essentials['LineagesOfInterest'], # skal vælges ud fra nextclade_pango
             "UnaliasedPango": essentials['UnaliasedPango'], #skal vælges ud fra Nextclade_Pango
@@ -202,7 +234,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 if __name__ == "__main__":
     start_time = time.time()
 
-    record_amount = 100000  # Example record amount
+    record_amount = 10000  # Example record amount
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                      "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",

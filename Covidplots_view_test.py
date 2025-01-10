@@ -84,7 +84,7 @@ def Covidplots_view(record_amount, sequencedsample_ids, sample_ids, batch_ids, c
         essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
 
         if essentials['LineagesOfInterest'] == "Alpha":
-            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2020-09-18", "2022-02-01", "2021-04-22", 501) #501 = sd/days between min and max
+            random_date_SampleDateSequencing = gen_whovariant_samplingdate("2020-09-18", "2022-02-01", "2021-04-22", 501) #501 = standard deviation / days between min and max
         elif essentials['LineagesOfInterest'] == "Beta":
             random_date_SampleDateSequencing = gen_whovariant_samplingdate("2021-01-10", "2021-07-19", "2021-04-03", 190)
         elif essentials['LineagesOfInterest'] == "Gamma":

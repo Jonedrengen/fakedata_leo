@@ -10,12 +10,15 @@ from utility import write_to_csv, generate_ct_value, generate_ncount_value, gene
 
 fake = Faker()
 
+
+
 def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
+    global_essentials_list = []
+    
     NextcladeResult_data = []
     starting_time = time.time()
     update_time = 0.15
 
-    # Read the CSV file
     Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
     weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
 
@@ -28,8 +31,15 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         consensus_id = consensus_ids[i]
 
         essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
+        if pd.isna(essentials["clade"]):
+            essentials['clade'] = None
+        if pd.isna(essentials["Nextclade_pango"]):
+            essentials['Nextclade_pango'] = None
+        global_essentials_list.append(dict(essentials))
+        
 
         nextclade_pango = essentials['Nextclade_pango']
+        
         nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
 
         qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
@@ -65,12 +75,13 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         }
         NextcladeResult_data.append(record)
     print(f'generated {i + 1} nextclade records in total')
-    return NextcladeResult_data
+    print(type(global_essentials_list))
+    return NextcladeResult_data, global_essentials_list
 
 if __name__ == '__main__':
     start_time = time.time()
 
-    record_amount = 100000 ## Change for desired record amount
+    record_amount = 1000 ## Change for desired record amount
 
     NextcladeResult_headers = ["NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore", 
                                "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs", 
@@ -83,6 +94,8 @@ if __name__ == '__main__':
     nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
 
-    NextcladeResult_data = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
+    NextcladeResult_data, global_essentials_list = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
+    
+    
 
     write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
