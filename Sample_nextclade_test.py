@@ -2,6 +2,7 @@ from faker import Faker
 from faker.providers import BaseProvider #custom providers
 import random
 import csv
+import numpy as np
 from datetime import datetime as datetime, timedelta
 import datetime as datetime1
 import time
@@ -95,30 +96,31 @@ def SampleData(record_amount, sample_ids, consensus_ids, essentials_list):
         lineage_of_interest = essentials['LineagesOfInterest']
 
         if lineage_of_interest == "Alpha":
-            random_date = gen_whovariant_samplingdate("2020-09-18", "2022-02-01", "2021-04-22", 501)
+            random_date = gen_whovariant_samplingdate("2020-09-18", "2022-02-01", "2021-04-22", 100) #original sd=501
         elif lineage_of_interest == "Beta":
-            random_date = gen_whovariant_samplingdate("2021-01-10", "2021-07-19", "2021-04-03", 190)
+            random_date = gen_whovariant_samplingdate("2021-01-10", "2021-07-19", "2021-04-03", 38) #original sd=190
         elif lineage_of_interest == "Gamma":
-            random_date = gen_whovariant_samplingdate("2020-10-12", "2021-07-30", "2021-04-22", 291)
+            random_date = gen_whovariant_samplingdate("2020-10-12", "2021-07-30", "2021-04-22", 58) #original sd=291
         elif lineage_of_interest == "Delta":
-            random_date = gen_whovariant_samplingdate("2021-03-30", "2022-02-27", "2021-10-12", 334)
+            random_date = gen_whovariant_samplingdate("2021-03-30", "2022-02-27", "2021-10-12", 66) #original sd=334
         elif lineage_of_interest == "Eta":
-            random_date = gen_whovariant_samplingdate("2021-01-14", "2021-07-21", "2021-03-12", 188)
+            random_date = gen_whovariant_samplingdate("2021-01-14", "2021-07-21", "2021-03-12", 36) #original sd=188
         elif lineage_of_interest == "Omicron":
-            random_date = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-01-26", 374)
+            random_date = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-01-26", 74) #original sd=374
         elif lineage_of_interest == "BA.2":
-            random_date = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-02-03", 374)
+            random_date = gen_whovariant_samplingdate("2021-02-20", "2022-03-01", "2022-02-03", 74) #original sd=374
         elif lineage_of_interest == "BA.1":
-            random_date = gen_whovariant_samplingdate("2021-11-22", "2022-03-01", "2022-01-17", 99)
+            random_date = gen_whovariant_samplingdate("2021-11-22", "2022-03-01", "2022-01-17", 18) #original sd=99
         else:
-            two_years = datetime.now() - timedelta(days=2*365)
-            random_date = fake.date_between(start_date=two_years, end_date='today')
+            random_date = None
 
-        formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}"
-        # Generate a random time of day
-        random_time = fake.time_object()
-        # Combine date and time to create a datetime object
-        sample_datetime = datetime.combine(random_date, random_time)
+        if random_date is not None:
+            formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}"
+            random_time = fake.time_object()
+            sample_datetime = datetime.combine(random_date, random_time)
+        else:
+            formatted_date = None
+            sample_datetime = None
         
         record = {
             "SampleID": sample_id,
