@@ -1,61 +1,72 @@
 from faker import Faker
-from faker.providers import BaseProvider #custom providers
 import random
 import csv
 from datetime import datetime as datetime2, timedelta
 import datetime as datetime1
 import time
-from Consensus import ConsensusData
+import pandas as pd
 from id_generators import GenerateUniqueNextcladeResultID, GenerateUniqueConsensusID
-from utility import write_to_csv
-from NextcladeResult_elements import frameShifts_elements, aaSubstitutions, aaDeletions, aaInsertions, substitutions, deletions, insertions, missing, nonACGTNs, pcrPrimerChanges
+from utility import write_to_csv, generate_ct_value, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values, gen_whovariant_samplingdate
 
 fake = Faker()
 
+
+
 def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
+    essentials_list = []
+    
     NextcladeResult_data = []
     starting_time = time.time()
     update_time = 0.15
+
+    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
+    weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
+
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
-        if elapsed_time >= update_time:  
+        if elapsed_time >= update_time:
             update_time += 0.15
             print(f'generated {i} nextclade records')
         nextcladeresult_id = nextcladeresult_ids[i]
         consensus_id = consensus_ids[i]
+
+        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
+        if pd.isna(essentials["clade"]):
+            essentials['clade'] = None
+        if pd.isna(essentials["Nextclade_pango"]):
+            essentials['Nextclade_pango'] = None
+        essentials_list.append(dict(essentials))
         
-        # Generate Nextclade_pango value
-        nextclade_pango = fake.random_element(elements=("AY.4.6", "B.1.177.12", "AY.4.2.3", "AY.60", "BA.1.1.13", "BC.2", "XV", None))
+
+        nextclade_pango = essentials['Nextclade_pango']
         
-        # Set NextcladeVersion based on Nextclade_pango
-        if nextclade_pango is None:
-            nextclade_version = None
-        else:
-            nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
-        
+        nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
+
+        qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
+        qc_mixedsites_totalmixedsites = qc_data[0]
+        qc_overallscore = qc_data[1]
+        qc_ocerallstatus = qc_data[2]
+
         record = {
             "NextcladeResultID": nextcladeresult_id,
-            "frameShifts": None, # kan udelades                                              
-            "aaSubstitutions": None,# kan udelades    
-            "aaDeletions": None,# kan udelades    
-            "aaInsertions": None, # kan udelades    
-            "alignmentScore": random.randint(89000, 89700),
-            "clade": fake.random_element(elements=(None, "20A", "20E (EU1)", "20D", "21F (Iota)", "21H (Mu)", "21G (Lambda)", "20B", "20G", "recombinant", 
-                                                   "21D (Eta)", "20I (Alpha; V1)", "21J (Delta)", "21C (Epsilon)", "21L (Omicron)", "20H (Beta; V2)",
-                                                   "21M (Omicron)", "21B (Kappa)", "21K (Omicron)", "19B", "21I (Delta)", "20C", "19A", "21A (Delta)",
-                                                   "20J (Gamma; V3)")), #contains all possible clades as per dataset from Leo
+            "frameShifts": None, #excluded
+            "aaSubstitutions": None, #excluded
+            "aaDeletions": None, #excluded
+            "aaInsertions": None, #excluded
+            "alignmentScore": random.randint(87816, 89709), #min and max values from real data
+            "clade": essentials["clade"],
             "Nextclade_pango": nextclade_pango,
-            "substitutions": None,# kan udelades    
-            "deletions": None,# kan udelades    
-            "insertions": None,# kan udelades    
-            "missing": None,# kan udelades    
-            "nonACGTNs": None,# kan udelades    
-            "pcrPrimerChanges": None, # kan udelades    
-            "qc.mixedSites.totalMixedSites": fake.random_element(elements=(None, "0", "1", "2", "3", "7", "11")),
-            "qc.overallScore": fake.random_element(elements=(None, "0", "20", "8", "6", "157", "121")),
-            "qc.overallStatus": fake.random_element(elements=(None, "good", "mediocre", "bad")),
-            "qc.frameShifts.status": None,
-            "qc.frameShifts.frameShiftsIgnored": None,
+            "substitutions": None, #excluded
+            "deletions": None, #excluded
+            "insertions": None, #excluded
+            "missing": None, #excluded
+            "nonACGTNs": None, #excluded
+            "pcrPrimerChanges": None, #excluded
+            "qc.mixedSites.totalMixedSites": qc_mixedsites_totalmixedsites,
+            "qc.overallScore": qc_overallscore,
+            "qc.overallStatus": qc_ocerallstatus,
+            "qc.frameShifts.status": None, #excluded
+            "qc.frameShifts.frameShiftsIgnored": None, #excluded
             "NextcladeVersion": nextclade_version,
             "ConsensusID": consensus_id,
             "IsCurrent": '1',
@@ -64,18 +75,17 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         }
         NextcladeResult_data.append(record)
     print(f'generated {i + 1} nextclade records in total')
-    return NextcladeResult_data
+    return NextcladeResult_data, essentials_list
 
 if __name__ == '__main__':
     start_time = time.time()
 
-    record_amount = 100000 ## Change for desired record amount
-
+    record_amount = 1000 ## Change for desired record amount
 
     NextcladeResult_headers = ["NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore", 
-                            "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs", 
-                            "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", "qc.frameShifts.status", 
-                            "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
+                               "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs", 
+                               "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", "qc.frameShifts.status", 
+                               "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
 
     existing_nextcladeresult_ids = set()
     existing_consensus_ids = set()
@@ -83,9 +93,8 @@ if __name__ == '__main__':
     nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
 
-    NextcladeResult_data = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
-    write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
+    NextcladeResult_data, essentials_list = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
+    
+    
 
-    end_time = time.time()
-    time_passed = end_time - start_time
-    print(f"Execution time: {time_passed:.5} seconds")
+    write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)

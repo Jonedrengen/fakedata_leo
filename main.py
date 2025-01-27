@@ -1,9 +1,9 @@
-from PangolinResult_test import PangolinResult
-from Consensus_test import ConsensusData
-from Sample_test import SampleData
-from Batch_test import BatchData
-from NextcladeResult_test import NextcladeResultData
-from SequencedSample_test import SequencedSampleData
+from PangolinResult import PangolinResult
+from Consensus import ConsensusData
+from Sample_nextclade import SampleData
+from Batch import BatchData
+from Sample_nextclade import NextcladeResultData
+from SequencedSample import SequencedSampleData
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSampleID,
                            GenerateUniqueBatchID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID)
 from utility import write_to_csv
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 50000
+    record_amount = 500000
 
 
     #headers
@@ -50,11 +50,11 @@ if __name__ == '__main__':
     nextclade_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
 
     #generating data
-    Sample_data = SampleData(record_amount, sample_ids, consensus_ids)
     Batch_data = BatchData(record_amount // 100 + 1, batch_ids)
     Consensus_data = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids)
-    NextcladeResult_data, global_essentials_list = NextcladeResultData(record_amount, nextclade_ids, consensus_ids)
-    PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids, global_essentials_list)
+    NextcladeResult_data, essentials_list = NextcladeResultData(record_amount, nextclade_ids, consensus_ids)
+    Sample_data = SampleData(record_amount, sample_ids, consensus_ids, essentials_list)
+    PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids, essentials_list)
     SequencedSample_data = SequencedSampleData(record_amount, sequencedsample_ids, batch_ids, consensus_ids, sample_ids)
 
     #creating csv

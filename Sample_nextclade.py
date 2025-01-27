@@ -7,9 +7,9 @@ from datetime import datetime as datetime, timedelta
 import datetime as datetime1
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID
-from utility import write_to_csv, generate_ct_value
+from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values
 import pandas as pd
-from utility import gen_whovariant_samplingdate, generate_qc_values
+
 
 fake = Faker()
 
@@ -112,12 +112,15 @@ def SampleData(record_amount, sample_ids, consensus_ids, essentials_list):
         elif lineage_of_interest == "BA.1":
             random_date = gen_whovariant_samplingdate("2021-11-22", "2022-03-01", "2022-01-17", 18) #original sd=99
         else:
-            two_years = datetime.now() - timedelta(days=2*365)
-            random_date = fake.date_between(start_date=two_years, end_date='today')
+            random_date = None
 
-        formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}"
-        random_time = fake.time_object()
-        sample_datetime = datetime.combine(random_date, random_time)
+        if random_date is not None:
+            formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}"
+            random_time = fake.time_object()
+            sample_datetime = datetime.combine(random_date, random_time)
+        else:
+            formatted_date = None
+            sample_datetime = None
         
         record = {
             "SampleID": sample_id,
