@@ -115,7 +115,8 @@ def SampleData(record_amount, sample_ids, consensus_ids, essentials_list):
             random_date = None
 
         if random_date is not None:
-            formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}"
+            #TODO for debugging: formatted_date = f"{lineage_of_interest}: {random_date.strftime('%Y-%m-%d')}" 
+            formatted_date = random_date.strftime('%Y-%m-%d')
             random_time = fake.time_object()
             sample_datetime = datetime.combine(random_date, random_time)
         else:
