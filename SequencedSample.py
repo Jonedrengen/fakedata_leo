@@ -35,7 +35,7 @@ def SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensu
             "SequencedSampleID": sequenced_sample_id,
             "SequencingType": fake.random_element(elements=("hospital_sequencing", "test", "Hogwarts_sequencing_sent_to_Panem", "historic",
                                                             "Panem_sequencing", "live", "project", "hostital")),
-            "DateSequencing": fake.date_between(datetime1.date(2020, 9, 17), datetime1.date(2022, 10, 3)), #TODO should match the batch date?
+            "DateSequencing": fake.date_between(datetime1.date(2020, 9, 17), datetime1.date(2024, 10, 3)), #TODO should match the batch date?
             "SampleContent": "RNA",
             "BatchID": batch_id,  # Assign BatchID from the current batch
             "CurrentConsensusID": consensus_id,
@@ -50,7 +50,7 @@ def SequencedSampleData(record_amount, sequenced_sample_ids, batch_ids, consensu
 if __name__ == "__main__":
     start_time = time.time()
     # Use the global record_amount variable
-    record_amount = 100000
+    record_amount = 10000
 
     SequencedSample_headers = ["SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID", 
                            "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"]

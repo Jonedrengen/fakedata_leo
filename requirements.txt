@@ -4,6 +4,7 @@
 Faker
 pandas
 numpy
-matplotlib
+matplotlib #not necessary
 xlrd
 openpyxl
+seaborn #not necessary

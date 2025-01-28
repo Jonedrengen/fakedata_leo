@@ -22,7 +22,7 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids, global_essentials
     update_time = 0.15
 
     version_possibilities = pd.read_csv('important_files/versions.csv').dropna()
-    print(version_possibilities)
+    
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:

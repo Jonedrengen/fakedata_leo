@@ -1,0 +1,304 @@
+put csv files into local docker db (without using import wizard)
+
+open the /tmp file in docker desctop, right click to import the desired fields
+
+create the tables and make the bulk intert
+
+-- Create schema
+CREATE SCHEMA Jon
+GO
+
+-- Create tables
+--Batch
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[Batch](
+    [BatchID] [nvarchar](200) NOT NULL,
+    [BatchDate] [date] NULL,
+    [Platform] [nvarchar](50) NULL,
+    [BatchSource] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT BatchID PRIMARY KEY (BatchID)
+) ON [PRIMARY]
+GO
+
+--Consensus
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[Consensus](
+  [ConsensusID] [nvarchar](50) NOT NULL,
+  [NCount] [int] NULL,
+  [AmbiguousSites] [int] NULL,
+  [NwAmb] [int] NULL,
+  [NCountQC] [nvarchar](50) NULL,
+  [NumAlignedReads] [int] NULL,
+  [PctCoveredBases] [decimal](18, 2) NULL,
+  [SeqLength] [int] NULL,
+  [QcScore] [nvarchar](50) NULL,
+  [SequenceExclude] [nvarchar](1000) NULL,
+  [ManualExclude] [nvarchar](50) NULL,
+  [Alpha] [bit] NULL,
+  [Beta] [bit] NULL,
+  [Gamma] [bit] NULL,
+  [Delta] [bit] NULL,
+  [Eta] [bit] NULL,
+  [Omicron] [bit] NULL,
+  [BA.1] [bit] NULL,
+  [BA.2] [bit] NULL,
+  [BG] [bit] NULL,
+  [BA.4] [bit] NULL,
+  [BA.5] [bit] NULL,
+  [BA.2.75] [bit] NULL,
+  [BF.7] [bit] NULL,
+  [WhoVariant] [nvarchar](50) NULL,
+  [LineagesOfInterest] [nvarchar](50) NULL,
+  [UnaliasedPango] [nvarchar](200) NULL,
+  [SequencedSampleID] [nvarchar](200) NULL,
+  [CurrentNextcladeID] [nvarchar](50) NULL,
+  [CurrentPangolinID] [nvarchar](50) NULL,
+  [IsCurrent] [bit] NULL,
+  [TimestampCreated] [datetime2](7) NOT NULL,
+  [TimestampUpdated] [datetime2](7) NOT NULL,
+  CONSTRAINT ConsensusID PRIMARY KEY (ConsensusID)
+) ON [PRIMARY]
+GO
+
+--NextcladeResult
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[NextcladeResult](
+    [NextcladeResultID] [nvarchar](50) NOT NULL,
+    [frameShifts] [nvarchar](4000) NULL,
+    [aaSubstitutions] [nvarchar](4000) NULL,
+    [aaDeletions] [nvarchar](4000) NULL,
+    [aaInsertions] [nvarchar](4000) NULL,
+    [alignmentScore] [int] NULL,
+    [clade] [nvarchar](50) NULL,
+    [Nextclade_pango] [nvarchar](50) NULL,
+    [substitutions] [nvarchar](4000) NULL,
+    [deletions] [nvarchar](4000) NULL,
+    [insertions] [nvarchar](4000) NULL,
+    [missing] [nvarchar](4000) NULL,
+    [nonACGTNs] [nvarchar](4000) NULL,
+    [pcrPrimerChanges] [nvarchar](4000) NULL,
+    [qc.mixedSites.totalMixedSites] [int] NULL,
+    [qc.overallScore] [int] NULL,
+    [qc.overallStatus] [nvarchar](50) NULL,
+    [qc.frameShifts.status] [nvarchar](50) NULL,
+    [qc.frameShifts.frameShiftsIgnored] [nvarchar](50) NULL,
+    [NextcladeVersion] [nvarchar](50) NULL,
+    [ConsensusID] [nvarchar](50) NULL,
+    [IsCurrent] [bit] NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT NextcladeResultID PRIMARY KEY (NextcladeResultID)
+) ON [PRIMARY]
+GO
+
+
+
+--PangolinResult
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[PangolinResult](
+  [PangolinResultID] [nvarchar](50) NOT NULL,
+  [lineage] [nvarchar](50) NULL,
+  [version] [nvarchar](50) NULL,
+  [pangolin_version] [nvarchar](50) NULL,
+  [scorpio_version] [nvarchar](50) NULL,
+  [constellation_version] [nvarchar](50) NULL,
+  [qc_status] [nvarchar](50) NULL,
+  [qc_notes] [nvarchar](50) NULL,
+  [note] [nvarchar](4000) NULL,
+  [ConsensusID] [nvarchar](50) NULL,
+  [IsCurrent] [bit] NULL,
+  [TimestampCreated] [datetime2](7) NOT NULL,
+  [TimestampUpdated] [datetime2](7) NOT NULL,
+  CONSTRAINT PangolinResultID PRIMARY KEY (PangolinResultID)
+) ON [PRIMARY]
+GO
+
+
+
+--Sample
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[Sample](
+    [SampleID] [nvarchar](50) NOT NULL,
+    [Host] [nvarchar](50) NULL,
+    [Ct] [decimal](18, 13) NULL,
+    [DateSampling] [date] NULL,
+    [CurrentConsensusID] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    [SampleDateTime] [datetime2] (7) NOT NULL,
+    CONSTRAINT SampleID PRIMARY KEY (SampleID)
+) ON [PRIMARY]
+GO
+
+
+--SequencedSample
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Jon].[SequencedSample](
+    [SequencedSampleID] [nvarchar](200) NOT NULL,
+    [SequencingType] [nvarchar](50) NULL,
+    [DateSequencing] [date] NULL,
+    [SampleContent] [nvarchar](50) NULL,
+    [BatchID] [nvarchar](200) NULL,
+    [CurrentConsensusID] [nvarchar](50) NULL,
+    [SampleID] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT SequencedSampleID PRIMARY KEY (SequencedSampleID)
+) ON [PRIMARY]
+GO
+
+
+-- Insert data into tables
+-- Bulk insert
+
+-- Batch
+BULK INSERT [Jon].[Batch]
+    FROM '/tmp/Batch_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- Sample
+BULK INSERT [Jon].[Sample]
+    FROM '/tmp/Sample_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- SequencedSample
+BULK INSERT [Jon].[SequencedSample]
+    FROM '/tmp/SequencedSample_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- Consensus
+BULK INSERT [Jon].[Consensus]
+    FROM '/tmp/Consensus_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- PangolinResult
+BULK INSERT [Jon].[PangolinResult]
+    FROM '/tmp/PangolinResult_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- NextcladeResult
+BULK INSERT [Jon].[NextcladeResult]
+    FROM '/tmp/NextcladeResult_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- Replace ; with , in columns
+UPDATE [Jon].[NextcladeResult]
+SET aaSubstitutions = replace(aaSubstitutions, ';', ','),
+    aaDeletions = replace(aaDeletions, ';', ','),
+    frameShifts = replace(frameShifts, ';', ','),
+    aaInsertions = replace(aaInsertions, ';', ','),
+    clade = replace(clade, ';', ','),
+    substitutions = replace(substitutions, ';', ','),
+    deletions = replace(deletions, ';', ','),
+    insertions = replace(insertions, ';', ','),
+    missing = replace(missing, ';', ','),
+    nonACGTNs = replace(nonACGTNs, ';', ','),
+    pcrPrimerChanges = replace(pcrPrimerChanges, ';', ','),
+    [qc.frameShifts.frameShiftsIgnored] = replace([qc.frameShifts.frameShiftsIgnored], ';', ',')
+    
+
+
+
+__________________________________________________________________
+__________________________________________________________________
+__________________________________________________________________
+
+
+
+-- create the view
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [Jon].[V_CovidPlots] AS
+    SELECT
+        A.[SequencedSampleID], A.[SequencingType], A.[DateSequencing], A.[SampleContent],
+        B.[SampleID], B.[SampleDateTime], B.[Host], B.[Ct], B.[DateSampling],
+        C.[BatchID], C.[BatchDate], C.[Platform], C.[BatchSource],
+        F.ConsensusID, F.[NCount], F.[AmbiguousSites], F.[NwAmb], F.[NCountQC], F.[NumAlignedReads],
+        F.[PctCoveredBases], F.[SeqLength], F.[QcScore], F.[SequenceExclude], F.[ManualExclude],
+        F.[Alpha], F.[Beta], F.[Gamma], F.[Delta], F.[Eta], F.[Omicron], F.[BA.1], F.[BA.2], F.[BG],
+        F.[BA.4], F.[BA.5], F.[BA.2.75], F.[BF.7], F.[WhoVariant], F.[LineagesOfInterest], F.[UnaliasedPango],
+        G.[PangolinResultID], G.[lineage], G.[version], G.[pangolin_version], G.[scorpio_version],
+        G.[constellation_version], G.[qc_status], G.[qc_notes], G.[note],
+        H.[NextcladeResultID], H.[frameShifts], H.[aaSubstitutions], H.[aaDeletions],
+        H.[aaInsertions], H.[alignmentScore], H.[clade], H.[Nextclade_pango], H.[substitutions], H.[deletions],
+        H.[insertions], H.[missing], H.[nonACGTNs], H.[pcrPrimerChanges], H.[qc.mixedSites.totalMixedSites],
+        H.[qc.overallScore], H.[qc.overallStatus], H.[qc.frameShifts.status], H.[qc.frameShifts.frameShiftsIgnored],
+        H.[NextcladeVersion]
+    FROM Jon.SequencedSample A
+    LEFT JOIN Jon.Sample B ON A.SampleID = B.SampleID
+    LEFT JOIN Jon.Batch C ON A.BatchID = C.BatchID
+    LEFT JOIN Jon.Consensus F ON A.SequencedSampleID = F.SequencedSampleID
+    LEFT JOIN Jon.PangolinResult G ON F.CurrentPangolinID = G.PangolinResultID
+    LEFT JOIN Jon.NextcladeResult H ON F.CurrentNextcladeID = H.NextcladeResultID
+GO
+
+
+__________________________________________________________________
+__________________________________________________________________
+__________________________________________________________________
+

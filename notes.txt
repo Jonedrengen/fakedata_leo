@@ -1,4 +1,0 @@
-architecture of the project
-- Modularity (as little hardcode as possible)
-- Should be able to output csv files
-- 

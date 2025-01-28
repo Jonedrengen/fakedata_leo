@@ -13,7 +13,7 @@ fake = Faker()
 
 
 def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
-    essentials_list = []
+    global_essentials_list = []
     
     NextcladeResult_data = []
     starting_time = time.time()
@@ -35,7 +35,7 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
             essentials['clade'] = None
         if pd.isna(essentials["Nextclade_pango"]):
             essentials['Nextclade_pango'] = None
-        essentials_list.append(dict(essentials))
+        global_essentials_list.append(dict(essentials))
         
 
         nextclade_pango = essentials['Nextclade_pango']
@@ -75,7 +75,8 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         }
         NextcladeResult_data.append(record)
     print(f'generated {i + 1} nextclade records in total')
-    return NextcladeResult_data, essentials_list
+    print(type(global_essentials_list))
+    return NextcladeResult_data, global_essentials_list
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextcladeresult_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
 
-    NextcladeResult_data, essentials_list = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
+    NextcladeResult_data, global_essentials_list = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids) #warning: do not make more that 1000000 records (not enough unique IDs)
     
     
 

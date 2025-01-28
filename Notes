@@ -1,0 +1,2 @@
+Datogenering fra DateSampling i "Sample_data.csv" skal matche LineagesOfInterest i "Consensus_data.csv"
+Både sample_data.csv og Consensus_data.csv har consensus_id
