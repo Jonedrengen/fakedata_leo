@@ -2,20 +2,15 @@ from faker import Faker
 from faker.providers import BaseProvider #custom providers
 import random
 import csv
-import numpy as np
-from datetime import datetime as datetime, timedelta
-import datetime as datetime1
+from datetime import datetime
 import time
-from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID
-from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling
 import pandas as pd
-
+from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID
+from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values
 
 fake = Faker()
 
 def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids):
-    consensus_essentials = []
-    
     Consensus_data = []
     starting_time = time.time()
     update_time = 0.15
@@ -41,8 +36,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         'Manually_Excluded_Sample': {'sequenceexclude': None, 'qcscore': None}
     }
 
-    
-
     #read the CSV file
     Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
     weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
@@ -58,7 +51,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         pango_id = pangolin_ids[i]
 
         #exclusions (manualexclusion)
-        manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate", "Manually_Excluded_Sample"))
+        manualExclusion = pd.read_csv('important_files/ManualExclude_SequenceExclude_QcScore.csv')
         manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
 
         #defining ncount, ambiguous and nwamb
@@ -129,6 +122,9 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Too many Ns"],
                             weights=[0.95, 0.05],
                             k=1)[0]
+            
+        # if sequenceexclude is NULL, some qc_scores will be pass
+        
 
         #exclusion specifics numalignedreads
         if manualExclusion_values['qcscore'] is None:
@@ -160,9 +156,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             elif lineageofinterest == 'BA.2':
                 variant_values['ba_1'] = 0
                 variant_values['ba_2'] = 1
-        
-        consensus_essentials.append(dict(essentials))
-        
+
         record = {
             "ConsensusID": consensus_id,
             "NCount": manualExclusion_values['ncount'],
@@ -200,159 +194,30 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         }
         Consensus_data.append(record)
     print(f'generated {i + 1} consensus records in total')
-    return Consensus_data, consensus_essentials
-
-def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
-    nextclade_essentials = []
-    
-    NextcladeResult_data = []
-    starting_time = time.time()
-    update_time = 0.15
-
-    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
-    weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
-
-    for i in range(record_amount):
-        elapsed_time = time.time() - starting_time
-        if elapsed_time >= update_time:
-            update_time += 0.15
-            print(f'generated {i} nextclade records')
-        nextcladeresult_id = nextcladeresult_ids[i]
-        consensus_id = consensus_ids[i]
-
-        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
-        if pd.isna(essentials["clade"]):
-            essentials['clade'] = None
-        if pd.isna(essentials["Nextclade_pango"]):
-            essentials['Nextclade_pango'] = None
-        nextclade_essentials.append(dict(essentials))
-        
-
-        nextclade_pango = essentials['Nextclade_pango']
-        
-        nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
-
-        qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
-        qc_mixedsites_totalmixedsites = qc_data[0]
-        qc_overallscore = qc_data[1]
-        qc_ocerallstatus = qc_data[2]
-
-        record = {
-            "NextcladeResultID": nextcladeresult_id,
-            "frameShifts": None, #excluded
-            "aaSubstitutions": None, #excluded
-            "aaDeletions": None, #excluded
-            "aaInsertions": None, #excluded
-            "alignmentScore": random.randint(87816, 89709), #min and max values from real data
-            "clade": essentials["clade"],
-            "Nextclade_pango": nextclade_pango,
-            "substitutions": None, #excluded
-            "deletions": None, #excluded
-            "insertions": None, #excluded
-            "missing": None, #excluded
-            "nonACGTNs": None, #excluded
-            "pcrPrimerChanges": None, #excluded
-            "qc.mixedSites.totalMixedSites": qc_mixedsites_totalmixedsites,
-            "qc.overallScore": qc_overallscore,
-            "qc.overallStatus": qc_ocerallstatus,
-            "qc.frameShifts.status": None, #excluded
-            "qc.frameShifts.frameShiftsIgnored": None, #excluded
-            "NextcladeVersion": nextclade_version,
-            "ConsensusID": consensus_id,
-            "IsCurrent": '1',
-            "TimestampCreated": str(datetime.now()),
-            "TimestampUpdated": str(datetime.now())
-        }
-        NextcladeResult_data.append(record)
-    print(f'generated {i + 1} nextclade records in total')
-    return NextcladeResult_data, nextclade_essentials
-
-
-def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
-    Sample_data = []
-    starting_time = time.time()
-    update_time = 0.15
-    
-    for i in range(record_amount):
-        elapsed_time = time.time() - starting_time
-        if elapsed_time >= update_time:
-            update_time += 0.15
-            print(f'generated {i} sample records')
-        
-        sample_id = sample_ids[i]
-        consensus_id = consensus_ids[i]
-        essentials = consensus_essentials[i]
-        lineage_of_interest = essentials['LineagesOfInterest']
-
-        if lineage_of_interest == "Alpha":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "Beta":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "Gamma":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "Delta":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "Eta":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "Omicron":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "BA.2":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        elif lineage_of_interest == "BA.1":
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-        else:
-            random_date = gen_whovariant_datesampling(lineage_of_interest)
-
-        record = {
-            "SampleID": sample_id,
-            "Host": 'Human',
-            "Ct": generate_ct_value(), #check korreletion med ncount eller ncountQC eller SeqLength
-            "DateSampling": random_date.strftime('%Y-%m-%d') if random_date else None,
-            "CurrentConsensusID": consensus_id,
-            "TimestampCreated": str(datetime.now()),
-            "TimestampUpdated": str(datetime.now()),
-            "SampleDateTime": datetime.combine(random_date, fake.time_object()) if random_date else None
-        }
-        Sample_data.append(record)
-    print(f'generated {i + 1} sample records in total')
-    return Sample_data
-
+    return Consensus_data
 
 if __name__ == "__main__":
     start_time = time.time()
-    
-    record_amount = 1000
+
+    record_amount = 10000  # Example record amount
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                          "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
                          "Omicron", "BA.1", "BA.2", "BG", "BA.4", "BA.5", "BA.2.75", "BF.7", "WhoVariant", "LineagesOfInterest",
                          "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
-    NextcladeResult_headers = ["NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore", 
-                               "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs", 
-                               "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", "qc.frameShifts.status", 
-                               "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
-    Sample_headers = ["SampleID", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated", "SampleDateTime"]
-    
 
-    existing_sample_ids = set()
     existing_consensus_ids = set()
     existing_pango_ids = set()
     existing_sequencedsample_ids = set()
     existing_nextclade_ids = set()
 
-    nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextclade_ids) for i in range(record_amount)]
-    sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
+    nextclade_ids = [GenerateUniqueNextcladeResultID(existing_nextclade_ids) for i in range(record_amount)]
 
-    Consensus_data, consensus_essentials = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextcladeresult_ids, pangolin_ids)
-    NextcladeResult_data, nextclade_essentials = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids)
-    sample_data = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
-    
+    Consensus_data = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids)
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)
-    write_to_csv('Sample_data.csv', sample_data, Sample_headers)
-    write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
 
     end_time = time.time()
     time_passed = end_time - start_time

@@ -143,3 +143,18 @@ def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", 
         if start_date <= random_date <= end_date:
             return random_date
 
+def gen_whovariant_datesampling(Lineage_of_interest, csv_file = "important_files/DateSampling_LOI_weights.csv"):
+    
+    data = pd.read_csv(csv_file)
+    
+    lineage_data = data[data['LineagesOfInterest'] == Lineage_of_interest]
+
+    if len(lineage_data) is 0:
+        return None
+    
+    dates = lineage_data['DateSampling'].values
+    weights = lineage_data['weight'].values
+
+    selected_date = random.choices(dates, weights=weights, k=1)[0]
+    
+    return datetime.strptime(selected_date, '%Y-%m-%d')

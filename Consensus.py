@@ -53,7 +53,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         pango_id = pangolin_ids[i]
 
         #exclusions (manualexclusion)
-        manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate", "Manually_Excluded_Sample"))
+        manualExclusion = fake.random_element(elements=(None, "Manually_Excluded_Run", "Manually_Excluded_Plate", "Manually_Excluded_Sample"))
         manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
 
         #defining ncount, ambiguous and nwamb
@@ -97,17 +97,36 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
         # exclusion specifics (sequenceexlude and qcscore)
         if manualExclusion is None:
-            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "MixedStrain"))
-            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Mixed strain"))
+            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "MixedStrain"],
+                                                                       weights=[0.95, 0.05],
+                                                                       k=1)[0]
+            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Mixed strain"],
+                                                                weights=[0.95, 0.05],
+                                                                k=1)[0]
         elif manualExclusion == 'Manually_Excluded_Run':
-            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "MixedStrain;ManuallyExcluded"))
-            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Mixed strain"))
+            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "MixedStrain;ManuallyExcluded"],
+                                                            weights=[0.95, 0.05],
+                                                            k=1)[0]
+            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Mixed strain"],
+                                                    weights=[0.95, 0.05],
+                                                    k=1)[0]
         elif manualExclusion == 'Manually_Excluded_Plate':
-            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "NegContamination;ManuallyExcluded"))
-            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Neg. Contamination"))
+            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "NegContamination;ManuallyExcluded"],
+                                                            weights=[0.95, 0.05],
+                                                            k=1)[0]
+            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Neg. Contamination"],
+                                        weights=[0.95, 0.05],
+                                        k=1)[0]
         elif manualExclusion == 'Manually_Excluded_Sample':
-            manualExclusion_values['sequenceexclude'] = fake.random_element(elements=(None, "TooManyNs;ManuallyExcluded"))
-            manualExclusion_values['qcscore'] = fake.random_element(elements=(None, "Fail: Too many Ns"))
+            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "TooManyNs;ManuallyExcluded"],
+                                                weights=[0.95, 0.05],
+                                                k=1)[0]
+            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Too many Ns"],
+                            weights=[0.95, 0.05],
+                            k=1)[0]
+            
+        # if sequenceexclude is NULL, some qc_scores will be pass
+        
 
         #exclusion specifics numalignedreads
         if manualExclusion_values['qcscore'] is None:
