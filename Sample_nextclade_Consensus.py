@@ -160,6 +160,9 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             elif lineageofinterest == 'BA.2':
                 variant_values['ba_1'] = 0
                 variant_values['ba_2'] = 1
+            else:
+                variant_values['ba_1'] = 0
+                variant_values['ba_2'] = 0
         
         consensus_essentials.append(dict(essentials))
         

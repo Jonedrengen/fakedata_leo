@@ -147,14 +147,20 @@ def gen_whovariant_datesampling(Lineage_of_interest, csv_file = "important_files
     
     data = pd.read_csv(csv_file)
     
-    lineage_data = data[data['LineagesOfInterest'] == Lineage_of_interest]
+    if Lineage_of_interest is None or pd.isna(Lineage_of_interest):
+        # Only select from NULL entries (Pre_WHO_Naming)
+        lineage_data = data[data['LineagesOfInterest'].isna()]
+    else:
+        # Strict matching - only use dates specifically tagged for this lineage
+        lineage_data = data[data['LineagesOfInterest'] == Lineage_of_interest]
+        if len(lineage_data) == 0:
+            return None
 
-    if len(lineage_data) is 0:
+    if len(lineage_data) == 0:
         return None
-    
+        
     dates = lineage_data['DateSampling'].values
     weights = lineage_data['weight'].values
-
-    selected_date = random.choices(dates, weights=weights, k=1)[0]
     
+    selected_date = random.choices(dates, weights=weights, k=1)[0]
     return datetime.strptime(selected_date, '%Y-%m-%d')
