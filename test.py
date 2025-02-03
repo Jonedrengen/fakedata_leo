@@ -1,13 +1,17 @@
-from faker import Faker
-from faker.providers import BaseProvider #custom providers
-import random
-import csv
-from datetime import datetime
-import time
+
+
 import pandas as pd
-from id_generators import GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID
-from utility import write_to_csv, generate_ncount_value, generate_ambiguoussites, generate_NumbAlignedReads, generate_qc_values, gen_whovariant_datesampling
 
+# Adjust the file path if necessary
+df = pd.read_csv("Consensus_data.csv", na_values=["NULL"])
 
-some_date = gen_whovariant_datesampling(None)
-print(some_date)
+# Filter out rows where SequenceExclude is not NaN (keep those where it is NaN)
+df_filtered = df[df["SequenceExclude"].isna()]
+
+# Count None/NaN values in WhoVariant and LineagesOfInterest columns
+who_variant_none_count = df_filtered["WhoVariant"].isna().sum()
+lineages_of_interest_none_count = df_filtered["LineagesOfInterest"].isna().sum()
+
+print(f"WhoVariant is None: {who_variant_none_count}")
+print(f"LineagesOfInterest is None: {lineages_of_interest_none_count}")
+

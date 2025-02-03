@@ -7,11 +7,13 @@ from datetime import datetime as datetime, timedelta
 import datetime as datetime1
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID
-from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling
+from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values
 import pandas as pd
-
+from collections import Counter
 
 fake = Faker()
+
+variant_counter = Counter()
 
 def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids):
     consensus_essentials = []
@@ -33,19 +35,12 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         None: {'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 0, 'ba_1': 0, 'ba_2': 0}
     }
 
-    # map of exclusion
-    manualExclusion_mapping = {
-        None: {'sequenceexclude': None, 'qcscore': None},
-        'Manually_Excluded_Run': {'sequenceexclude': None, 'qcscore': None},
-        'Manually_Excluded_Plate': {'sequenceexclude': None, 'qcscore': None},
-        'Manually_Excluded_Sample': {'sequenceexclude': None, 'qcscore': None}
-    }
-
     
 
     #read the CSV file
-    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
+    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv', na_values=["NULL"])
     weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
+
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -58,8 +53,15 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         pango_id = pangolin_ids[i]
 
         #exclusions (manualexclusion)
-        manualExclusion = fake.random_element(elements=(None, None, None, "Manually_Excluded_Run", "Manually_Excluded_Plate", "Manually_Excluded_Sample"))
-        manualExclusion_values = manualExclusion_mapping.get(manualExclusion, manualExclusion_mapping[None])
+       # Get exclusion values
+        exclusion_values = generate_exclusion_values()
+        manualExclusion = exclusion_values['manual_exclude']
+        
+        # Rest of values now come directly from CSV
+        manualExclusion_values = {
+            'sequenceexclude': exclusion_values['sequence_exclude'],
+            'qcscore': exclusion_values['qc_score']
+        }
 
         #defining ncount, ambiguous and nwamb
         ncount = generate_ncount_value()
@@ -101,34 +103,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             pctcoveredbases = round(random.uniform(0.00, 90.12), 2)
 
         # exclusion specifics (sequenceexlude and qcscore)
-        if manualExclusion is None:
-            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "MixedStrain"],
-                                                                       weights=[0.95, 0.05],
-                                                                       k=1)[0]
-            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Mixed strain"],
-                                                                weights=[0.95, 0.05],
-                                                                k=1)[0]
-        elif manualExclusion == 'Manually_Excluded_Run':
-            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "MixedStrain;ManuallyExcluded"],
-                                                            weights=[0.95, 0.05],
-                                                            k=1)[0]
-            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Mixed strain"],
-                                                    weights=[0.95, 0.05],
-                                                    k=1)[0]
-        elif manualExclusion == 'Manually_Excluded_Plate':
-            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "NegContamination;ManuallyExcluded"],
-                                                            weights=[0.95, 0.05],
-                                                            k=1)[0]
-            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Neg. Contamination"],
-                                        weights=[0.95, 0.05],
-                                        k=1)[0]
-        elif manualExclusion == 'Manually_Excluded_Sample':
-            manualExclusion_values['sequenceexclude'] = random.choices(population=[None, "TooManyNs;ManuallyExcluded"],
-                                                weights=[0.95, 0.05],
-                                                k=1)[0]
-            manualExclusion_values['qcscore'] = random.choices(population=[None, "Fail: Too many Ns"],
-                            weights=[0.95, 0.05],
-                            k=1)[0]
 
         #exclusion specifics numalignedreads
         if manualExclusion_values['qcscore'] is None:
@@ -148,6 +122,9 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         unaliasedpango = essentials["UnaliasedPango"]
         if pd.isna(unaliasedpango):
             unaliasedpango = None
+
+        # Track the frequency of each variant
+        variant_counter[lineageofinterest] += 1
 
         #apply variant mapping
         variant_values = variant_mapping.get(whovariant, variant_mapping[None])
@@ -202,6 +179,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "TimestampUpdated": str(datetime.now())
         }
         Consensus_data.append(record)
+    print("Variant mapping frequency:", variant_counter)
     print(f'generated {i + 1} consensus records in total')
     return Consensus_data, consensus_essentials
 
@@ -303,7 +281,7 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
             random_date = gen_whovariant_datesampling(lineage_of_interest)
         elif lineage_of_interest == "BA.1":
             random_date = gen_whovariant_datesampling(lineage_of_interest)
-        else:
+        elif lineage_of_interest == None:
             random_date = gen_whovariant_datesampling(lineage_of_interest)
 
         record = {

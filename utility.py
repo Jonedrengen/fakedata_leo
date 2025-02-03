@@ -145,7 +145,7 @@ def gen_whovariant_samplingdate(start_date="2020-09-01", end_date="2022-03-01", 
 
 def gen_whovariant_datesampling(Lineage_of_interest, csv_file = "important_files/DateSampling_LOI_weights.csv"):
     
-    data = pd.read_csv(csv_file)
+    data = pd.read_csv(csv_file, na_values=["NULL"])
     
     if Lineage_of_interest is None or pd.isna(Lineage_of_interest):
         # Only select from NULL entries (Pre_WHO_Naming)
@@ -164,3 +164,25 @@ def gen_whovariant_datesampling(Lineage_of_interest, csv_file = "important_files
     
     selected_date = random.choices(dates, weights=weights, k=1)[0]
     return datetime.strptime(selected_date, '%Y-%m-%d')
+
+def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceExclude_QcScore.csv"):
+    """
+    Returns: dict with three values
+    """
+    # Read CSV
+    data = pd.read_csv(csv_file)
+    indices = range(len(data))
+    
+    # Get weights
+    weights = data['weight'].values
+    
+    # Select random row based on weights
+    selected_index = random.choices(indices, weights=weights, k=1)[0]
+    selected_row = data.iloc[selected_index]
+    
+    return {
+        'manual_exclude': None if pd.isna(selected_row['ManualExclude']) else selected_row['ManualExclude'],
+        'sequence_exclude': None if pd.isna(selected_row['SequenceExclude']) else selected_row['SequenceExclude'],
+        'qc_score': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
+    }
+
