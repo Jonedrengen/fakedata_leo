@@ -161,14 +161,14 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
         record = {
             "ConsensusID": consensus_id,
-            "NCount": manualExclusion_values['ncount'],
-            "AmbiguousSites": manualExclusion_values['ambiguoussites'],
+            "NCount": manualExclusion_values['ncount'], #above 3k = not passed (not implemented)
+            "AmbiguousSites": manualExclusion_values['ambiguoussites'], # over 5, then NcountQC = fail (not implemented)
             "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
             "PctCoveredBases": pctcoveredbases,
             "SeqLength": random.randint(29300, 30402),
-            "QcScore": manualExclusion_values['qcscore'],
+            "QcScore": manualExclusion_values['qcscore'], 
             "SequenceExclude": manualExclusion_values['sequenceexclude'],
             "ManualExclude": manualExclusion,
             "Alpha": variant_values['alpha'],

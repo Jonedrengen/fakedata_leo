@@ -1,2 +1,26 @@
-Datogenering fra DateSampling i "Sample_data.csv" skal matche LineagesOfInterest i "Consensus_data.csv"
-Både sample_data.csv og Consensus_data.csv har consensus_id
+######### DateSampling #########
+
+===== LØST =====
+
+Problem med DateSampling 
+Det er meningen DateSampling i Sample_data skal genereres ud fra den matchende række i Consensus_data filen
+
+THE ERROR: 
+Lige nu matcher den dato der laves i DateSampling IKKE med den rigtige række i Consensus_data filen.
+Det sker fordi (jeg tror) at denm reference der er på tværs af Consensus og Sample (ConsensusID) ikke matcher de rigtige rækker
+Det vil sige at selvom jeg laver en dato i DateSampling, baseret på WhoVariant, så kan de ske at den ConsensusID der matcher DateSampling og WhoVariant IKKE matcher på tværs af filerne
+
+eksempel fra min testning. Alpha varianten vil altid generere "2021-08-01"
+
+1. Vi har en række i Consensensus_data.csv: her er consensusID "Consensus-498457" og "WhoVarianten" er Omicron og "LineageOfInterest" er BA.1
+Consensus-498457,202,3,205,MQ,4177949,99.1,29372,Fail: Neg. Contamination,NegContamination;ManuallyExcluded,Manually_Excluded_Plate,0,0,0,0,0,1,1,0,0,0,0,0,0,Omicron,BA.1,B.1.1.529.1.1.1,SequencedSample-683470,Nextclade-123578,Pangolin-494264,1,2025-01-28 16:46:33.002358,2025-01-28 16:46:33.002360
+
+2. Vi har en række i Sample_data.csv 
+Sample-687436,Human,28.91034,2021-08-01,Consensus-498457,2025-01-28 16:46:36.355594,2025-01-28 16:46:36.355595,2021-08-01 13:49:42.475225
+
+Du kan se consensusID'erne matcher i disse 2 rækker, men datoen i sample_data rækken matcher en Alpha lineageofinterest og i Consensus rækken er det en BA.1 lineageofinterest
+
+######### DateSampling #########
+
+
+

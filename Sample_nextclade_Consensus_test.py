@@ -35,10 +35,11 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         None: {'alpha': 0, 'beta': 0, 'gamma': 0, 'delta': 0, 'eta': 0, 'omicron': 0, 'ba_1': 0, 'ba_2': 0}
     }
 
-    # Read the CSV files
-    date_sampling_who = pd.read_csv('important_files/DateSampling_who.csv', na_values=["NULL"])
-    unaliased_pango = pd.read_csv('important_files/UnaliasedPango.csv', na_values=["NULL"])
-    weights_date_sampling = date_sampling_who['weight'].tolist()
+    #read pangolin_essentials csv
+    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv', na_values=["NULL"])
+    print(Nextclade_pango_essentials)
+    weights_pango_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
+    print(weights_pango_essentials)
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -50,7 +51,8 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         nextclade_id = nextclade_ids[i]
         pango_id = pangolin_ids[i]
 
-        # Get exclusion values
+        #exclusions (manualexclusion)
+       # Get exclusion values
         exclusion_values = generate_exclusion_values()
         manualExclusion = exclusion_values['manual_exclude']
         
@@ -60,7 +62,7 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             'qcscore': exclusion_values['qc_score']
         }
 
-        # Defining ncount, ambiguous and nwamb
+        #defining ncount, ambiguous and nwamb
         ncount = generate_ncount_value()
         if ncount is None:
             nwamb = None
@@ -99,36 +101,35 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         else:
             pctcoveredbases = round(random.uniform(0.00, 90.12), 2)
 
-        # Exclusion specifics numalignedreads
+        # exclusion specifics (sequenceexlude and qcscore)
+
+        #exclusion specifics numalignedreads
         if manualExclusion_values['qcscore'] is None:
             manualExclusion_values['numalignedreads'] = None
         else:
             manualExclusion_values['numalignedreads'] = generate_NumbAlignedReads()
 
-        # Sample from DateSampling_who to get WhoVariant and LineagesOfInterest
-        sampled_date_sampling = date_sampling_who.sample(n=1, weights=weights_date_sampling).iloc[0]
-        lineageofinterest = sampled_date_sampling["LineagesOfInterest"]
-        whovariant = sampled_date_sampling["WhoVariant"]
-        if pd.isna(lineageofinterest):
-            lineageofinterest = None
+        # get essentials data
+        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_pango_essentials).iloc[0]
+        
+        whovariant = essentials["WhoVariant"]
         if pd.isna(whovariant):
             whovariant = None
-
-        # Sample from UnaliasedPango to get UnaliasedPango based on LineagesOfInterest
-        unaliased_pango_filtered = unaliased_pango[unaliased_pango['LineagesOfInterest'] == lineageofinterest]
-        if not unaliased_pango_filtered.empty:
-            sampled_unaliased_pango = unaliased_pango_filtered.sample(n=1, weights=unaliased_pango_filtered['weight']).iloc[0]
-            unaliasedpango = sampled_unaliased_pango["UnaliasedPango"]
-        else:
+        lineageofinterest = essentials["LineagesOfInterest"]
+        if pd.isna(lineageofinterest):
+            lineageofinterest = None
+        unaliasedpango = essentials["UnaliasedPango"]
+        if pd.isna(unaliasedpango):
             unaliasedpango = None
 
-        # Track the frequency of each variant
+
+        # track the frequency of LineageOfInterest
         variant_counter[lineageofinterest] += 1
 
-        # Apply variant mapping
+        #apply variant mapping
         variant_values = variant_mapping.get(whovariant, variant_mapping[None])
 
-        # Adjust for Omicron and its sublineages
+                # adjust for Omicron and its sublineages
         if whovariant == 'Omicron':
             if lineageofinterest == 'BA.1':
                 variant_values['ba_1'] = 1
@@ -140,12 +141,12 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
                 variant_values['ba_1'] = 0
                 variant_values['ba_2'] = 0
         
-        consensus_essentials.append(dict(sampled_date_sampling))
+        consensus_essentials.append(dict(essentials))
         
         record = {
             "ConsensusID": consensus_id,
-            "NCount": manualExclusion_values['ncount'],
-            "AmbiguousSites": manualExclusion_values['ambiguoussites'],
+            "NCount": manualExclusion_values['ncount'], #above 3k = not passed (not implemented)
+            "AmbiguousSites": manualExclusion_values['ambiguoussites'], # over 5, then NcountQC = fail (not implemented)
             "NwAmb": manualExclusion_values['NwAmb'],
             "NCountQC": ncountqc,
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
@@ -182,15 +183,12 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
     print(f'generated {i + 1} consensus records in total')
     return Consensus_data, consensus_essentials
 
-def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
+def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids, consensus_essentials):
     nextclade_essentials = []
     
     NextcladeResult_data = []
     starting_time = time.time()
     update_time = 0.15
-
-    Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
-    weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -199,8 +197,8 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
             print(f'generated {i} nextclade records')
         nextcladeresult_id = nextcladeresult_ids[i]
         consensus_id = consensus_ids[i]
+        essentials = consensus_essentials[i]
 
-        essentials = Nextclade_pango_essentials.sample(n=1, weights=weights_essentials).iloc[0]
         if pd.isna(essentials["clade"]):
             essentials['clade'] = None
         if pd.isna(essentials["Nextclade_pango"]):
@@ -209,7 +207,6 @@ def NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids):
         
 
         nextclade_pango = essentials['Nextclade_pango']
-        
         nextclade_version = fake.random_element(elements=("nextclade 2.5.0", "nextclade 2.6.0", "nextclade 2.4.0"))
 
         qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
@@ -264,6 +261,7 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
         essentials = consensus_essentials[i]
         lineage_of_interest = essentials['LineagesOfInterest']
 
+        #print(lineage_of_interest)
         if lineage_of_interest == "Alpha":
             random_date = gen_whovariant_datesampling(lineage_of_interest)
         elif lineage_of_interest == "Beta":
@@ -279,6 +277,10 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
         elif lineage_of_interest == "BA.2":
             random_date = gen_whovariant_datesampling(lineage_of_interest)
         elif lineage_of_interest == "BA.1":
+            random_date = gen_whovariant_datesampling(lineage_of_interest)
+        elif pd.isna(lineage_of_interest): 
+            #print(f"it is a nan: {lineage_of_interest}")
+            #lineage_of_interest = random.choices(["Alpha", "Beta", "Gamma", "Delta", "Eta", "Omicron", "BA.2", "BA.1"])
             random_date = gen_whovariant_datesampling(lineage_of_interest)
         else:
             random_date = gen_whovariant_datesampling(lineage_of_interest)
@@ -301,7 +303,7 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
 if __name__ == "__main__":
     start_time = time.time()
     
-    record_amount = 1000
+    record_amount = 1
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                          "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
@@ -327,7 +329,7 @@ if __name__ == "__main__":
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
 
     Consensus_data, consensus_essentials = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextcladeresult_ids, pangolin_ids)
-    NextcladeResult_data, nextclade_essentials = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids)
+    NextcladeResult_data, nextclade_essentials = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids, consensus_essentials)
     sample_data = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
     
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)

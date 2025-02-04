@@ -1,0 +1,27 @@
+What is this?: 
+- This fake data generator generates fake data, based on a real dataset. 
+- This means that the data always will try to look like the dataset it is based on
+- If you wish to change the real dataset it is based on, you should replace all files in "important_files"
+
+important_files:
+  ManualExclude_SequenceExclude_QcScore.csv:
+    description: Contains the different possible variations and weights of ManuelExclude, SequenceExclude, and QcScore, based on the real data
+    HowToRetrieve: In SQL Azure Data Studio, execute the SQLQuery on GenEpiBioTrain.V_Covidplots
+    usage: Should be used to define ManuelExclude, SequenceExclude andQcScore in generated data
+    TODO: make it do what usage describes
+
+  DateSequencing_LineageOfInterest_weights:
+    description: Contains the Dates of sequencing for the sample variants (lineage of interest). As well as how often variants are sequenced (weigts)
+    HowToRetrieve: In SQL Azure Data Studio, execute the SQLQuery on GenEpiBioTrain.V_Covidplots
+    SQLQuery: SELECT distinct DateSampling, LineagesOfInterest, COUNT(*) as weight 
+    FROM GenEpiBioTrain.V_CovidPlots 
+    GROUP BY DateSequencing, LineagesOfInterest
+
+    Nextclade_pango_essentials:
+      description:
+      HowToRetrieve:
+      SQLQuery: SELECT Nextclade_pango,clade,lineage,UnaliasedPango,LineagesOfInterest,WhoVariant,count(*) as amount_nextclade_pangos 
+      From GenEpiBioTrain.V_CovidPlots 
+      GROUP BY Nextclade_pango, clade, lineage, UnaliasedPango, LineagesOfInterest, WhoVariant
+
+    

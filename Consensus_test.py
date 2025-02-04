@@ -40,6 +40,8 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
     Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv')
     weights_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
 
+    manualExclusion = pd.read_csv('important_files/ManualExclude_SequenceExclude_QcScore.csv')
+    
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:
@@ -159,10 +161,10 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
         record = {
             "ConsensusID": consensus_id,
-            "NCount": manualExclusion_values['ncount'],
-            "AmbiguousSites": manualExclusion_values['ambiguoussites'],
+            "NCount": manualExclusion_values['ncount'], #above 3k = not passed (not implemented)
+            "AmbiguousSites": manualExclusion_values['ambiguoussites'], # over 5, then NcountQC = fail (not implemented)
             "NwAmb": manualExclusion_values['NwAmb'],
-            "NCountQC": ncountqc,
+            "NCountQC": ncountqc, 
             "NumAlignedReads": manualExclusion_values['numalignedreads'],
             "PctCoveredBases": pctcoveredbases,
             "SeqLength": random.randint(29300, 30402),

@@ -1,8 +1,10 @@
 put csv files into local docker db (without using import wizard)
 
-open the /tmp file in docker desctop, right click to import the desired fields
+open the /tmp file in docker desktop, right click to import the desired fields
 
-create the tables and make the bulk intert
+create the tables and make the bulk insert
+
+NOTE: There are 3 different SQL queries. For optimal function, execute them seperately
 
 -- Create schema
 CREATE SCHEMA Jon
