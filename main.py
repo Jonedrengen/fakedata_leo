@@ -1,8 +1,8 @@
 from PangolinResult import PangolinResult
-from Sample_nextclade_Consensus_test import ConsensusData
-from Sample_nextclade_Consensus_test import SampleData
+from Consensus_Nextclade_Sample import ConsensusData
+from Consensus_Nextclade_Sample import SampleData
 from Batch import BatchData
-from Sample_nextclade_Consensus_test import NextcladeResultData
+from Consensus_Nextclade_Sample import NextcladeResultData
 from SequencedSample import SequencedSampleData
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSampleID,
                            GenerateUniqueBatchID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID)
