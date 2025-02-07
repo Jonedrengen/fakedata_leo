@@ -1,8 +1,8 @@
 from PangolinResult import PangolinResult
-from Consensus_Nextclade_Sample import ConsensusData
-from Consensus_Nextclade_Sample import SampleData
-from Batch import BatchData
-from Consensus_Nextclade_Sample import NextcladeResultData
+from Consensus_Nextclade_Sample_Batch_test import ConsensusData
+from Consensus_Nextclade_Sample_Batch_test import SampleData
+from Consensus_Nextclade_Sample_Batch_test import BatchData
+from Consensus_Nextclade_Sample_Batch_test import NextcladeResultData
 from SequencedSample import SequencedSampleData
 from id_generators import (GenerateUniquePangolinResultID, GenerateUniqueConsensusID, GenerateUniqueSampleID,
                            GenerateUniqueBatchID, GenerateUniqueSequencedSampleID, GenerateUniqueNextcladeResultID)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     existing_nextcladeresult_ids = set()
 
     sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
-    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount // 100 + 1)] #change for batch size
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)] #change for batch size
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
@@ -52,10 +52,10 @@ if __name__ == '__main__':
     #generating data
     Consensus_data, consensus_essentials = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_ids, pangolin_ids)
     NextcladeResult_data, nextclade_essentials = NextcladeResultData(record_amount, nextclade_ids, consensus_ids, consensus_essentials)
-    Sample_data = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
+    Sample_data, Sample_essentials = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
     PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids, nextclade_essentials)
     SequencedSample_data = SequencedSampleData(record_amount, sequencedsample_ids, batch_ids, consensus_ids, sample_ids)
-    Batch_data = BatchData(record_amount // 100 + 1, batch_ids)
+    Batch_data = BatchData(record_amount, batch_ids, Sample_essentials)
 
     #creating csv
     write_to_csv('Sample_data.csv', Sample_data, Sample_headers)

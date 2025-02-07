@@ -14,7 +14,6 @@ from NextcladeResult import NextcladeResultData
 fake = Faker()
 
 
-
 def PangolinResult(record_amount, pangolin_ids, consensus_ids, global_essentials_list):
     
     PangolinResult_data = []
@@ -54,8 +53,6 @@ def PangolinResult(record_amount, pangolin_ids, consensus_ids, global_essentials
             qc_status = 'pass'
             qc_notes = 'some_qc_notes'
             note = 'some_note'
-
-
 
         record = {
             "PangolinResultID": pango_id,

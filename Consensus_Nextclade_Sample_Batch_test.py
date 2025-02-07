@@ -6,8 +6,8 @@ import numpy as np
 from datetime import datetime as datetime, timedelta
 import datetime as datetime1
 import time
-from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID
-from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values
+from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
+from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values,generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values
 import pandas as pd
 from collections import Counter
 
@@ -37,9 +37,8 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
 
     #read pangolin_essentials csv
     Nextclade_pango_essentials = pd.read_csv('important_files/Nextclade_pango_essentials.csv', na_values=["NULL"])
-    print(Nextclade_pango_essentials)
     weights_pango_essentials = Nextclade_pango_essentials.iloc[:, -1].tolist()
-    print(weights_pango_essentials)
+
 
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -122,10 +121,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
         if pd.isna(unaliasedpango):
             unaliasedpango = None
 
-
-        # track the frequency of LineageOfInterest
-        variant_counter[lineageofinterest] += 1
-
         #apply variant mapping
         variant_values = variant_mapping.get(whovariant, variant_mapping[None])
 
@@ -179,7 +174,6 @@ def ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextclade_i
             "TimestampUpdated": str(datetime.now())
         }
         Consensus_data.append(record)
-    print("Variant mapping frequency:", variant_counter)
     print(f'generated {i + 1} consensus records in total')
     return Consensus_data, consensus_essentials
 
@@ -249,6 +243,7 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
     Sample_data = []
     starting_time = time.time()
     update_time = 0.15
+    Sample_essentials = []
     
     for i in range(record_amount):
         elapsed_time = time.time() - starting_time
@@ -285,6 +280,9 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
         else:
             random_date = gen_whovariant_datesampling(lineage_of_interest)
 
+        Sample_essentials.append(dict(essentials))
+        
+
         record = {
             "SampleID": sample_id,
             "Host": 'Human',
@@ -296,14 +294,104 @@ def SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials):
             "SampleDateTime": datetime.combine(random_date, fake.time_object()) if random_date else None
         }
         Sample_data.append(record)
+    #print(Sample_essentials)
     print(f'generated {i + 1} sample records in total')
-    return Sample_data
+    return Sample_data, Sample_essentials
+
+def BatchData(record_amount, batch_ids, Sample_essentials):
+    Batch_data = []
+    starting_time = time.time()
+    update_time = 0.15
+    
+    # READ the new CSV with time-based weighting
+    # Columns expected: [LineagesOfInterest, StartDate, EndDate, BatchSource, weights]
+    Batch_sources_df = pd.read_csv('important_files/BatchSources_by_week.csv', na_values=["NULL"])
+    
+    # If StartDate/EndDate are strings, convert to actual date objects
+    Batch_sources_df['StartDate'] = pd.to_datetime(Batch_sources_df['StartDate'].str.split().str[0])
+    Batch_sources_df['EndDate'] = pd.to_datetime(Batch_sources_df['EndDate'].str.split().str[0])
+     
+    # variables and their weights for batch_data platform
+    platforms = [None, 'illumina qiaseq', 'nanopore', 'Illumina']
+    platform_weights = [17, 20, 879, 1044]
+
+    start_date = datetime(2020, 8, 1)  # Instead of '2020-08-01'
+    end_date = datetime(2023, 1, 1) 
+
+    for i in range(record_amount):
+        elapsed_time = time.time() - starting_time
+        if elapsed_time >= update_time:
+            update_time += 0.15
+            print(f'generated {i} batch records')
+        
+        batch_id = batch_ids[i]
+        
+        # Get the lineage and sampling date from Sample_essentials
+        lineage_of_interest = Sample_essentials[i].get('LineagesOfInterest')
+        
+        # Make sure you stored a valid DateSampling in Sample_essentials
+        sample_date_str = Sample_essentials[i].get('DateSampling')  # e.g. '2021-10-05'
+        if sample_date_str is not None and pd.notna(sample_date_str):
+            # Convert to pandas datetime
+            sample_date = pd.to_datetime(sample_date_str)
+        else:
+            # Generate random date and convert to pandas datetime
+            random_date = fake.date_between(start_date=start_date, end_date=end_date)
+            sample_date = pd.to_datetime(random_date)
+        
+        # PLATFORM: pick from your normal weighting
+        Batch_platform = random.choices(platforms, platform_weights)[0]
+        
+        # Now filter the new Batch_sources_df by lineage & time
+        if pd.isna(lineage_of_interest):
+            # If lineage is NaN, pick rows where LineagesOfInterest is also NaN
+            # or handle "NULL" logic
+            subset = Batch_sources_df[Batch_sources_df['LineagesOfInterest'].isna()]
+        else:
+            # Match the lineage
+            subset = Batch_sources_df[Batch_sources_df['LineagesOfInterest'] == lineage_of_interest]
+        
+        # Further filter by date range (StartDate <= sample_date <= EndDate)
+        subset = subset[(subset['StartDate'] <= sample_date) & (sample_date <= subset['EndDate'])]
+        
+        # If subset is empty, fallback to some generic or “NULL” BatchSource
+        if subset.empty:
+            # Possibly pick from all rows with no lineage or default
+            fallback = Batch_sources_df[Batch_sources_df['LineagesOfInterest'].isna()]
+            # if that’s also empty, fallback to entire dataset
+            if fallback.empty:
+                fallback = Batch_sources_df
+            subset = fallback
+        
+        # Sample 1 row from 'subset' with weights
+        chosen_row = subset.sample(n=1, weights=subset['weights']).iloc[0]
+        
+        # Optionally, set the BatchDate to some small offset from sample_date
+        # e.g. 0–7 days after the sample
+        offset_days = random.randint(0, 7)
+        batch_date = sample_date + timedelta(days=offset_days)
+        formatted_date_BatchDate = batch_date.strftime('%Y-%m-%d')
+        
+        record = {
+            "BatchID": batch_id,
+            "BatchDate": formatted_date_BatchDate,
+            "Platform": Batch_platform,
+            "BatchSource": chosen_row['BatchSource'],
+            "TimestampCreated": str(datetime.now()),
+            "TimestampUpdated": str(datetime.now())
+        }
+        
+        Batch_data.append(record)
+    
+    print(f'generated {i + 1} batch records in total')
+    return Batch_data
+
 
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    record_amount = 1
+    record_amount = 10
 
     Consensus_headers = ["ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
                          "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
@@ -314,27 +402,32 @@ if __name__ == "__main__":
                                "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", "qc.frameShifts.status", 
                                "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", "IsCurrent", "TimestampCreated", "TimestampUpdated"]
     Sample_headers = ["SampleID", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", "TimestampUpdated", "SampleDateTime"]
-    
+    Batch_headers = ["BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"]
+
 
     existing_sample_ids = set()
     existing_consensus_ids = set()
     existing_pango_ids = set()
     existing_sequencedsample_ids = set()
     existing_nextclade_ids = set()
+    existing_batch_ids = set()
 
     nextcladeresult_ids = [GenerateUniqueNextcladeResultID(existing_nextclade_ids) for i in range(record_amount)]
     sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)]
 
     Consensus_data, consensus_essentials = ConsensusData(record_amount, consensus_ids, sequencedsample_ids, nextcladeresult_ids, pangolin_ids)
     NextcladeResult_data, nextclade_essentials = NextcladeResultData(record_amount, nextcladeresult_ids, consensus_ids, consensus_essentials)
-    sample_data = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
+    sample_data, Sample_essentials = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
+    Batch_data = BatchData(record_amount, batch_ids, Sample_essentials)
     
     write_to_csv('Consensus_data.csv', Consensus_data, Consensus_headers)
     write_to_csv('Sample_data.csv', sample_data, Sample_headers)
     write_to_csv('NextcladeResult_data.csv', NextcladeResult_data, NextcladeResult_headers)
+    write_to_csv('Batch_data.csv', Batch_data, Batch_headers)
 
     end_time = time.time()
     time_passed = end_time - start_time
