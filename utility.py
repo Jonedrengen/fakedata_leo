@@ -186,3 +186,30 @@ def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceEx
         'qc_score': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
     }
 
+def generate_BatchSource(LineageOfInterest, DateSampling, csv_file="important_files/Lin_DateSamp_BSource_weights.csv"):
+    data = pd.read_csv(csv_file, na_values=["NULL"])
+    data['DateSampling'] = pd.to_datetime(data['DateSampling'])
+
+    # Filter based on LineageOfInterest
+    if LineageOfInterest is None or pd.isna(LineageOfInterest):
+        subset = data[data['LineagesOfInterest'].isna()]
+    else:
+        subset = data[data['LineagesOfInterest'] == LineageOfInterest]
+        if subset.empty:
+            subset = data[data['LineagesOfInterest'].isna()]
+
+    # Further filter by date (exact date match)
+    date_subset = subset[subset['DateSampling'] == DateSampling]
+    
+    # If no exact date match, use the entire lineage subset
+    if date_subset.empty:
+        date_subset = subset
+    
+    # Sample based on weights
+    if not date_subset.empty:
+        selected_row = date_subset.sample(n=1, weights=date_subset['weights']).iloc[0]
+        return selected_row['BatchSource']
+    else:
+        # Fallback if no matching data
+        return random.choice(['Hogwarts', 'Panem', 'Middle-Earth', 'Pandora', 'Narnia', 
+                            'Asgard', 'Gilead', 'Agrabah', 'Wakanda', 'Neverland'])
