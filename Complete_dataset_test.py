@@ -226,7 +226,7 @@ def Generate_complete_data(record_amount):
 ######################## Batch_data ########################
 
         #BatchDate
-        BatchDate = DateSampling
+        BatchDate = DateSampling + timedelta(days=2)
 
         #Platform
         platforms = [None, 'illumina qiaseq', 'nanopore', 'Illumina']
@@ -302,7 +302,7 @@ def Generate_complete_data(record_amount):
 
         #DateSequencing
         #TODO should match the batch date?
-        DateSequencing = fake.date_between(datetime1.date(2020, 9, 17), datetime1.date(2024, 10, 3))
+        DateSequencing = fake.date_between(start_date=BatchDate, end_date=BatchDate + timedelta(days=4))
 
         #SampleContent
         SampleContent = "RNA"
@@ -440,6 +440,7 @@ def Generate_complete_data(record_amount):
             "TimestampUpdated": TimestampUpdated
         }
 
+
         Consensus_data.append(Consensus_record)
         NextcladeResult_data.append(NextcladeResult_record)
         Sample_data.append(Sample_record)
@@ -449,11 +450,12 @@ def Generate_complete_data(record_amount):
         
     return (Consensus_data, NextcladeResult_data, Sample_data, Batch_data, PangolinResult_data, SequencedSample_data)
 
+    
 if __name__ == '__main__':
     start_time = time.time()
 
     #record amount
-    record_amount = 25000
+    record_amount = 2500
 
     #headers "/n" represents a new file (so 6 total files)
     consensus_headers = [
@@ -494,52 +496,6 @@ if __name__ == '__main__':
 
     #generating data
     (Consensus_data, NextcladeResult_data, Sample_data, Batch_data, PangolinResult_data, SequencedSample_data) = Generate_complete_data(record_amount)
-
-# Convert to pandas DataFrames for easier manipulation
-    Sample_df = pd.DataFrame(Sample_data)
-    SequencedSample_df = pd.DataFrame(SequencedSample_data)
-    Batch_df = pd.DataFrame(Batch_data)
-
-    # Sort all data by DateSampling
-    Sample_df['DateSampling'] = pd.to_datetime(Sample_df['DateSampling'])
-    Sample_df = Sample_df.sort_values('DateSampling')
-    
-    # Group by BatchSource and assign new BatchIDs
-    batch_groups = Batch_df.groupby('BatchSource')
-    new_batch_mapping = {}
-    new_batch_data = []
-    
-    for batch_source, group in batch_groups:
-        batch_records = group.to_dict('records')
-        num_batches = (len(batch_records) + 95) // 96  # Round up to nearest 96
-        
-        for i in range(num_batches):
-            new_batch_id = GenerateUniqueBatchID(existing_BatchIDs)
-            start_idx = i * 96
-            end_idx = min((i + 1) * 96, len(batch_records))
-            
-            # Map old BatchIDs to new BatchID
-            for old_record in batch_records[start_idx:end_idx]:
-                new_batch_mapping[old_record['BatchID']] = new_batch_id
-            
-            # Create one batch record for these 96 samples
-            new_batch_data.append({
-                'BatchID': new_batch_id,
-                'BatchDate': batch_records[start_idx]['BatchDate'],
-                'Platform': batch_records[start_idx]['Platform'],
-                'BatchSource': batch_source,
-                'TimestampCreated': batch_records[start_idx]['TimestampCreated'],
-                'TimestampUpdated': batch_records[start_idx]['TimestampUpdated']
-            })
-    
-    # Update BatchIDs in all relevant DataFrames
-    Sample_df['BatchID'] = Sample_df['BatchID'].map(new_batch_mapping)
-    SequencedSample_df['BatchID'] = SequencedSample_df['BatchID'].map(new_batch_mapping)
-    
-    # Convert back to lists
-    Sample_data = Sample_df.to_dict('records')
-    SequencedSample_data = SequencedSample_df.to_dict('records')
-    Batch_data = new_batch_data
 
     #make them csv files
     print("Writing data to CSV files...")

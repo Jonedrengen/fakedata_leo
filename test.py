@@ -5,12 +5,14 @@ from faker import Faker
 
 fake = Faker()
 
+start_date = '2021-05-05'
 
+#convert strings to dates
+start_date = datetime.strptime(start_date, "%Y-%m-%d")
+#end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
+days_between = start_date + timedelta(days=2)
+print(days_between)
 
-IsCurrent_test = pd.read_csv('output/PangolinResult_data.csv')
-IsCurrent_test2 = pd.read_csv('output/Consensus_data.csv')
-IsCurrent_test3 = pd.read_csv('PangolinResult_data.csv')
-print(type(IsCurrent_test['IsCurrent'][0]))
-print(type(IsCurrent_test2['IsCurrent'][0]))
-print(type(IsCurrent_test3['IsCurrent'][0]))
+random_date = fake.date_between(start_date, end_date=days_between)
+print(random_date)
