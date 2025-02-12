@@ -5,9 +5,12 @@ from faker import Faker
 
 fake = Faker()
 
-Variant_connections = pd.read_csv('important_files/Nextclade_pango_essentials.csv', na_values=["NULL"])
-Variant_connections_weights = Variant_connections.iloc[:, -1].tolist()
 
-#Batchsource
-BatchSource = generate_BatchSource("Alpha", "2021-04-26")
-print(BatchSource)
+
+
+IsCurrent_test = pd.read_csv('output/PangolinResult_data.csv')
+IsCurrent_test2 = pd.read_csv('output/Consensus_data.csv')
+IsCurrent_test3 = pd.read_csv('PangolinResult_data.csv')
+print(type(IsCurrent_test['IsCurrent'][0]))
+print(type(IsCurrent_test2['IsCurrent'][0]))
+print(type(IsCurrent_test3['IsCurrent'][0]))

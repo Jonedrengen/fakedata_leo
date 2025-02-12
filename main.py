@@ -15,7 +15,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     #record amount (max is 999999.00)
-    record_amount = 25000
+    record_amount = 2500
 
 
     #headers
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     existing_nextcladeresult_ids = set()
 
     sample_ids = [GenerateUniqueSampleID(existing_sample_ids) for i in range(record_amount)]
-    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)] #change for batch size
+    batch_ids = [GenerateUniqueBatchID(existing_batch_ids) for i in range(record_amount)] # // 100 + 1 (removed after record_amount)
     consensus_ids = [GenerateUniqueConsensusID(existing_consensus_ids) for i in range(record_amount)]
     pangolin_ids = [GenerateUniquePangolinResultID(existing_pango_ids) for i in range(record_amount)]
     sequencedsample_ids = [GenerateUniqueSequencedSampleID(existing_sequencedsample_ids) for i in range(record_amount)]
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     Sample_data, Sample_essentials = SampleData(record_amount, sample_ids, consensus_ids, consensus_essentials)
     PangolinResult_data = PangolinResult(record_amount, pangolin_ids, consensus_ids, nextclade_essentials)
     SequencedSample_data = SequencedSampleData(record_amount, sequencedsample_ids, batch_ids, consensus_ids, sample_ids)
-    Batch_data = BatchData(record_amount, batch_ids, Sample_essentials)
+    Batch_data = BatchData(record_amount, batch_ids, Sample_essentials) # // 100 + 1 (removed after record_amount)
 
     #creating csv
     write_to_csv('Sample_data.csv', Sample_data, Sample_headers)
