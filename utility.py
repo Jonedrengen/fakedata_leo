@@ -8,11 +8,20 @@ from datetime import datetime, timedelta
 
 def write_to_csv(file_name, data, headers):
     with open(file_name, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
+        writer = csv.DictWriter(file, 
+                              fieldnames=headers,
+                              quoting=csv.QUOTE_NONE,  # Don't quote any fields
+                              escapechar='\\',         # Use backslash to escape special characters
+                              quotechar='"')           # Empty quote character
         writer.writeheader()
         writer.writerows(data)
     print(f"written to {file_name}")
 
+def clean_string_fields(record):
+    for key, value in record.items():
+        if isinstance(value, str):
+            record[key] = value.replace(',', ';')
+    return record
 
 def progress_update(total_records, update_interval=0.5):
     starting_time = time.time()
@@ -64,35 +73,37 @@ def generate_ncount_value():
 
     return round(ncount)
 
-#Ambiguoussites
-# numbers 0-29 or NA generated for ambiguoussites
-ambiguous_values = list(range(30))
-ambiguous_values_frequencies = [60331, 18876, 8753, 4384, 2218, 1106, 626, 432, 293, 236,
-                                218, 185, 126, 100, 80, 76, 52, 70, 44, 39,
-                                37, 28, 32, 26, 29, 22, 19, 18, 15, 15]
+
 def generate_ambiguoussites():
+    #Ambiguoussites
+    # numbers 0-29 or NA generated for ambiguoussites
+    ambiguous_values = list(range(30))
+    ambiguous_values_frequencies = [60331, 18876, 8753, 4384, 2218, 1106, 626, 432, 293, 236,
+                                    218, 185, 126, 100, 80, 76, 52, 70, 44, 39,
+                                    37, 28, 32, 26, 29, 22, 19, 18, 15, 15]
     return random.choices(ambiguous_values, ambiguous_values_frequencies)[0]
 
-# NumbAlignedReads
-#characteristics, based on R summary
-numbalignedreads_min = 0
-numbalignedreads_first_quartile = 869132
-numbalignedreads_median = 1890218
-numbalignedreads_mean = 2415394
-numbalignedreads_third_quartile = 3346942
-numbalignedreads_max = 40280538
 
-# 1. Calculate σ (Standard Deviation) σ Calculation:
-# 1.1 Convert Q1 and Q3 to their logarithms.
-# 1.2 Find the difference between these logarithms.
-# 1.3 Divide by 1.35 (IQR) to get σ.
-numbalignedreads_sigma = (np.log(numbalignedreads_third_quartile) - np.log(numbalignedreads_first_quartile)) / 1.35 #1.35 is IQR
-# 2. Calculate μ (Mean)
-# 2.1 Convert the median to its logarithm.
-# 2.2 Adjust this logarithm by subtracting half of σ squared to get μ.
-numbalignedreads_mu = np.log(numbalignedreads_median) - (numbalignedreads_sigma**2 / 2)
 
 def generate_NumbAlignedReads():
+    # NumbAlignedReads
+    #characteristics, based on R summary
+    numbalignedreads_min = 0
+    numbalignedreads_first_quartile = 869132
+    numbalignedreads_median = 1890218
+    numbalignedreads_mean = 2415394
+    numbalignedreads_third_quartile = 3346942
+    numbalignedreads_max = 40280538
+
+    # 1. Calculate σ (Standard Deviation) σ Calculation:
+    # 1.1 Convert Q1 and Q3 to their logarithms.
+    # 1.2 Find the difference between these logarithms.
+    # 1.3 Divide by 1.35 (IQR) to get σ.
+    numbalignedreads_sigma = (np.log(numbalignedreads_third_quartile) - np.log(numbalignedreads_first_quartile)) / 1.35 #1.35 is IQR
+    # 2. Calculate μ (Mean)
+    # 2.1 Convert the median to its logarithm.
+    # 2.2 Adjust this logarithm by subtracting half of σ squared to get μ.
+    numbalignedreads_mu = np.log(numbalignedreads_median) - (numbalignedreads_sigma**2 / 2)
     value = np.random.lognormal(mean=numbalignedreads_mu, sigma=numbalignedreads_sigma)
     
     # values should stay within bounds
@@ -127,40 +138,66 @@ def generate_qc_values(csv_file):
     return qc_mixedsites_totalmixedsites, qc_overallscore, qc_overallstatus
 
 
-def gen_whovariant_datesampling(Lineage_of_interest, csv_file = "important_files/DateSampling_LOI_weights.csv"):
-    
-    data = pd.read_csv(csv_file, na_values=["NULL"])
-    
-    if Lineage_of_interest is None or pd.isna(Lineage_of_interest):
-        # Only select from NULL entries (Pre_WHO_Naming)
-        lineage_data = data[data['LineagesOfInterest'].isna()]
-    else:
-        # Strict matching - only use dates specifically tagged for this lineage
-        lineage_data = data[data['LineagesOfInterest'] == Lineage_of_interest]
-        if len(lineage_data) == 0:
-            return None
+def gen_whovariant_datesampling(LineageOfInterest, reference_data):
+    """
+    Generates a sampling date for a given virus lineage based on weighted real data (directly from SSI).
 
-    if len(lineage_data) == 0:
-        return None
-        
-    dates = lineage_data['DateSampling'].values
-    weights = lineage_data['weight'].values
+    Args:
+        LineageOfInterest (str or None): The lineage to generate a date for, such as 'Alpha', 'Beta', etc.
+            Can be None to generate dates for pre-WHO naming samples.
+        reference_data (pandas.DataFrame - "Complete_reference_data.csv"): Reference dataset containing columns:
+            - LineagesOfInterest: The virus lineage
+            - DateSampling: Date in 'YYYY-MM-DD' format
+            - weight: Numerical weight for sampling probability
+
+    Returns:
+        datetime: A datetime object representing the sampling date.
+            Returns None if no matching data found for the lineage.
+
+    Example:
+        >>> date = gen_whovariant_datesampling('Alpha', reference_df)
+        >>> print(date)
+        2021-02-15 00:00:00
+    """
+    if LineageOfInterest is None or pd.isna(LineageOfInterest):
+        subset = reference_data[reference_data['LineagesOfInterest'].isna()]
+    else:
+        subset = reference_data[reference_data['LineagesOfInterest'] == LineageOfInterest]
+        if subset.empty:
+            return None
     
-    selected_date = random.choices(dates, weights=weights, k=1)[0]
-    return datetime.strptime(selected_date, '%Y-%m-%d')
+    selected_row = subset.sample(n=1, weights=subset['weight']).iloc[0]
+    return datetime.strptime(selected_row['DateSampling'], '%Y-%m-%d')
 
 def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceExclude_QcScore.csv"):
     """
-    Returns: dict with three values
+    Generates a random row of data, based on the data in ManualExclude_SequenceExclude_QcScore.csv
+    The fourth column "weight" decides which row is chosen
+
+    Args:
+        csv_file (str, optional): Path to CSV file containing exclusion data with columns:
+            - ManualExclude: Manual exclusion flag
+            - SequenceExclude: Sequence exclusion flag  
+            - QcScore: Quality control score
+            - weight: Numerical weight for sampling probability
+            Defaults to "important_files/ManualExclude_SequenceExclude_QcScore.csv"
+
+    Returns:
+        dict: Dictionary containing three exclusion values:
+            - manual_exclude: Manual exclusion flag or None if NA
+            - sequence_exclude: Sequence exclusion flag or None if NA
+            - qc_score: Quality control score or None if NA
+
+    Example:
+        >>> exclusions = generate_exclusion_values()
+        >>> print(exclusions)
+        {'manual_exclude': None, 'sequence_exclude': 'Failed', 'qc_score': 25}
     """
-    # Read CSV
     data = pd.read_csv(csv_file)
     indices = range(len(data))
     
-    # Get weights
     weights = data['weight'].values
-    
-    # Select random row based on weights
+
     selected_index = random.choices(indices, weights=weights, k=1)[0]
     selected_row = data.iloc[selected_index]
     
@@ -170,30 +207,40 @@ def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceEx
         'qc_score': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
     }
 
-def generate_BatchSource(LineageOfInterest, DateSampling, csv_file="important_files/Lin_DateSamp_BSource_weights.csv"):
-    data = pd.read_csv(csv_file, na_values=["NULL"])
-    data['DateSampling'] = pd.to_datetime(data['DateSampling'])
+def generate_BatchSource(LineageOfInterest, DateSampling, reference_data):
+    """
+    Generates a batch source based on a virus lineage and sampling date.
+    all rows from "Complete_reference_data.csv" with a matching LineageOfInterest AND Date, will be filtered from the reference data
+    Then, a random row, based on weights is taken. This row will contain the BatchSource that will be generated
 
-    # Filter based on LineageOfInterest
-    if LineageOfInterest is None or pd.isna(LineageOfInterest):
-        subset = data[data['LineagesOfInterest'].isna()]
-    else:
-        subset = data[data['LineagesOfInterest'] == LineageOfInterest]
-        if subset.empty:
-            subset = data[data['LineagesOfInterest'].isna()]
+    Args:
+        LineageOfInterest (str or None): The virus lineage to match, such as 'Alpha', 'Beta', etc.
+        DateSampling (datetime): The sampling date to match with batch sources
+        reference_data (pandas.DataFrame): Reference dataset containing columns:
+            - LineagesOfInterest: The virus lineage
+            - DateSampling: Date in 'YYYY-MM-DD' format 
+            - BatchSource: The batch source identifier to select from
+            - weight: Numerical weight for sampling probability
 
-    # Further filter by date (exact date match)
-    date_subset = subset[subset['DateSampling'] == DateSampling]
+    Returns:
+        str: A batch source identifier (e.g., 'Panem', 'Hogwarts', etc.) selected based on a lineageofinterest and a DateSampling date.
+            If no exact match found, returns a batch source from pre-WHO naming samples.
+
+    Example:
+        >>> reference_df = pd.read_csv('Complete_reference_data.csv')
+        >>> date = datetime(2021, 2, 15)
+        >>> batch = generate_BatchSource('Alpha', date, reference_df)
+        >>> print(batch)
+        'Panem'
+    """
+
+    mask = (reference_data['LineagesOfInterest'] == LineageOfInterest) & \
+           (pd.to_datetime(reference_data['DateSampling']) == DateSampling)
+    subset = reference_data[mask]
     
-    # If no exact date match, use the entire lineage subset
-    if date_subset.empty:
-        date_subset = subset
+    if subset.empty:
+        subset = reference_data[reference_data['LineagesOfInterest'].isna()]
     
-    # Sample based on weights
-    if not date_subset.empty:
-        selected_row = date_subset.sample(n=1, weights=date_subset['weights']).iloc[0]
-        return selected_row['BatchSource']
-    else:
-        # Fallback if no matching data
-        return random.choice(['Hogwarts', 'Panem', 'Middle-Earth', 'Pandora', 'Narnia', 
-                            'Asgard', 'Gilead', 'Agrabah', 'Wakanda', 'Neverland'])
+    selected_row = subset.sample(n=1, weights=subset['weight']).iloc[0]
+    return selected_row['BatchSource']
+                            
