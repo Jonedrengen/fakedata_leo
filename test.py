@@ -1,18 +1,10 @@
-from utility import generate_exclusion_values, gen_whovariant_datesampling, generate_BatchSource
+from utility_V2 import generate_exclusion_values, gen_whovariant_datesampling, generate_BatchSource
 import pandas as pd
 from datetime import datetime as datetime, timedelta
 from faker import Faker
 
-fake = Faker()
-
-start_date = '2021-05-05'
-
-#convert strings to dates
-start_date = datetime.strptime(start_date, "%Y-%m-%d")
-#end_date = datetime.strptime(end_date, "%Y-%m-%d")
-
-days_between = start_date + timedelta(days=2)
-print(days_between)
-
-random_date = fake.date_between(start_date, end_date=days_between)
-print(random_date)
+reference_data = pd.read_csv('important_files/Complete_reference_data.csv', na_values=["NULL"])
+initial_row = reference_data.sample(n=1, weights=reference_data['weight']).iloc[0]
+BatchDate_unfixed = gen_whovariant_datesampling(initial_row['LineagesOfInterest'], reference_data)
+batch = generate_BatchSource('Alpha', datetime(2021, 2, 15), reference_data)
+print(batch)

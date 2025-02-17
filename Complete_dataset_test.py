@@ -7,13 +7,13 @@ from datetime import datetime as datetime, timedelta
 import datetime as datetime1
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
-from utility import write_to_csv, generate_ct_value, gen_whovariant_samplingdate, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource
+from utility_V2 import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields
 import pandas as pd
 from collections import Counter
 
 fake = Faker()
 
-def Generate_complete_data(record_amount):
+def Generate_complete_data(record_amount: int):
 
     starting_time = time.time()
     update_time = 0.15
@@ -35,8 +35,7 @@ def Generate_complete_data(record_amount):
     SequencedSample_data = []
 
     # Nextclade_pango, clade, lineage, UnaliasedPango, LineagesOfInterest, WhoVariant, amount_nextclade_pangos
-    Variant_connections = pd.read_csv('important_files/Nextclade_pango_essentials.csv', na_values=["NULL"])
-    Variant_connections_weights = Variant_connections.iloc[:, -1].tolist()
+    reference_data = pd.read_csv('important_files/Complete_reference_data.csv', na_values=["NULL"])
 
     #BatchSource
 
@@ -59,6 +58,9 @@ def Generate_complete_data(record_amount):
         SampleID = GenerateUniqueSampleID(existing_SampleIDs)
         BatchID = GenerateUniqueBatchID(existing_BatchIDs) #should be 96 samples pr. batch (see R for how to assemble)
         PangolinResultID = GenerateUniquePangolinResultID(existing_PangolinResultIDs)
+
+        #row from ref data
+        selected_row = reference_data.sample(n=1, weights=reference_data['weight']).iloc[0]
 
 ######################## Consensus_data ########################
         #NCount
@@ -110,13 +112,10 @@ def Generate_complete_data(record_amount):
         ManualExclude = Exclusion_values['manual_exclude']
 
         #WhoVariant, LineagesOfInterest, UnaliasedPango
-        WhoVariant = None
-        LineageOfInterest = None
-        UnaliasedPango = None
-        Consensus_Nextclade_Pango_essentials = Variant_connections.sample(n=1, weights=Variant_connections_weights).iloc[0]
-        WhoVariant = Consensus_Nextclade_Pango_essentials['WhoVariant']
-        LineageOfInterest = Consensus_Nextclade_Pango_essentials['LineagesOfInterest']
-        UnaliasedPango = Consensus_Nextclade_Pango_essentials['UnaliasedPango']
+        WhoVariant = selected_row['WhoVariant']
+        LineageOfInterest = selected_row['LineagesOfInterest']
+        UnaliasedPango = selected_row['UnaliasedPango']
+        
 
         if pd.isna(WhoVariant):
             WhoVariant = None
@@ -180,8 +179,8 @@ def Generate_complete_data(record_amount):
         alignmentScore = random.randint(87816, 89709)
 
         #clade, Nextclade_pango
-        clade = Consensus_Nextclade_Pango_essentials['clade']
-        Nextclade_pango = Consensus_Nextclade_Pango_essentials['Nextclade_pango']
+        clade = selected_row['clade']
+        Nextclade_pango = selected_row['Nextclade_pango']
         if pd.isna(clade):
             clade = None
         if pd.isna(Nextclade_pango):
@@ -218,7 +217,7 @@ def Generate_complete_data(record_amount):
         Ct = generate_ct_value()
 
         #DateSampling
-        DateSampling = gen_whovariant_datesampling(LineageOfInterest)
+        DateSampling = gen_whovariant_datesampling(LineageOfInterest, reference_data)
 
         #SampleDateTime 
         SampleDateTime = datetime.combine(DateSampling, fake.time_object()) if DateSampling else None
@@ -235,12 +234,12 @@ def Generate_complete_data(record_amount):
 
         #BatchSource
         #TODO: make sure you understand how this is generated (function is AI-generated)
-        BatchSource = generate_BatchSource(LineageOfInterest, DateSampling)
+        BatchSource = generate_BatchSource(LineageOfInterest, DateSampling, reference_data)
 
 ######################## PangolinResult_data ########################
 
         #lineage
-        lineage = Consensus_Nextclade_Pango_essentials['lineage']
+        lineage = selected_row['lineage']
         if pd.isna(lineage):
             lineage = None
 
@@ -440,6 +439,13 @@ def Generate_complete_data(record_amount):
             "TimestampUpdated": TimestampUpdated
         }
 
+        # Clean the records before appending
+        Consensus_record = clean_string_fields(Consensus_record)
+        NextcladeResult_record = clean_string_fields(NextcladeResult_record)
+        Sample_record = clean_string_fields(Sample_record)
+        Batch_record = clean_string_fields(Batch_record)
+        PangolinResult_record = clean_string_fields(PangolinResult_record)
+        SequencedSample_record = clean_string_fields(SequencedSample_record)
 
         Consensus_data.append(Consensus_record)
         NextcladeResult_data.append(NextcladeResult_record)
@@ -455,7 +461,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     #record amount
-    record_amount = 2500
+    record_amount = 15
 
     #headers "/n" represents a new file (so 6 total files)
     consensus_headers = [
