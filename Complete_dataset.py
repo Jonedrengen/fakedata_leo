@@ -91,7 +91,7 @@ def Generate_complete_data(Batch_amount: int):
         valid_samples = 0
         max_attempts = 1000  # limit to prevent infinite loops
         attempts = 0
-        while valid_samples < random.randint(46, 384) and attempts < max_attempts:
+        while valid_samples < 96 and attempts < max_attempts:
             attempts += 1
             ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
             SequencedSampleID= GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
@@ -108,7 +108,7 @@ def Generate_complete_data(Batch_amount: int):
             #below 3k = Lineage TODO: not implemented
             NCount = generate_ncount_value()
 
-            #AmbiguousSites
+            #AmbiguousSites 
             # If AmbiguousSites over 5, then NcountQC = fail (see constraints)
             AmbiguousSites = generate_ambiguoussites()
 
@@ -379,7 +379,7 @@ def Generate_complete_data(Batch_amount: int):
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
-            NextcladeResult_record = {
+            NextcladeResult_record = { #Skal fjernes post?
                 "NextcladeResultID": NextcladeResultID,
                 "frameShifts": frameShifts, #excluded
                 "aaSubstitutions": aaSubstitutions, #excluded
