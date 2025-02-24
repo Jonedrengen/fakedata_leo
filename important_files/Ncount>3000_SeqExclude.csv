@@ -1,0 +1,187 @@
+QcScore,SequenceExclude,ManualExclude,weight
+NULL,neg_contamination;mixed_strain;TooManyNs,NULL,1
+NULL,neg_contamination;TooManyNs,NULL,133
+NULL,TooManyNs,NULL,6
+NULL,TooManyNs,NULL,9
+NULL,TooManyNs,NULL,12
+NULL,TooManyNs,NULL,44
+NULL,TooManyNs,NULL,73
+NULL,TooManyNs,NULL,5343
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Run,1
+Fail: Too many Ns,TooManyNs,NULL,18
+Fail: Too many Ns,TooManyNs,NULL,50
+Fail: Too many Ns,TooManyNs,NULL,79
+Fail: Too many Ns,TooManyNs,NULL,3755
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,206
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,1
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Sample,1
+Fail: Too many Ns,TooManyNs;NegContamination,NULL,2
+NULL,TooManyNs,NULL,10
+NULL,TooManyNs,NULL,13
+NULL,TooManyNs,NULL,16
+NULL,TooManyNs,NULL,77
+NULL,TooManyNs,NULL,135
+Fail: Too many Ns,TooManyNs,NULL,14
+Fail: Too many Ns,TooManyNs,NULL,17
+Fail: Too many Ns,TooManyNs,NULL,23
+Fail: Too many Ns,TooManyNs,NULL,49
+Fail: Too many Ns,TooManyNs,NULL,104
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,1
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,91
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,268
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,2
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,5
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,147
+Fail: Too many Ns,TooManyNs;NegContamination,NULL,1
+Fail: Too many Ns,TooManyNs;NegContamination,NULL,4
+NULL,neg_contamination;TooManyNs,NULL,2
+NULL,neg_contamination;TooManyNs,NULL,5
+NULL,TooManyNs,NULL,3
+NULL,TooManyNs,NULL,23
+NULL,TooManyNs,NULL,26
+NULL,TooManyNs,NULL,29
+NULL,TooManyNs,NULL,32
+NULL,TooManyNs,NULL,61
+NULL,TooManyNs,NULL,84
+Fail: Mixed strain,TooManyNs;MixedStrain,NULL,1
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Plate,3
+Fail: Too many Ns,TooManyNs,NULL,1
+Fail: Too many Ns,TooManyNs,NULL,4
+Fail: Too many Ns,TooManyNs,NULL,7
+Fail: Too many Ns,TooManyNs,NULL,33
+Fail: Too many Ns,TooManyNs,NULL,155
+Fail: Too many Ns,TooManyNs,NULL,2176
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,5
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,8
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,14
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,37
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,66
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,255
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,12
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,47
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,50
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Sample,4
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Plate,1
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Plate,4
+NULL,neg_contamination;TooManyNs,NULL,25
+NULL,TooManyNs,NULL,1
+NULL,TooManyNs,NULL,4
+NULL,TooManyNs,NULL,7
+NULL,TooManyNs,NULL,27
+NULL,TooManyNs,NULL,33
+NULL,TooManyNs,NULL,36
+NULL,TooManyNs,NULL,59
+NULL,TooManyNs,NULL,62
+NULL,TooManyNs,NULL,396
+NULL,TooManyNs,NULL,399
+NULL,TooManyNs;MixedStrain,NULL,3
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Plate,2
+Fail: Mixed strain,TooManyNs;NegContamination;MixedStrain;ManuallyExcluded,Manually_Excluded_Run,1
+Fail: Too many Ns,TooManyNs,NULL,10
+Fail: Too many Ns,TooManyNs,NULL,13
+Fail: Too many Ns,TooManyNs,NULL,16
+Fail: Too many Ns,TooManyNs,NULL,19
+Fail: Too many Ns,TooManyNs,NULL,45
+Fail: Too many Ns,TooManyNs,NULL,196
+Fail: Too many Ns,TooManyNs,NULL,254
+Fail: Too many Ns,TooManyNs,NULL,286
+Fail: Too many Ns,TooManyNs,NULL,376
+Fail: Too many Ns,TooManyNs,NULL,405
+Fail: Too many Ns,TooManyNs,NULL,1526
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,2
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,25
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,34
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,13
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,16
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Run,1
+NULL,mixed_strain;TooManyNs,NULL,1
+NULL,neg_contamination;;TooManyNs,NULL,2
+NULL,neg_contamination;;TooManyNs,NULL,11
+NULL,TooManyNs,NULL,2
+NULL,TooManyNs,NULL,5
+NULL,TooManyNs,NULL,8
+NULL,TooManyNs,NULL,11
+NULL,TooManyNs,NULL,37
+NULL,TooManyNs,NULL,40
+NULL,TooManyNs,NULL,63
+NULL,TooManyNs,NULL,69
+NULL,TooManyNs,NULL,127
+NULL,TooManyNs,NULL,272
+NULL,TooManyNs;MixedStrain,NULL,2
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Plate,1
+Fail: Too many Ns,TooManyNs,NULL,6
+Fail: Too many Ns,TooManyNs,NULL,9
+Fail: Too many Ns,TooManyNs,NULL,12
+Fail: Too many Ns,TooManyNs,NULL,15
+Fail: Too many Ns,TooManyNs,NULL,38
+Fail: Too many Ns,TooManyNs,NULL,96
+Fail: Too many Ns,TooManyNs,NULL,99
+Fail: Too many Ns,TooManyNs,NULL,1368
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,3
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,6
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,61
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,279
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,84
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Plate,3
+NULL,neg_contamination;TooManyNs,NULL,7
+NULL,reg_replicate;TooManyNs,NULL,2
+NULL,TooManyNs,NULL,15
+NULL,TooManyNs,NULL,18
+NULL,TooManyNs,NULL,21
+NULL,TooManyNs,NULL,24
+NULL,TooManyNs,NULL,50
+Fail: Mixed strain,TooManyNs;MixedStrain,NULL,3
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Run,2
+Fail: Mixed strain,TooManyNs;MixedStrain;ManuallyExcluded,Manually_Excluded_Sample,1
+Fail: Mixed strain,TooManyNs;NegContamination;MixedStrain,NULL,1
+Fail: Too many Ns,TooManyNs,NULL,22
+Fail: Too many Ns,TooManyNs,NULL,25
+Fail: Too many Ns,TooManyNs,NULL,353
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,19
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,22
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,4
+Fail: Too many Ns,TooManyNs;NegContamination,NULL,3
+NULL,neg_contamination;;TooManyNs,NULL,1
+NULL,neg_contamination;TooManyNs,NULL,1
+NULL,neg_contamination;TooManyNs,NULL,4
+NULL,neg_contamination;TooManyNs,NULL,24
+NULL,TooManyNs,NULL,19
+NULL,TooManyNs,NULL,22
+NULL,TooManyNs,NULL,25
+NULL,TooManyNs,NULL,54
+NULL,TooManyNs,NULL,60
+NULL,TooManyNs,NULL,80
+NULL,TooManyNs,NULL,263
+NULL,TooManyNs;MixedStrain,NULL,1
+Fail: Mixed strain,TooManyNs;MixedStrain,NULL,2
+Fail: Too many Ns,TooManyNs,NULL,2
+Fail: Too many Ns,TooManyNs,NULL,5
+Fail: Too many Ns,TooManyNs,NULL,8
+Fail: Too many Ns,TooManyNs,NULL,11
+Fail: Too many Ns,TooManyNs,NULL,34
+Fail: Too many Ns,TooManyNs,NULL,37
+Fail: Too many Ns,TooManyNs,NULL,40
+Fail: Too many Ns,TooManyNs,NULL,92
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,4
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,7
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,10
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,36
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,11
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Plate,2
+Fail: Too many Ns,TooManyNs;NegContamination;ManuallyExcluded,Manually_Excluded_Run,3
+NULL,neg_contamination;TooManyNs,NULL,3
+NULL,reg_replicate;TooManyNs,NULL,1
+NULL,TooManyNs,NULL,14
+NULL,TooManyNs,NULL,17
+NULL,TooManyNs,NULL,20
+NULL,TooManyNs,NULL,46
+Fail: Mixed strain,TooManyNs;MixedStrain,NULL,4
+Fail: Too many Ns,TooManyNs,NULL,3
+Fail: Too many Ns,TooManyNs,NULL,26
+Fail: Too many Ns,TooManyNs,NULL,447
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,12
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Plate,15
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,3
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Run,6
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Sample,3
+Fail: Too many Ns,TooManyNs;ManuallyExcluded,Manually_Excluded_Sample,6
