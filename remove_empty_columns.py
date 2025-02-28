@@ -39,7 +39,7 @@ def remove_unused_columns(file="output/NextcladeResult_data.csv"):
     with open(file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=nextclade_headers)
         writer.writeheader()
-        for _, row in nextclade_data.iterrows():
+        for i, row in nextclade_data.iterrows():
             writer.writerow(row.to_dict())
 
 if __name__ == "__main__":

@@ -10,18 +10,32 @@ important_files:
     usage: Should be used to define ManuelExclude, SequenceExclude andQcScore in generated data
     TODO: make it do what usage describes
 
-  DateSequencing_LineageOfInterest_weights:
+  Amb>5_SequenceExclude:
+    HowToRetrieve: 
+      SELECT distinct QcScore, SequenceExclude, ManualExclude, count(*) as weight
+      from GenEpiBioTrain.V_CovidPlots
+      GROUP BY AmbiguousSites, QcScore, SequenceExclude, ManualExclude
+      having AmbiguousSites > 5
+
+  Ncount>3000_SeqExclude.csv:
+    HowToRetrieve: 
+      SELECT distinct QcScore, SequenceExclude, ManualExclude, count(*) as weight
+      from GenEpiBioTrain.V_CovidPlots
+      GROUP BY Ncount, QcScore, SequenceExclude, ManualExclude
+      having Ncount > 3000
+
+  AmbiguousSites_details.csv:
+    HowToRetrieve:
+      SELECT AmbiguousSites, COUNT(*) as amount_seen
+      from GenEpiBioTrain.V_CovidPlots
+      WHERE AmbiguousSites is NOT NULL
+      GROUP BY AmbiguousSites
+    Notes:
+      NULL values are excluded here, because in code, whenever NCount is NULL, AmbiguousSites will also be NULL
+
+  Complete_reference_data.csv:
     description: Contains the Dates of sequencing for the sample variants (lineage of interest). As well as how often variants are sequenced (weigts)
     HowToRetrieve: In SQL Azure Data Studio, execute the SQLQuery on GenEpiBioTrain.V_Covidplots
     SQLQuery: SELECT distinct DateSampling, LineagesOfInterest, COUNT(*) as weight 
     FROM GenEpiBioTrain.V_CovidPlots 
     GROUP BY DateSequencing, LineagesOfInterest
-
-    Nextclade_pango_essentials:
-      description:
-      HowToRetrieve:
-      SQLQuery: SELECT Nextclade_pango,clade,lineage,UnaliasedPango,LineagesOfInterest,WhoVariant,count(*) as amount_nextclade_pangos 
-      From GenEpiBioTrain.V_CovidPlots 
-      GROUP BY Nextclade_pango, clade, lineage, UnaliasedPango, LineagesOfInterest, WhoVariant
-
-    

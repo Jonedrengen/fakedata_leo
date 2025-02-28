@@ -6,13 +6,16 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-def write_to_csv(filename, data, headers):
-    # Open in 'w' mode instead of 'a' to overwrite existing file
-    with open(filename, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
+def write_to_csv(file_name, data, headers):
+    with open(file_name, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, 
+                              fieldnames=headers,
+                              quoting=csv.QUOTE_NONE,  # Don't quote any fields
+                              escapechar='\\',         # Use backslash to escape special characters
+                              quotechar='"')           # Empty quote character
         writer.writeheader()
         writer.writerows(data)
-    print(f"written to {filename}")
+    print(f"written to {file_name}")
 
 def clean_string_fields(record):
     for key, value in record.items():
@@ -51,34 +54,22 @@ def generate_ct_value():
     
     return round(ct, 5)
 
-#Ncount (Right skewed generation)
-def generate_ncount_value():
-    # Log-normal parameters based on the given dataset
-    median = 133
-    q1 = 121
-    q3 = 599
+#Ncount 
+# only NCount values that occured more than 30 times in real data
+def generate_ncount_value(file="important_files/NCount_details_above30.csv"):
+    NCount_values = pd.read_csv(file)
+    NCount = NCount_values.sample(n=1, weights=NCount_values['amount_seen']).iloc[0]
+    if pd.isna(NCount['NCount']):
+        return None
+    return int(NCount['NCount'])
 
-    # Calculate mu and sigma for the log-normal distribution
-    mu = np.log(median)
-    sigma = (np.log(q3) - np.log(q1)) / 1.35
-
-    # Generate log-normal value
-    ncount = np.random.lognormal(mean=mu, sigma=sigma)
-
-    # Clip to match observed range
-    ncount = np.clip(ncount, 0, 29903)
-
-    return round(ncount)
-
-
-def generate_ambiguoussites():
-    #Ambiguoussites
-    # numbers 0-29 or NA generated for ambiguoussites
-    ambiguous_values = list(range(30))
-    ambiguous_values_frequencies = [60331, 18876, 8753, 4384, 2218, 1106, 626, 432, 293, 236,
-                                    218, 185, 126, 100, 80, 76, 52, 70, 44, 39,
-                                    37, 28, 32, 26, 29, 22, 19, 18, 15, 15]
-    return random.choices(ambiguous_values, ambiguous_values_frequencies)[0]
+#Ambiguoussites
+def generate_ambiguoussites(file="important_files/AmbiguousSites_details.csv"):
+    ambiguous_values = pd.read_csv(file)
+    AmbiguousSite = ambiguous_values.sample(n=1, weights=ambiguous_values['amount_seen']).iloc[0]
+    if pd.isna(AmbiguousSite['AmbiguousSites']):
+        return None
+    return int(AmbiguousSite['AmbiguousSites'])
 
 
 
@@ -206,12 +197,12 @@ def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceEx
 
 def generate_BatchSource(LineageOfInterest, DateSampling, reference_data):
     """
-    Generates a batch source based on a virus lineage and sampling date.
+    Generates a batch source based on a LineageOfInterest and sampling date.
     all rows from "Complete_reference_data.csv" with a matching LineageOfInterest AND Date, will be filtered from the reference data
     Then, a random row, based on weights is taken. This row will contain the BatchSource that will be generated
 
     Args:
-        LineageOfInterest (str or None): The virus lineage to match, such as 'Alpha', 'Beta', etc.
+        LineageOfInterest (str or None): The lineage to match, such as 'Alpha', 'Beta', etc.
         DateSampling (datetime): The sampling date to match with batch sources
         reference_data (pandas.DataFrame): Reference dataset containing columns:
             - LineagesOfInterest: The virus lineage

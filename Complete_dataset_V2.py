@@ -13,8 +13,6 @@ from collections import Counter
 fake = Faker()
 
 def Generate_complete_data(Batch_amount: int):
-
-
     starting_time = time.time()
     update_time = 0.15
 
@@ -25,6 +23,10 @@ def Generate_complete_data(Batch_amount: int):
     existing_SampleIDs = set()
     existing_BatchIDs = set()
     existing_PangolinResultIDs = set()
+
+    #SequencedSample
+    # for when a Sample is resequenced
+    SampleID_reuse = {}
 
     #Datasets
     Consensus_data = []
@@ -41,7 +43,7 @@ def Generate_complete_data(Batch_amount: int):
 
     #Version reference data
     #version,weight
-    version_df = pd.read_csv('important_files/versions.csv')
+    version_df = pd.read_csv('important_files/versions.csv', na_values=["NULL"])
     version_possibilities = version_df['version'].tolist()
     version_possibilities_weights = version_df['weight'].tolist()
 
@@ -50,13 +52,14 @@ def Generate_complete_data(Batch_amount: int):
     SequenceExclude_Amb = pd.read_csv("important_files/Amb>5_SequenceExclude.csv", na_values=['NULL'])
 
     #NCount, SequenceExclude, QcScore, ManuelExclude
+    #for when NCount > 3000
     SequenceExclude_NCount = pd.read_csv('important_files/Ncount>3000_SeqExclude.csv', na_values=['NULL'])
     
     #starting record creation (1 at a time)
     for i in range(Batch_amount):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:
-            update_time += 0.15
+            update_time += 0.40
             print(f'generated {i} Batches of {Batch_amount}')
 
         # Generate batch-level constants first
@@ -97,16 +100,14 @@ def Generate_complete_data(Batch_amount: int):
         attempts = 0
         while valid_samples < 96 and attempts < max_attempts:
             attempts += 1
-
-
-            # Sample from valid combinations for this sample
-            sample_row = valid_combinations.sample(n=1, weights=valid_combinations['weight']).iloc[0]
-
             ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
             SequencedSampleID= GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
             NextcladeResultID = GenerateUniqueNextcladeResultID(existing_NextcladeResultIDs)
             SampleID = GenerateUniqueSampleID(existing_SampleIDs)
             PangolinResultID = GenerateUniquePangolinResultID(existing_PangolinResultIDs)
+
+            # Sample from valid combinations for this sample
+            sample_row = valid_combinations.sample(n=1, weights=valid_combinations['weight']).iloc[0]
 
             ######################## Consensus_data ########################
             #NCount
@@ -379,40 +380,48 @@ def Generate_complete_data(Batch_amount: int):
                 #constraint for removing 40% of samples without a lineageOfInterest (again to prevent an overflow of pre_WHO_naming)
                 (pd.isna(LineageOfInterest) and # must have lineageofinterest
                 random.randint(1,5) in [1,2])): #40%
-
-                #if constraints block the generation, remove the IDs from the existing sets
-                existing_ConsensusIDs.remove(ConsensusID)
-                existing_SequencedSampleIDs.remove(SequencedSampleID)
-                existing_NextcladeResultIDs.remove(NextcladeResultID)
-                existing_SampleIDs.remove(SampleID)
-                existing_PangolinResultIDs.remove(PangolinResultID)
                 continue
             # if we get here, the sample passed all constraints
             valid_samples += 1
 
+            ######################## Reuse ########################
+            # Store sample for potential reuse (1 in 1500 chance)
+            if 1 == random.randint(1, 1500):
+                SampleID_reuse[SampleID] = {
+                    'SampleID': SampleID,
+                    'sample_row': sample_row,
+                    'DateSampling': DateSampling,
+                    'Ct': Ct,
+                    'Host': Host,
+                    'SampleDateTime': SampleDateTime,
+                    'BatchID': BatchID,
+                    'DateSequencing': DateSequencing
+                }
+                print(f"saved a sample for reuse: {SampleID}")
+            
+            # Reuse a sample (if any are available)
+            if SampleID_reuse and random.random() < 0.001:  # 0.01% chance to reuse a sample
+                # Get a random SampleID from the stored samples
+                reuse_sampleID = random.choice(list(SampleID_reuse.keys()))
+                reuse_data = SampleID_reuse[reuse_sampleID]
+                
+                # Store the reused SampleID separately
+                SampleID = reuse_data['SampleID']
+                
+                # Generate new IDs for everything else
+                ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
+                SequencedSampleID = GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
+                NextcladeResultID = GenerateUniqueNextcladeResultID(existing_NextcladeResultIDs)
+                PangolinResultID = GenerateUniquePangolinResultID(existing_PangolinResultIDs)
+                
+
+                # Remove the sample from reuse dictionary after using it
+                del SampleID_reuse[reuse_sampleID]
+                print(f"reused and removed sample: {reuse_sampleID}")
+                print(len(SampleID_reuse))
+
             ######################## RECORDS ########################
 
-            Sample_record = {
-                "SampleID": SampleID,
-                "Host": Host,
-                "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
-                "DateSampling": DateSampling,
-                "CurrentConsensusID": ConsensusID,
-                "TimestampCreated": TimestampCreated,
-                "TimestampUpdated": TimestampUpdated,
-                "SampleDateTime": SampleDateTime
-            }
-            SequencedSample_record = {
-                "SequencedSampleID": SequencedSampleID,
-                "SequencingType": SequencingType,
-                "DateSequencing": DateSequencing, #TODO should match the batch date?
-                "SampleContent": SampleContent,
-                "BatchID": BatchID,  # Assign BatchID from the current batch
-                "CurrentConsensusID": ConsensusID,
-                "SampleID": SampleID,  # Use extracted SampleID
-                "TimestampCreated": TimestampCreated,
-                "TimestampUpdated": TimestampUpdated
-            }
             Consensus_record = {
                 # Consensus_data record
                 "ConsensusID": ConsensusID,
@@ -475,9 +484,19 @@ def Generate_complete_data(Batch_amount: int):
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
+            Sample_record = {
+                "SampleID": SampleID,
+                "Host": Host,
+                "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
+                "DateSampling": DateSampling,
+                "CurrentConsensusID": ConsensusID,
+                "TimestampCreated": TimestampCreated,
+                "TimestampUpdated": TimestampUpdated,
+                "SampleDateTime": SampleDateTime
+            }
             PangolinResult_record = {
                 "PangolinResultID": PangolinResultID,
-                "lineage": lineage, 
+                "lineage": lineage, #skal vælges ud fra Nextclade_Pango
                 "version": version,
                 "pangolin_version": pangolin_version, #real data: 4.2 = 26, 4.1.2 = 525417, NULL = 85643
                 "scorpio_version": scopio_version, #real data: 0.3.17 = 525443, NULL = 85643
@@ -490,28 +509,40 @@ def Generate_complete_data(Batch_amount: int):
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
+            SequencedSample_record = {
+                "SequencedSampleID": SequencedSampleID,
+                "SequencingType": SequencingType,
+                "DateSequencing": DateSequencing, #TODO should match the batch date?
+                "SampleContent": SampleContent,
+                "BatchID": BatchID,  # Assign BatchID from the current batch
+                "CurrentConsensusID": ConsensusID,
+                "SampleID": SampleID if 'reused_SampleID' in locals() else SampleID,  # Use reused SampleID if it exists
+                "TimestampCreated": TimestampCreated,
+                "TimestampUpdated": TimestampUpdated
+            }
+            if 'reused_SampleID' in locals():
+                del SampleID
 
             # Clean the records before appending (mostly just for "20I (Alpha, V1)" -> "20I (Alpha; V1)")
-            Sample_record = clean_string_fields(Sample_record)
             Consensus_record = clean_string_fields(Consensus_record)
             NextcladeResult_record = clean_string_fields(NextcladeResult_record)
+            Sample_record = clean_string_fields(Sample_record)
             PangolinResult_record = clean_string_fields(PangolinResult_record)
             SequencedSample_record = clean_string_fields(SequencedSample_record)
 
             #appending
-            Sample_data.append(Sample_record)
-            SequencedSample_data.append(SequencedSample_record)
             PangolinResult_data.append(PangolinResult_record)
+            SequencedSample_data.append(SequencedSample_record)
             Consensus_data.append(Consensus_record)
             NextcladeResult_data.append(NextcladeResult_record)
-            
+            Sample_data.append(Sample_record)
     
     return (Consensus_data, NextcladeResult_data, Sample_data, Batch_data, PangolinResult_data, SequencedSample_data)
             
 if __name__ == '__main__':
     start_time = time.time()
 
-    Batch_amount = 70
+    Batch_amount = 50
 
     #headers "/n" represents a new file (so 6 total files)
     consensus_headers = [

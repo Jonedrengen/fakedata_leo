@@ -114,24 +114,35 @@ def Generate_complete_data(Batch_amount: int):
             #above 3k = not passed (see constraints)
             #below 3k = Lineage TODO: not implemented
             NCount = generate_ncount_value()
+            if pd.isna(NCount):
+                NCount = None
 
             #AmbiguousSites 
             # If AmbiguousSites over 5, then NcountQC = fail (see constraints)
-            AmbiguousSites = generate_ambiguoussites()
+            if pd.isna(NCount):
+                AmbiguousSites = None
+            else:
+                AmbiguousSites = generate_ambiguoussites()
 
             #NwAmb
-            NwAmb = NCount + AmbiguousSites
+            if pd.isna(NCount):
+                NwAmb = None
+            else:
+                NwAmb = NCount + AmbiguousSites
             
             #NCountQC
             NCountQC = None
-            if NwAmb <= 130:
-                NCountQC = "HQ"
-            elif NwAmb > 130 and NwAmb <= 3000:
-                NCountQC = "MQ"
+            if pd.isna(NCount):
+                NCountQC = "fail"
             else:
-                NCountQC = "fail"
-            if AmbiguousSites > 5 or NCount > 3000:
-                NCountQC = "fail"
+                if NwAmb <= 130:
+                    NCountQC = "HQ"
+                elif NwAmb > 130 and NwAmb <= 3000:
+                    NCountQC = "MQ"
+                else:
+                    NCountQC = "fail"
+                if AmbiguousSites > 5 or NCount > 3000:
+                    NCountQC = "fail"
 
             #NumAlignedReads 
             NumAlignedReads = generate_NumbAlignedReads()
@@ -158,7 +169,7 @@ def Generate_complete_data(Batch_amount: int):
             ManualExclude = Exclusion_values['manual_exclude']
             
             #AmbiguousSites above 5
-            if AmbiguousSites > 5:
+            if pd.isna(AmbiguousSites) or AmbiguousSites > 5:
                 Seq_Man_choices = SequenceExclude_Amb.sample(n=1, weights='weight').iloc[0]
                 QcScore = Seq_Man_choices['QcScore']
                 if pd.isna(QcScore):
@@ -171,7 +182,7 @@ def Generate_complete_data(Batch_amount: int):
                     ManualExclude = None
             
             #NCount above 3000
-            if NCount > 3000:
+            if pd.isna(NCount) or NCount > 3000:
                 NCount_Seq_Man_Qc = SequenceExclude_NCount.sample(n=1, weights='weight').iloc[0]
                 QcScore = NCount_Seq_Man_Qc['QcScore']
                 if pd.isna(QcScore):
@@ -330,7 +341,7 @@ def Generate_complete_data(Batch_amount: int):
             #qc_status
             if pd.isna(lineage):
                 qc_status = None
-            elif NCount > 3000 or NCountQC == "fail":
+            elif pd.isna(NCount) or NCount > 3000 or NCountQC == "fail":
                 qc_status = "fail"
             else:
                 qc_status = "pass"
@@ -384,12 +395,13 @@ def Generate_complete_data(Batch_amount: int):
             # if we get here, the sample passed all constraints
             valid_samples += 1
 
-            ######################## Reuse ########################
-            # Store sample for potential reuse (1 in 1500 chance)
-            if 1 == random.randint(1, 1500):
+            ######################## Reuse_SampleIDs ########################
+
+            # Store sample for potential reuse (1 in 1000 chance)
+            if 1 == random.randint(1, 1000):
                 SampleID_reuse[SampleID] = {
                     'SampleID': SampleID,
-                    'sample_row': sample_row,
+                    'sample_row': sample_row, #SampleRow generated from complete_ref_data
                     'DateSampling': DateSampling,
                     'Ct': Ct,
                     'Host': Host,
@@ -400,7 +412,7 @@ def Generate_complete_data(Batch_amount: int):
                 print(f"saved a sample for reuse: {SampleID}")
             
             # Reuse a sample (if any are available)
-            if SampleID_reuse and random.random() < 0.001:  # 0.01% chance to reuse a sample
+            if SampleID_reuse and random.random() < 0.001:  # 0.001% chance to reuse a sample
                 # Get a random SampleID from the stored samples
                 reuse_sampleID = random.choice(list(SampleID_reuse.keys()))
                 reuse_data = SampleID_reuse[reuse_sampleID]
@@ -420,6 +432,10 @@ def Generate_complete_data(Batch_amount: int):
                 del SampleID_reuse[reuse_sampleID]
                 print(f"reused and removed sample: {reuse_sampleID}")
                 print(len(SampleID_reuse))
+
+
+
+
 
             ######################## RECORDS ########################
 
@@ -543,7 +559,7 @@ def Generate_complete_data(Batch_amount: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    Batch_amount = 500
+    Batch_amount = 50
 
     #headers "/n" represents a new file (so 6 total files)
     consensus_headers = [
