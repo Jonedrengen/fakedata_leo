@@ -1,0 +1,44 @@
+SequenceExclude,QcScore,ManualExclude,Amb_low_NCount_low,Amb_low_NCount_high,Amb_high_NCount_low,Amb_high_NCount_high
+mixed_strain,NULL,NULL,2947,0,0,0
+ManuallyExcluded,Pass,Manually_Excluded_Run,6436,0,110,0
+TooManyNs;MixedStrain,Fail: Mixed strain,NULL,0,0,5,3205
+TooManyNs;ManuallyExcluded,Fail: Too many Ns,Manually_Excluded_Run,6,1882,0,47
+ManuallyExcluded,Pass,Manually_Excluded_Sample,8471,0,180,0
+ManuallyExcluded,Pass,Manually_Excluded_Plate,18079,0,403,0
+NegContamination;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Plate,0,0,19,0
+TooManyNs;NegContamination;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Run,0,0,0,1
+neg_contamination;mixed_strain,NULL,NULL,843,0,0,0
+TooManyNs;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Plate,0,0,5,1140
+TooManyNs;MixedStrain,NULL,NULL,0,0,0,469
+TooManyNs;ManuallyExcluded,Fail: Too many Ns,Manually_Excluded_Sample,0,71,0,4
+mixed_strain;TooManyNs,NULL,NULL,0,7,0,0
+NegContamination;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Run,0,0,2,0
+MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Plate,0,0,1855,0
+NegContamination;ManuallyExcluded,Fail: Neg. Contamination,Manually_Excluded_Run,167,0,0,0
+neg_contamination;mixed_strain;TooManyNs,NULL,NULL,0,1,0,0
+TooManyNs;NegContamination,Fail: Too many Ns,NULL,1,60,0,3
+TooManyNs,Fail: Too many Ns,NULL,62,26927,1,1022
+neg_contamination;;TooManyNs,NULL,NULL,0,50,0,0
+TooManyNs,NULL,NULL,2,35413,0,132
+NULL,NULL,NULL,144859,1,350,0
+NegContamination;MixedStrain,Fail: Mixed strain,NULL,0,0,96,0
+MixedStrain,NULL,NULL,0,0,1419,0
+TooManyNs;NegContamination;MixedStrain,Fail: Mixed strain,NULL,0,0,0,38
+MixedStrain,Fail: Mixed strain,NULL,0,0,8626,0
+reg_replicate;TooManyNs,NULL,NULL,0,16,0,0
+neg_contamination,NULL,NULL,2787,0,0,0
+neg_contamination;TooManyNs,NULL,NULL,0,1002,0,0
+reg_replicate,NULL,NULL,84,0,0,0
+neg_contamination;mixed_strain;reg_replicate,NULL,NULL,5,0,0,0
+NULL,Pass,NULL,320114,1,4164,0
+TooManyNs;ManuallyExcluded,Fail: Too many Ns,Manually_Excluded_Plate,18,5530,1,285
+MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Run,0,0,905,0
+NegContamination;ManuallyExcluded,Fail: Neg. Contamination,Manually_Excluded_Plate,484,0,4,0
+TooManyNs;NegContamination;ManuallyExcluded,Fail: Too many Ns,Manually_Excluded_Plate,0,17,0,1
+TooManyNs;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Sample,0,0,0,9
+NegContamination,Fail: Neg. Contamination,NULL,1975,0,22,0
+long_branch,NULL,NULL,3,0,0,0
+TooManyNs;MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Run,0,0,0,377
+MixedStrain;ManuallyExcluded,Fail: Mixed strain,Manually_Excluded_Sample,0,0,27,0
+mixed_strain;reg_replicate,NULL,NULL,5,0,0,0
+TooManyNs;NegContamination;ManuallyExcluded,Fail: Too many Ns,Manually_Excluded_Run,0,8,0,0

@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime as datetime, timedelta
 import time
 from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
-from utility import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields
+from utility_test import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields
 import pandas as pd
 from collections import Counter
 
@@ -160,39 +160,11 @@ def Generate_complete_data(Batch_amount: int):
             SeqLength = random.randint(29300, 30402)
 
             #ManualExclude, SequenceExclude, QcScore
-            QcScore = None
-            SequenceExclude = None
-            ManualExclude = None
-            Exclusion_values = generate_exclusion_values()
-            QcScore = Exclusion_values['qc_score']
-            SequenceExclude = Exclusion_values['sequence_exclude']
-            ManualExclude = Exclusion_values['manual_exclude']
+            Man_Seq_Qc_options = generate_exclusion_values(NCount, AmbiguousSites)
+            QcScore = Man_Seq_Qc_options['QcScore']
+            SequenceExclude = Man_Seq_Qc_options['SequenceExclude']
+            ManualExclude = Man_Seq_Qc_options['ManualExclude']
             
-            #AmbiguousSites above 5
-            if pd.isna(AmbiguousSites) or AmbiguousSites > 5:
-                Seq_Man_choices = SequenceExclude_Amb.sample(n=1, weights='weight').iloc[0]
-                QcScore = Seq_Man_choices['QcScore']
-                if pd.isna(QcScore):
-                    QcScore = None
-                SequenceExclude = Seq_Man_choices['SequenceExclude']
-                if pd.isna(SequenceExclude):
-                    SequenceExclude = None
-                ManualExclude = Seq_Man_choices['ManualExclude'] 
-                if pd.isna(ManualExclude):
-                    ManualExclude = None
-            
-            #NCount above 3000
-            if pd.isna(NCount) or NCount > 3000:
-                NCount_Seq_Man_Qc = SequenceExclude_NCount.sample(n=1, weights='weight').iloc[0]
-                QcScore = NCount_Seq_Man_Qc['QcScore']
-                if pd.isna(QcScore):
-                    QcScore = None
-                SequenceExclude = NCount_Seq_Man_Qc['SequenceExclude']
-                if pd.isna(SequenceExclude):
-                    SequenceExclude = None
-                ManualExclude = NCount_Seq_Man_Qc['ManualExclude'] 
-                if pd.isna(ManualExclude):
-                    ManualExclude = None
 
             #WhoVariant, LineagesOfInterest, UnaliasedPango
             WhoVariant = sample_row['WhoVariant']
@@ -298,7 +270,7 @@ def Generate_complete_data(Batch_amount: int):
             Ct = generate_ct_value()
 
             #DateSampling
-            DateSampling = DateSampling_unfixed
+            DateSampling = DateSampling_unfixed if DateSampling_unfixed is not None else gen_whovariant_datesampling(initial_row['LineagesOfInterest'], reference_data)
 
             #SampleDateTime 
             SampleDateTime = datetime.combine(DateSampling, fake.time_object()) if DateSampling else None
@@ -380,17 +352,19 @@ def Generate_complete_data(Batch_amount: int):
                 # Post May 15, 2021 Constraint
                 # these constraints prevent a large amount of pre_WHO_naming, when processing in R.
                 (DateSampling.date() > datetime.strptime('2021-05-15', '%Y-%m-%d').date() and    # After May 15, 2021
-                pd.isna(LineageOfInterest)) or                                                  # Must have lineageofinterest
+                pd.isna(LineageOfInterest) and sample_row['clade'] != 'recombinant') or 
+
 
                 # Post March 1, 2021 Constrain
                 #these constraints are for making sure the pre_WHO_naming flows like the real data, between March and May
                 (DateSampling.date() > datetime.strptime('2021-03-1', '%Y-%m-%d').date() and    # After March 1, 2021
-                random.randint(1,3) in [1, 2] and                                               # 66% chance (2 out of 3)
-                pd.isna(LineageOfInterest)) or                                                  # Must have lineageofinterest
+                random.randint(1,3) in [1, 2] and
+                pd.isna(LineageOfInterest) and sample_row['clade'] != 'recombinant') or
 
                 #constraint for removing 40% of samples without a lineageOfInterest (again to prevent an overflow of pre_WHO_naming)
-                (pd.isna(LineageOfInterest) and # must have lineageofinterest
-                random.randint(1,5) in [1,2])): #40%
+                (pd.isna(LineageOfInterest) and # lineageofinterest is NULL
+                sample_row['clade'] != 'recombinant' and
+                random.randint(1,4) in [1,2])): #50%
                 continue
             # if we get here, the sample passed all constraints
             valid_samples += 1
@@ -432,10 +406,6 @@ def Generate_complete_data(Batch_amount: int):
                 del SampleID_reuse[reuse_sampleID]
                 print(f"reused and removed sample: {reuse_sampleID}")
                 print(len(SampleID_reuse))
-
-
-
-
 
             ######################## RECORDS ########################
 
@@ -526,6 +496,9 @@ def Generate_complete_data(Batch_amount: int):
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
+
+            #assigning reused SampleID, if available
+
             SequencedSample_record = {
                 "SequencedSampleID": SequencedSampleID,
                 "SequencingType": SequencingType,
@@ -559,7 +532,7 @@ def Generate_complete_data(Batch_amount: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    Batch_amount = 50
+    Batch_amount = 7500
 
     #headers "/n" represents a new file (so 6 total files)
     consensus_headers = [

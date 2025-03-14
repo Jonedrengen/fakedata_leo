@@ -157,42 +157,59 @@ def gen_whovariant_datesampling(LineageOfInterest, reference_data):
     selected_row = subset.sample(n=1, weights=subset['weight']).iloc[0]
     return datetime.strptime(selected_row['DateSampling'], '%Y-%m-%d')
 
-def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceExclude_QcScore.csv"):
+def generate_exclusion_values(ncount=None, ambiguous_sites=None, csv_file="important_files/NCount_Amb_Seq_Split.csv"):
     """
-    Generates a random row of data, based on the data in ManualExclude_SequenceExclude_QcScore.csv
-    The fourth column "weight" decides which row is chosen
+    Generates exclusion values based on NCount and AmbiguousSites thresholds.
 
     Args:
-        csv_file (str, optional): Path to CSV file containing exclusion data with columns:
-            - ManualExclude: Manual exclusion flag
-            - SequenceExclude: Sequence exclusion flag  
-            - QcScore: Quality control score
-            - weight: Numerical weight for sampling probability
-            Defaults to "important_files/ManualExclude_SequenceExclude_QcScore.csv"
+        ncount (int, optional): Number of N's in sequence. Defaults to None.
+        ambiguous_sites (int, optional): Number of ambiguous sites. Defaults to None.
+        csv_file (str, optional): Path to CSV file containing exclusion combinations and their weights.
+            Defaults to "important_files/NCount_Amb_Seq_Split.csv"
 
     Returns:
         dict: Dictionary containing three exclusion values:
             - manual_exclude: Manual exclusion flag or None if NA
             - sequence_exclude: Sequence exclusion flag or None if NA
-            - qc_score: Quality control score or None if NA
+            - qc_score: Quality control score
 
     Example:
-        >>> exclusions = generate_exclusion_values()
+        >>> exclusions = generate_exclusion_values(ncount=3500, ambiguous_sites=3)
         >>> print(exclusions)
-        {'manual_exclude': None, 'sequence_exclude': 'Failed', 'qc_score': 25}
+        {'manual_exclude': None, 'sequence_exclude': 'TooManyNs', 'qc_score': 'Fail: Too many Ns'}
     """
-    data = pd.read_csv(csv_file)
-    indices = range(len(data))
+    data = pd.read_csv(csv_file, na_values=['NULL'])
     
-    weights = data['weight'].values
-
-    selected_index = random.choices(indices, weights=weights, k=1)[0]
-    selected_row = data.iloc[selected_index]
+    # Determine which weight column to use based on NCount and AmbiguousSites values
+    if ncount is not None and ambiguous_sites is not None:
+        if ambiguous_sites <= 5 and ncount <= 3000:
+            weights = data['Amb_low_NCount_low']
+        elif ambiguous_sites <= 5 and ncount > 3000:
+            weights = data['Amb_low_NCount_high']
+        elif ambiguous_sites > 5 and ncount <= 3000:
+            weights = data['Amb_high_NCount_low']
+        else:  # ambiguous_sites > 5 and ncount > 3000
+            weights = data['Amb_high_NCount_high']
+    else:
+        # If either value is None, use Amb_low_NCount_low as default
+        weights = data['Amb_low_NCount_low']
     
+    # Filter out rows where weight is 0
+    mask = weights > 0
+    filtered_data = data[mask]
+    filtered_weights = weights[mask]
+    if filtered_data.empty:
+        return {
+            'ManuelExlude': None,
+            'SequenceExclude': None,
+            'QcScore': None
+        }
+    # Sample a row based on the weights
+    selected_row = filtered_data.sample(n=1, weights=filtered_weights).iloc[0]
     return {
-        'manual_exclude': None if pd.isna(selected_row['ManualExclude']) else selected_row['ManualExclude'],
-        'sequence_exclude': None if pd.isna(selected_row['SequenceExclude']) else selected_row['SequenceExclude'],
-        'qc_score': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
+        'ManualExclude': None if pd.isna(selected_row['ManualExclude']) else selected_row['ManualExclude'],
+        'SequenceExclude': None if pd.isna(selected_row['SequenceExclude']) else selected_row['SequenceExclude'],
+        'QcScore': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
     }
 
 def generate_BatchSource(LineageOfInterest, DateSampling, reference_data):

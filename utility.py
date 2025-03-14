@@ -6,13 +6,16 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-def write_to_csv(filename, data, headers):
-    # Open in 'w' mode instead of 'a' to overwrite existing file
-    with open(filename, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
+def write_to_csv(file_name, data, headers):
+    with open(file_name, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, 
+                              fieldnames=headers,
+                              quoting=csv.QUOTE_NONE,  # Don't quote any fields
+                              escapechar='\\',         # Use backslash to escape special characters
+                              quotechar='"')           # Empty quote character
         writer.writeheader()
         writer.writerows(data)
-    print(f"written to {filename}")
+    print(f"written to {file_name}")
 
 def clean_string_fields(record):
     for key, value in record.items():
@@ -51,34 +54,22 @@ def generate_ct_value():
     
     return round(ct, 5)
 
-#Ncount (Right skewed generation)
-def generate_ncount_value():
-    # Log-normal parameters based on the given dataset
-    median = 133
-    q1 = 121
-    q3 = 599
+#Ncount 
+# only NCount values that occured more than 30 times in real data
+def generate_ncount_value(file="important_files/NCount_details_above30.csv"):
+    NCount_values = pd.read_csv(file)
+    NCount = NCount_values.sample(n=1, weights=NCount_values['amount_seen']).iloc[0]
+    if pd.isna(NCount['NCount']):
+        return None
+    return int(NCount['NCount'])
 
-    # Calculate mu and sigma for the log-normal distribution
-    mu = np.log(median)
-    sigma = (np.log(q3) - np.log(q1)) / 1.35
-
-    # Generate log-normal value
-    ncount = np.random.lognormal(mean=mu, sigma=sigma)
-
-    # Clip to match observed range
-    ncount = np.clip(ncount, 0, 29903)
-
-    return round(ncount)
-
-
-def generate_ambiguoussites():
-    #Ambiguoussites
-    # numbers 0-29 or NA generated for ambiguoussites
-    ambiguous_values = list(range(30))
-    ambiguous_values_frequencies = [60331, 18876, 8753, 4384, 2218, 1106, 626, 432, 293, 236,
-                                    218, 185, 126, 100, 80, 76, 52, 70, 44, 39,
-                                    37, 28, 32, 26, 29, 22, 19, 18, 15, 15]
-    return random.choices(ambiguous_values, ambiguous_values_frequencies)[0]
+#Ambiguoussites
+def generate_ambiguoussites(file="important_files/AmbiguousSites_details.csv"):
+    ambiguous_values = pd.read_csv(file)
+    AmbiguousSite = ambiguous_values.sample(n=1, weights=ambiguous_values['amount_seen']).iloc[0]
+    if pd.isna(AmbiguousSite['AmbiguousSites']):
+        return None
+    return int(AmbiguousSite['AmbiguousSites'])
 
 
 
@@ -166,52 +157,69 @@ def gen_whovariant_datesampling(LineageOfInterest, reference_data):
     selected_row = subset.sample(n=1, weights=subset['weight']).iloc[0]
     return datetime.strptime(selected_row['DateSampling'], '%Y-%m-%d')
 
-def generate_exclusion_values(csv_file="important_files/ManualExclude_SequenceExclude_QcScore.csv"):
+def generate_exclusion_values(ncount=None, ambiguous_sites=None, csv_file="important_files/NCount_Amb_Seq_Split.csv"):
     """
-    Generates a random row of data, based on the data in ManualExclude_SequenceExclude_QcScore.csv
-    The fourth column "weight" decides which row is chosen
+    Generates exclusion values based on NCount and AmbiguousSites thresholds.
 
     Args:
-        csv_file (str, optional): Path to CSV file containing exclusion data with columns:
-            - ManualExclude: Manual exclusion flag
-            - SequenceExclude: Sequence exclusion flag  
-            - QcScore: Quality control score
-            - weight: Numerical weight for sampling probability
-            Defaults to "important_files/ManualExclude_SequenceExclude_QcScore.csv"
+        ncount (int, optional): Number of N's in sequence. Defaults to None.
+        ambiguous_sites (int, optional): Number of ambiguous sites. Defaults to None.
+        csv_file (str, optional): Path to CSV file containing exclusion combinations and their weights.
+            Defaults to "important_files/NCount_Amb_Seq_Split.csv"
 
     Returns:
         dict: Dictionary containing three exclusion values:
             - manual_exclude: Manual exclusion flag or None if NA
             - sequence_exclude: Sequence exclusion flag or None if NA
-            - qc_score: Quality control score or None if NA
+            - qc_score: Quality control score
 
     Example:
-        >>> exclusions = generate_exclusion_values()
+        >>> exclusions = generate_exclusion_values(ncount=3500, ambiguous_sites=3)
         >>> print(exclusions)
-        {'manual_exclude': None, 'sequence_exclude': 'Failed', 'qc_score': 25}
+        {'manual_exclude': None, 'sequence_exclude': 'TooManyNs', 'qc_score': 'Fail: Too many Ns'}
     """
-    data = pd.read_csv(csv_file)
-    indices = range(len(data))
+    data = pd.read_csv(csv_file, na_values=['NULL'])
     
-    weights = data['weight'].values
-
-    selected_index = random.choices(indices, weights=weights, k=1)[0]
-    selected_row = data.iloc[selected_index]
+    # Determine which weight column to use based on NCount and AmbiguousSites values
+    if ncount is not None and ambiguous_sites is not None:
+        if ambiguous_sites <= 5 and ncount <= 3000:
+            weights = data['Amb_low_NCount_low']
+        elif ambiguous_sites <= 5 and ncount > 3000:
+            weights = data['Amb_low_NCount_high']
+        elif ambiguous_sites > 5 and ncount <= 3000:
+            weights = data['Amb_high_NCount_low']
+        else:  # ambiguous_sites > 5 and ncount > 3000
+            weights = data['Amb_high_NCount_high']
+    else:
+        # If either value is None, use Amb_low_NCount_low as default
+        weights = data['Amb_low_NCount_low']
     
+    # Filter out rows where weight is 0
+    mask = weights > 0
+    filtered_data = data[mask]
+    filtered_weights = weights[mask]
+    if filtered_data.empty:
+        return {
+            'ManuelExlude': None,
+            'SequenceExclude': None,
+            'QcScore': None
+        }
+    # Sample a row based on the weights
+    selected_row = filtered_data.sample(n=1, weights=filtered_weights).iloc[0]
     return {
-        'manual_exclude': None if pd.isna(selected_row['ManualExclude']) else selected_row['ManualExclude'],
-        'sequence_exclude': None if pd.isna(selected_row['SequenceExclude']) else selected_row['SequenceExclude'],
-        'qc_score': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
+        'ManualExclude': None if pd.isna(selected_row['ManualExclude']) else selected_row['ManualExclude'],
+        'SequenceExclude': None if pd.isna(selected_row['SequenceExclude']) else selected_row['SequenceExclude'],
+        'QcScore': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
     }
 
 def generate_BatchSource(LineageOfInterest, DateSampling, reference_data):
     """
-    Generates a batch source based on a virus lineage and sampling date.
+    Generates a batch source based on a LineageOfInterest and sampling date.
     all rows from "Complete_reference_data.csv" with a matching LineageOfInterest AND Date, will be filtered from the reference data
     Then, a random row, based on weights is taken. This row will contain the BatchSource that will be generated
 
     Args:
-        LineageOfInterest (str or None): The virus lineage to match, such as 'Alpha', 'Beta', etc.
+        LineageOfInterest (str or None): The lineage to match, such as 'Alpha', 'Beta', etc.
         DateSampling (datetime): The sampling date to match with batch sources
         reference_data (pandas.DataFrame): Reference dataset containing columns:
             - LineagesOfInterest: The virus lineage

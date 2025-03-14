@@ -24,6 +24,20 @@ important_files:
       GROUP BY Ncount, QcScore, SequenceExclude, ManualExclude
       having Ncount > 3000
 
+  NCount_Amb_Seq_Split.csv:
+    HowToRetrieve
+    SELECT 
+      SequenceExclude, 
+      QcScore, 
+      ManualExclude, 
+      SUM(CASE WHEN NCount < 3000 and AmbiguousSites < 5 THEN 1 ELSE 0 END) AS Amb_low_NCount_low,
+      Sum(Case when NCount >= 3000 and AmbiguousSites < 5 Then 1 else 0 end) as Amb_low_NCount_high,
+      Sum(Case when NCount < 3000 and AmbiguousSites >= 5 Then 1 else 0 end) as Amb_high_NCount_low,
+      SUM(Case when AmbiguousSites >= 5 and NCount >= 3000 Then 1 else 0 end) AS Amb_high_NCount_high
+    FROM GenEpiBioTrain.V_CovidPlots
+    GROUP BY SequenceExclude, QcScore, ManualExclude;
+
+
   AmbiguousSites_details.csv:
     HowToRetrieve:
       SELECT AmbiguousSites, COUNT(*) as amount_seen
