@@ -1,31 +1,37 @@
 What is this?: 
-- This fake data generator generates fake data, based on a real dataset. 
+- This fake data generator generates fake covid data, based on a real covid dataset. 
 - This means that the data always will try to look like the dataset it is based on
 - If you wish to change the real dataset it is based on, you should replace all files in "important_files"
 
 important_files:
-  ManualExclude_SequenceExclude_QcScore.csv:
-    description: Contains the different possible variations and weights of ManuelExclude, SequenceExclude, and QcScore, based on the real data
-    HowToRetrieve: In SQL Azure Data Studio, execute the SQLQuery on GenEpiBioTrain.V_Covidplots
-    usage: Should be used to define ManuelExclude, SequenceExclude andQcScore in generated data
-    TODO: make it do what usage describes
+  AmbiguousSites_details.csv
+    variables -> AmbiguousSites,amount_seen
+    description: contains all different possible values of AmbiguousSites from original covid data. Also contains the amount_seen (weight), 
+    which determines how often that value shows up in the generated data
+    
+  BatchSource_SequencingType_combinations.csv
+    variables -> BatchSource,SequencingType,weight
+    description: contains all combinations of BatchSource and SequencingType
 
-  Amb>5_SequenceExclude:
-    HowToRetrieve: 
-      SELECT distinct QcScore, SequenceExclude, ManualExclude, count(*) as weight
-      from GenEpiBioTrain.V_CovidPlots
-      GROUP BY AmbiguousSites, QcScore, SequenceExclude, ManualExclude
-      having AmbiguousSites > 5
+  Complete_reference_data.csv
+    variables -> BatchSource,DateSampling,WhoVariant,LineagesOfInterest,lineage,UnaliasedPango,Nextclade_pango,clade,weight
+    description: this file contains a wide range of combinations of essential variables as well as how often that combination shows up (weight)
 
-  Ncount>3000_SeqExclude.csv:
-    HowToRetrieve: 
-      SELECT distinct QcScore, SequenceExclude, ManualExclude, count(*) as weight
-      from GenEpiBioTrain.V_CovidPlots
-      GROUP BY Ncount, QcScore, SequenceExclude, ManualExclude
-      having Ncount > 3000
+  NCount_details_above30.csv
+    variables -> NCount,amount_seen
+    description: this dataset contains all ncount values that showed up more than 30 times in the original dataset, as well as how often they showed up (weight)
 
   NCount_Amb_Seq_Split.csv:
-    HowToRetrieve
+    variables -> SequenceExclude,QcScore,ManualExclude,Amb_low_NCount_low,Amb_low_NCount_high,Amb_high_NCount_low,Amb_high_NCount_high
+    description: this file contains all possible variations of SequenceExclude, QcScore and ManualExclude. The following four variables contains
+    how many of these combinations has AmbiguousSites values above 5 and NCount values above 3000
+    example: 
+      Amb_high_NCount_low = 100 -> means that said combination of SequenceExclude, QcScore and ManualExclude shows up 100 times, when the AmbiguousSites value is above 5
+      and the NCount value is below 3000 
+    This is used to determine when the combination of SequenceExclude, QcScore and ManualExclude should show up. 
+    for example if the QcScore has "Fail: Too many Ns" it means that the NCount is above 3k or if SequenceExclude has "TooManyNs;MixedStrain;ManuallyExcluded"
+    it means both the NCount is above 3000 (TooManyNS) and the AmbiguousSites is above 5 (MixedStrain)
+    HowToRetrieve:
     SELECT 
       SequenceExclude, 
       QcScore, 
@@ -37,19 +43,11 @@ important_files:
     FROM GenEpiBioTrain.V_CovidPlots
     GROUP BY SequenceExclude, QcScore, ManualExclude;
 
+  qc.mixedsites.totalmixedsites.csv
+    variables -> qc.mixedSites.totalMixedSites,amount
+    description: contains all possible distinct qc_mixedSites.totalMixedSites and how often then show up (amount_nextclade_pangos).
 
-  AmbiguousSites_details.csv:
-    HowToRetrieve:
-      SELECT AmbiguousSites, COUNT(*) as amount_seen
-      from GenEpiBioTrain.V_CovidPlots
-      WHERE AmbiguousSites is NOT NULL
-      GROUP BY AmbiguousSites
-    Notes:
-      NULL values are excluded here, because in code, whenever NCount is NULL, AmbiguousSites will also be NULL
-
-  Complete_reference_data.csv:
-    description: Contains the Dates of sequencing for the sample variants (lineage of interest). As well as how often variants are sequenced (weigts)
-    HowToRetrieve: In SQL Azure Data Studio, execute the SQLQuery on GenEpiBioTrain.V_Covidplots
-    SQLQuery: SELECT distinct DateSampling, LineagesOfInterest, COUNT(*) as weight 
-    FROM GenEpiBioTrain.V_CovidPlots 
-    GROUP BY DateSequencing, LineagesOfInterest
+  qc_mixedsites_possibilities.csv
+    variables -> qc.mixedSites.totalMixedSites,Min_score,Max_score,counted
+    description: This contains the every possible qc_mixedsites_totalmixedsites as well as the min and max score of qc.overallScore 
+    as well as how often the qc_mixedsites_totalmixedsites value shows up with a qc.overallScore between Min_score and Max_score (counted)

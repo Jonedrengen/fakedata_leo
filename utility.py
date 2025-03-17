@@ -212,6 +212,14 @@ def generate_exclusion_values(ncount=None, ambiguous_sites=None, csv_file="impor
         'QcScore': None if pd.isna(selected_row['QcScore']) else selected_row['QcScore']
     }
 
+def gen_SequencingType(BatchSource, csv_file="important_files/BatchSource_SequencingType_combinations.csv"):
+    ref_data = pd.read_csv(csv_file)
+    matching_rows = ref_data[ref_data['BatchSource'] == BatchSource]
+    if matching_rows.empty:
+        return 'hospital_sequencing'
+    selected_type = matching_rows.sample(n=1, weights=matching_rows['weight']).iloc[0]
+    return selected_type['SequencingType']
+
 def generate_BatchSource(LineageOfInterest, DateSampling, reference_data):
     """
     Generates a batch source based on a LineageOfInterest and sampling date.
