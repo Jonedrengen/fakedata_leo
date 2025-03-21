@@ -1,0 +1,13 @@
+Step 1:
+Clone this repository into a code editor that supports Python (I recommend VSCode or PyCharm). You can use Git terminal commands or GitHub Desktop.
+
+Step 2:
+Create an isolated environment for your project:
+- Use Python's built-in environment creation tools, or
+- Download and use Conda
+
+Step 3:
+Install all required packages in your environment.
+
+Step 4:
+Run `Complete_dataset.py` to generate your files. By default, it is set to create 8500 batches with 96 samples per batch. If you wish to change the batch size, modify the script accordingly.
