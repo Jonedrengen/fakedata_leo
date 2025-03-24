@@ -12,7 +12,19 @@ from collections import Counter
 
 fake = Faker()
 
-def Generate_complete_data(Batch_amount: int):
+def Generate_complete_data(Batch_amount: int, Batch_size: int):
+    """
+    #Returns: a tuple of lists, containing 1 batch and "batch_size" amount of datapoints
+
+    #Parameters:
+    -> Batch_amount: amount of batches to be generated
+    -> Batch_size: amount of rows to be generated and linked to a batch
+
+    #Returns:
+    -> a tuple of lists, containing records (records=dicts of data): 
+
+    """
+    
     starting_time = time.time()
     update_time = 0.15
 
@@ -90,7 +102,7 @@ def Generate_complete_data(Batch_amount: int):
         valid_samples = 0
         max_attempts = 1000  # limit to prevent infinite loops
         attempts = 0
-        while valid_samples < 96 and attempts < max_attempts:
+        while valid_samples < Batch_size and attempts < max_attempts:
             attempts += 1
             ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
             SequencedSampleID= GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
@@ -523,7 +535,8 @@ def Generate_complete_data(Batch_amount: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    Batch_amount = 8500
+    batch_amount = 8500
+    batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [
         "ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
@@ -562,7 +575,7 @@ if __name__ == '__main__':
     ]
 
     #generating data
-    (Consensus_data, NextcladeResult_data, Sample_data, Batch_data, PangolinResult_data, SequencedSample_data) = Generate_complete_data(Batch_amount)
+    (Consensus_data, NextcladeResult_data, Sample_data, Batch_data, PangolinResult_data, SequencedSample_data) = Generate_complete_data(Batch_amount=batch_amount, Batch_size=batch_size)
 
     #make them csv files
     print("Writing data to CSV files...")
