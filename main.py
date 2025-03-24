@@ -5,7 +5,7 @@ from utility import write_to_csv
 
 
 """
-This is the main use file, containing basics to generate datasets based on SSI covid data
+This is the main use file, containing basics to generate datasets based on SSI covid data.
 
 batch_amount and batch_size are the only variables you need to modify.
     #batch_amount: max size recommended 8500
