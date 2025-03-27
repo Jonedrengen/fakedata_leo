@@ -193,7 +193,7 @@ GO
 
 -- Batch
 BULK INSERT [Jon].[Batch]
-    FROM '/tmp/Batch_data.csv'
+    FROM '/tmp/data/Batch_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -204,7 +204,7 @@ BULK INSERT [Jon].[Batch]
 
 -- Sample
 BULK INSERT [Jon].[Sample]
-    FROM '/tmp/Sample_data.csv'
+    FROM '/tmp/data/Sample_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -215,7 +215,7 @@ BULK INSERT [Jon].[Sample]
 
 -- SequencedSample
 BULK INSERT [Jon].[SequencedSample]
-    FROM '/tmp/SequencedSample_data.csv'
+    FROM '/tmp/data/SequencedSample_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -226,7 +226,7 @@ BULK INSERT [Jon].[SequencedSample]
 
 -- Consensus
 BULK INSERT [Jon].[Consensus]
-    FROM '/tmp/Consensus_data.csv'
+    FROM '/tmp/data/Consensus_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -237,7 +237,7 @@ BULK INSERT [Jon].[Consensus]
 
 -- PangolinResult
 BULK INSERT [Jon].[PangolinResult]
-    FROM '/tmp/PangolinResult_data.csv'
+    FROM '/tmp/data/PangolinResult_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -248,7 +248,7 @@ BULK INSERT [Jon].[PangolinResult]
 
 -- NextcladeResult
 BULK INSERT [Jon].[NextcladeResult]
-    FROM '/tmp/NextcladeResult_data.csv'
+    FROM '/tmp/data/NextcladeResult_data.csv'
     WITH
     (
         FIRSTROW = 2,
