@@ -398,7 +398,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 reused_SampleID = reuse_data['SampleID']
                 
                 # Generate new IDs for everything else
-                SampleID = GenerateUniqueSampleID(existing_SampleIDs)  # Generate new SampleID for Sample_record
+                #SampleID = GenerateUniqueSampleID(existing_SampleIDs)  # Generate new SampleID for Sample_record
                 ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
                 SequencedSampleID = GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
                 NextcladeResultID = GenerateUniqueNextcladeResultID(existing_NextcladeResultIDs)
