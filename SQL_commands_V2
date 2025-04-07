@@ -1,25 +1,25 @@
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[Runs]') AND type in (N'U'))
-DROP TABLE [Jon].[Runs]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[Runs]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[Runs]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[QcVariantConsensus]') AND type in (N'U'))
-DROP TABLE [Jon].[QcVariantConsensus]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[QcVariantConsensus]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[QcVariantConsensus]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[ResultsNextclade]') AND type in (N'U'))
-DROP TABLE [Jon].[ResultsNextclade]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[ResultsNextclade]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[ResultsNextclade]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[ResultsPangolin]') AND type in (N'U'))
-DROP TABLE [Jon].[ResultsPangolin]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[ResultsPangolin]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[ResultsPangolin]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[CaseSample]') AND type in (N'U'))
-DROP TABLE [Jon].[CaseSample]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[CaseSample]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[CaseSample]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Jon].[SampleSequenced]') AND type in (N'U'))
-DROP TABLE [Jon].[SampleSequenced]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[SampleSequenced]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[SampleSequenced]
 GO
-DROP VIEW [Jon].[V_CovidPlots]
+DROP VIEW [GenEpiBioTrain].[V_CovidPlots]
 GO
 -- Create schema
-CREATE SCHEMA Jon
+CREATE SCHEMA GenEpiBioTrain
 GO
 
 -- Create tables
@@ -29,7 +29,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[Runs](
+CREATE TABLE [GenEpiBioTrain].[Runs](
     [RunID] [nvarchar](200) NOT NULL,
     [RunDate] [date] NULL,
     [Platform] [nvarchar](50) NULL,
@@ -46,7 +46,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[QcVariantConsensus](
+CREATE TABLE [GenEpiBioTrain].[QcVariantConsensus](
   [QcVariantConsensusID] [nvarchar](50) NOT NULL,
   [NCount] [int] NULL,
   [AmbiguousSites] [int] NULL,
@@ -90,26 +90,14 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[ResultsNextclade](
+CREATE TABLE [GenEpiBioTrain].[ResultsNextclade](
     [ResultsNextcladeID] [nvarchar](50) NOT NULL,
-    [frameShifts] [nvarchar](4000) NULL,
-    [aaSubstitutions] [nvarchar](4000) NULL,
-    [aaDeletions] [nvarchar](4000) NULL,
-    [aaInsertions] [nvarchar](4000) NULL,
     [alignmentScore] [int] NULL,
     [clade] [nvarchar](50) NULL,
     [Nextclade_pango] [nvarchar](50) NULL,
-    [substitutions] [nvarchar](4000) NULL,
-    [deletions] [nvarchar](4000) NULL,
-    [insertions] [nvarchar](4000) NULL,
-    [missing] [nvarchar](4000) NULL,
-    [nonACGTNs] [nvarchar](4000) NULL,
-    [pcrPrimerChanges] [nvarchar](4000) NULL,
     [qc.mixedSites.totalMixedSites] [int] NULL,
     [qc.overallScore] [int] NULL,
     [qc.overallStatus] [nvarchar](50) NULL,
-    [qc.frameShifts.status] [nvarchar](50) NULL,
-    [qc.frameShifts.frameShiftsIgnored] [nvarchar](50) NULL,
     [NextcladeVersion] [nvarchar](50) NULL,
     [QcVariantConsensusID] [nvarchar](50) NULL,
     [IsCurrent] [bit] NULL,
@@ -127,7 +115,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[ResultsPangolin](
+CREATE TABLE [GenEpiBioTrain].[ResultsPangolin](
   [PangolinID] [nvarchar](50) NOT NULL,
   [lineage] [nvarchar](50) NULL,
   [version] [nvarchar](50) NULL,
@@ -153,15 +141,15 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[CaseSample](
+CREATE TABLE [GenEpiBioTrain].[CaseSample](
     [CaseSampleID] [nvarchar](50) NOT NULL,
     [Host] [nvarchar](50) NULL,
     [Ct] [decimal](18, 13) NULL,
     [DateSampling] [date] NULL,
+    [SampleDateTime] [datetime2] (7) NOT NULL,
     [CurrentQcVariantConsensusID] [nvarchar](50) NULL,
     [TimestampCreated] [datetime2](7) NOT NULL,
-    [TimestampUpdated] [datetime2](7) NOT NULL,
-    [SampleDateTime] [datetime2] (7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL
     CONSTRAINT CaseSampleID PRIMARY KEY (CaseSampleID)
 ) ON [PRIMARY]
 GO
@@ -173,7 +161,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [Jon].[SampleSequenced](
+CREATE TABLE [GenEpiBioTrain].[SampleSequenced](
     [SampleSequencedID] [nvarchar](200) NOT NULL,
     [SequencingType] [nvarchar](50) NULL,
     [DateSequencing] [date] NULL,
@@ -192,8 +180,8 @@ GO
 -- Bulk insert
 
 -- Batch
-BULK INSERT [Jon].[Runs]
-    FROM '/tmp/data/Run_data.csv'
+BULK INSERT [GenEpiBioTrain].[Runs]
+    FROM '/tmp/Run_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -203,8 +191,8 @@ BULK INSERT [Jon].[Runs]
     GO
 
 -- Sample
-BULK INSERT [Jon].[CaseSample]
-    FROM '/tmp/data/CaseSample_data.csv'
+BULK INSERT [GenEpiBioTrain].[CaseSample]
+    FROM '/tmp/CaseSample_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -214,8 +202,8 @@ BULK INSERT [Jon].[CaseSample]
     GO
 
 -- SampleSequenced
-BULK INSERT [Jon].[SampleSequenced]
-    FROM '/tmp/data/SampleSequenced_data.csv'
+BULK INSERT [GenEpiBioTrain].[SampleSequenced]
+    FROM '/tmp/SampleSequenced_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -225,8 +213,8 @@ BULK INSERT [Jon].[SampleSequenced]
     GO
 
 -- QcVariantConsensus
-BULK INSERT [Jon].[QcVariantConsensus]
-    FROM '/tmp/data/QcVariantConsensus_data.csv'
+BULK INSERT [GenEpiBioTrain].[QcVariantConsensus]
+    FROM '/tmp/QcVariantConsensus_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -236,8 +224,8 @@ BULK INSERT [Jon].[QcVariantConsensus]
     GO
 
 -- PangolinResult
-BULK INSERT [Jon].[ResultsPangolin]
-    FROM '/tmp/data/ResultsPangolin_data.csv'
+BULK INSERT [GenEpiBioTrain].[ResultsPangolin]
+    FROM '/tmp/ResultsPangolin_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -247,8 +235,8 @@ BULK INSERT [Jon].[ResultsPangolin]
     GO
 
 -- ResultsNextclade
-BULK INSERT [Jon].[ResultsNextclade]
-    FROM '/tmp/data/ResultsNextclade_data.csv'
+BULK INSERT [GenEpiBioTrain].[ResultsNextclade]
+    FROM '/tmp/ResultsNextclade_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -258,26 +246,16 @@ BULK INSERT [Jon].[ResultsNextclade]
     GO
 
 -- Replace ; with , in columns
-UPDATE [Jon].[ResultsNextclade]
-SET aaSubstitutions = replace(aaSubstitutions, ';', ','),
-    aaDeletions = replace(aaDeletions, ';', ','),
-    frameShifts = replace(frameShifts, ';', ','),
-    aaInsertions = replace(aaInsertions, ';', ','),
-    clade = replace(clade, ';', ','),
-    substitutions = replace(substitutions, ';', ','),
-    deletions = replace(deletions, ';', ','),
-    insertions = replace(insertions, ';', ','),
-    missing = replace(missing, ';', ','),
-    nonACGTNs = replace(nonACGTNs, ';', ','),
-    pcrPrimerChanges = replace(pcrPrimerChanges, ';', ','),
-    [qc.frameShifts.frameShiftsIgnored] = replace([qc.frameShifts.frameShiftsIgnored], ';', ',')
+UPDATE [GenEpiBioTrain].[ResultsNextclade]
+SET
+    clade = replace(clade, ';', ',')
 
 
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE VIEW [Jon].[V_CovidPlots] AS
+CREATE VIEW [GenEpiBioTrain].[V_CovidPlots] AS
     SELECT
         A.[SampleSequencedID], A.[SequencingType], A.[DateSequencing], A.[SampleContent],
         B.[CaseSampleID], B.[SampleDateTime], B.[Host], B.[Ct], B.[DateSampling],
@@ -288,15 +266,12 @@ CREATE VIEW [Jon].[V_CovidPlots] AS
         F.[BA.4], F.[BA.5], F.[BA.2.75], F.[BF.7], F.[WhoVariant], F.[LineagesOfInterest], F.[UnaliasedPango],
         G.[PangolinID], G.[lineage], G.[version], G.[pangolin_version], G.[scorpio_version],
         G.[constellation_version], G.[qc_status], G.[qc_notes], G.[note],
-        H.[ResultsNextcladeID], H.[frameShifts], H.[aaSubstitutions], H.[aaDeletions],
-        H.[aaInsertions], H.[alignmentScore], H.[clade], H.[Nextclade_pango], H.[substitutions], H.[deletions],
-        H.[insertions], H.[missing], H.[nonACGTNs], H.[pcrPrimerChanges], H.[qc.mixedSites.totalMixedSites],
-        H.[qc.overallScore], H.[qc.overallStatus], H.[qc.frameShifts.status], H.[qc.frameShifts.frameShiftsIgnored],
-        H.[NextcladeVersion]
-    FROM Jon.SampleSequenced A
-    LEFT JOIN Jon.CaseSample B ON A.CaseSampleID = B.CaseSampleID
-    LEFT JOIN Jon.Run C ON A.RunID = C.RunID
-    LEFT JOIN Jon.QcVariantConsensus F ON A.SampleSequencedID = F.SampleSequencedID
-    LEFT JOIN Jon.ResultsPangolin G ON F.CurrentPangolinID = G.PangolinID
-    LEFT JOIN Jon.ResultsNextclade H ON F.CurrentNextcladeID = H.ResultsNextcladeID
+        H.[ResultsNextcladeID], H.[alignmentScore], H.[clade], H.[Nextclade_pango], H.[qc.mixedSites.totalMixedSites],
+        H.[qc.overallScore], H.[qc.overallStatus],H. [NextcladeVersion]
+    FROM GenEpiBioTrain.SampleSequenced A
+    LEFT JOIN GenEpiBioTrain.CaseSample B ON A.CaseSampleID = B.CaseSampleID
+    LEFT JOIN GenEpiBioTrain.Runs C ON A.RunID = C.RunID
+    LEFT JOIN GenEpiBioTrain.QcVariantConsensus F ON A.SampleSequencedID = F.SampleSequencedID
+    LEFT JOIN GenEpiBioTrain.ResultsPangolin G ON F.CurrentPangolinID = G.PangolinID
+    LEFT JOIN GenEpiBioTrain.ResultsNextclade H ON F.CurrentNextcladeID = H.ResultsNextcladeID
 GO
