@@ -6,6 +6,11 @@ systemctl enable --now docker
 sudo docker pull mcr.microsoft.com/mssql/server:2022-latest
 sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
 
+#2.1 Installer rstudio server
+docker pull rocker/rstudio
+sudo docker run --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio rocker/rstudio
+sudo docker cp /media/gebt/NO\ NAME/SQL_Course/SQL24_data/'Module 4'/SQL_Course_Report_Local.Rmd rstudio:/home/rstudio/.
+
 #3 Kopier Data over på Sql Server Docker container
 sudo docker cp "/media/gebt/NO\ NAME/data/" sqlserver:/tmp/.
 
