@@ -5,7 +5,7 @@ import csv
 import numpy as np
 from datetime import datetime as datetime, timedelta
 import time
-from id_generators import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
+from id_generators_V2 import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
 from utility import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields, gen_SequencingType
 import pandas as pd
 from collections import Counter
@@ -36,7 +36,9 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
     existing_BatchIDs = set()
     existing_PangolinResultIDs = set()
 
-
+    #SequencedSample
+    # for when a Sample is resequenced
+    SampleID_reuse = {}
 
     #Datasets
     Consensus_data = []
@@ -62,7 +64,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
         elapsed_time = time.time() - starting_time
         if elapsed_time >= update_time:
             update_time += 0.40
-            print(f'generated {i} Batches of {Batch_amount}')
+            print(f'generated {i} Runs of {Batch_amount}')
 
         # Generate batch-level constants first
         BatchID = GenerateUniqueBatchID(existing_BatchIDs)
@@ -77,10 +79,10 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 
         # create batch record
         batch_record = {
-            "BatchID": BatchID,
-            "BatchDate": BatchDate,
+            "RunID": BatchID,
+            "RunDate": BatchDate,
             "Platform": Platform,
-            "BatchSource": BatchSource,
+            "RunSource": BatchSource,
             "TimestampCreated": str(datetime.now()),
             "TimestampUpdated": str(datetime.now())
         }
@@ -321,16 +323,10 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 qc_status = "pass"
 
             #qc_notes
-            if pd.isna(lineage):
-                qc_notes = None
-            else:
-                qc_notes = "nothing of note"
+            qc_notes = None
 
             #note
-            if pd.isna(lineage):
-                note = None
-            else:
-                note = "again nothing"
+            note = None
 
             ######################## SequencedSample_data ########################
             
@@ -370,11 +366,48 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             # if we get here, the sample passed all constraints
             valid_samples += 1
 
+            ######################## Reuse_SampleIDs ########################
+
+            if 1 == random.randint(1, 5):
+                SampleID_reuse[SampleID] = {
+                    'CaseSampleID': SampleID,
+                    'sample_row': sample_row, #SampleRow generated from complete_ref_data
+                    'DateSampling': DateSampling,
+                    'Ct': Ct,
+                    'Host': Host,
+                    'SampleDateTime': SampleDateTime,
+                    'RunID': BatchID,
+                    'DateSequencing': DateSequencing
+                }
+                print(f"saved a sample for reuse: {SampleID}")
+            
+            # Reuse a sample (if any are available)
+            if SampleID_reuse and random.random() < 0.0845:
+                # Get a random SampleID from the stored samples
+                reuse_sampleID = random.choice(list(SampleID_reuse.keys()))
+                reuse_data = SampleID_reuse[reuse_sampleID]
+                
+                # Store the reused SampleID separately
+                reused_SampleID = reuse_data['CaseSampleID']
+                
+                # Generate new IDs for everything else
+                #SampleID = GenerateUniqueSampleID(existing_SampleIDs)  # Generate new SampleID for Sample_record
+                ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
+                SequencedSampleID = GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
+                NextcladeResultID = GenerateUniqueNextcladeResultID(existing_NextcladeResultIDs)
+                PangolinResultID = GenerateUniquePangolinResultID(existing_PangolinResultIDs)
+                
+
+                # Remove the sample from reuse dictionary after using it
+                del SampleID_reuse[reuse_sampleID]
+                print(f"reused and removed sample: {reuse_sampleID}")
+                print(len(SampleID_reuse))
+
             ######################## RECORDS ########################
 
             Consensus_record = {
                 # Consensus_data record
-                "ConsensusID": ConsensusID,
+                "QcVariantConsensusID": ConsensusID,
                 "NCount": NCount, #above 3k = not passed 
                 "AmbiguousSites": AmbiguousSites, # over 5, then NcountQC = fail 
                 "NwAmb": NwAmb,
@@ -401,15 +434,15 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "WhoVariant": WhoVariant,
                 "LineagesOfInterest": LineageOfInterest,
                 "UnaliasedPango": UnaliasedPango,
-                "SequencedSampleID": SequencedSampleID,
-                "CurrentNextcladeID": NextcladeResultID,
+                "SampleSequencedID": SequencedSampleID,
+                "CurrentResultsNextcladeID": NextcladeResultID,
                 "CurrentPangolinID": PangolinResultID,
                 "IsCurrent": IsCurrent,  # always current in test data
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
             NextcladeResult_record = { #Skal fjernes post?
-                "NextcladeResultID": NextcladeResultID,
+                "ResultsNextcladeID": NextcladeResultID,
                 "frameShifts": frameShifts, #excluded
                 "aaSubstitutions": aaSubstitutions, #excluded
                 "aaDeletions": aaDeletions, #excluded
@@ -429,23 +462,23 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "qc.frameShifts.status": qc_frameShifts_status, #excluded
                 "qc.frameShifts.frameShiftsIgnored": qc_frameShifts_frameShiftsIgnored, #excluded
                 "NextcladeVersion": NextcladeVersion,
-                "ConsensusID": ConsensusID,
+                "QcVariantConsensusID": ConsensusID,
                 "IsCurrent": IsCurrent,
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
             Sample_record = {
-                "SampleID": SampleID,
+                "CaseSampleID": SampleID,
                 "Host": Host,
                 "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
                 "DateSampling": DateSampling,
-                "CurrentConsensusID": ConsensusID,
+                "SampleDateTime": SampleDateTime,
+                "CurrentQcVariantConsensusID": ConsensusID,
                 "TimestampCreated": TimestampCreated,
-                "TimestampUpdated": TimestampUpdated,
-                "SampleDateTime": SampleDateTime
+                "TimestampUpdated": TimestampUpdated
             }
             PangolinResult_record = {
-                "PangolinResultID": PangolinResultID,
+                "PangolinID": PangolinResultID,
                 "lineage": lineage, #skal vælges ud fra Nextclade_Pango
                 "version": version,
                 "pangolin_version": pangolin_version, #real data: 4.2 = 26, 4.1.2 = 525417, NULL = 85643
@@ -454,23 +487,27 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "qc_status": qc_status, #real data: pass = 525443, NULL = 85643
                 "qc_notes": qc_notes, #TODO if needed
                 "note": note, #TODO if needed    
-                "ConsensusID": ConsensusID,
+                "QcVariantConsensusID": ConsensusID,
                 "IsCurrent": IsCurrent,
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
 
+            #assigning reused SampleID, if available
+
             SequencedSample_record = {
-                "SequencedSampleID": SequencedSampleID,
+                "SampleSequencedID": SequencedSampleID,
                 "SequencingType": SequencingType,
                 "DateSequencing": DateSequencing, #TODO should match the batch date?
                 "SampleContent": SampleContent,
-                "BatchID": BatchID,  # Assign BatchID from the current batch
-                "CurrentConsensusID": ConsensusID,
-                "SampleID": SampleID,  # Use reused SampleID if it exists
+                "RunID": BatchID,  # Assign BatchID from the current batch
+                "CurrentQcVariantConsensusID": ConsensusID,
+                "CaseSampleID": reused_SampleID if 'reused_SampleID' in locals() else SampleID,  # Use reused SampleID if it exists
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
+            if 'reused_SampleID' in locals():
+                del reused_SampleID
 
             # Clean the records before appending (mostly just for "20I (Alpha, V1)" -> "20I (Alpha; V1)")
             Consensus_record = clean_string_fields(Consensus_record)
@@ -491,42 +528,42 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 8500
+    batch_amount = 85
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [
-        "ConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
+        "QcVariantConsensusID", "NCount", "AmbiguousSites", "NwAmb", "NCountQC", "NumAlignedReads", "PctCoveredBases",
         "SeqLength", "QcScore", "SequenceExclude", "ManualExclude", "Alpha", "Beta", "Gamma", "Delta", "Eta",
         "Omicron", "BA.1", "BA.2", "BG", "BA.4", "BA.5", "BA.2.75", "BF.7", "WhoVariant", "LineagesOfInterest",
-        "UnaliasedPango", "SequencedSampleID", "CurrentNextcladeID", "CurrentPangolinID", "IsCurrent", 
+        "UnaliasedPango", "SampleSequencedID", "CurrentResultsNextcladeID", "CurrentPangolinID", "IsCurrent", 
         "TimestampCreated", "TimestampUpdated"
     ]
 
     nextclade_headers = [
-        "NextcladeResultID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore",
+        "ResultsNextcladeID", "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "alignmentScore",
         "clade", "Nextclade_pango", "substitutions", "deletions", "insertions", "missing", "nonACGTNs",
         "pcrPrimerChanges", "qc.mixedSites.totalMixedSites", "qc.overallScore", "qc.overallStatus", 
-        "qc.frameShifts.status", "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "ConsensusID", 
+        "qc.frameShifts.status", "qc.frameShifts.frameShiftsIgnored", "NextcladeVersion", "QcVariantConsensusID", 
         "IsCurrent", "TimestampCreated", "TimestampUpdated"
     ]
 
     sample_headers = [
-        "SampleID", "Host", "Ct", "DateSampling", "CurrentConsensusID", "TimestampCreated", 
-        "TimestampUpdated", "SampleDateTime"
+        "CaseSampleID", "Host", "Ct", "DateSampling", "SampleDateTime", "CurrentQcVariantConsensusID", "TimestampCreated", 
+        "TimestampUpdated"
     ]
 
     batch_headers = [
-        "BatchID", "BatchDate", "Platform", "BatchSource", "TimestampCreated", "TimestampUpdated"
+        "RunID", "RunDate", "Platform", "RunSource", "TimestampCreated", "TimestampUpdated"
     ]
 
     sequencedsample_headers = [
-        "SequencedSampleID", "SequencingType", "DateSequencing", "SampleContent", "BatchID",
-        "CurrentConsensusID", "SampleID", "TimestampCreated", "TimestampUpdated"
+        "SampleSequencedID", "SequencingType", "DateSequencing", "SampleContent", "RunID",
+        "CurrentQcVariantConsensusID", "CaseSampleID", "TimestampCreated", "TimestampUpdated"
     ]
 
     pangolin_headers = [
-        "PangolinResultID", "lineage", "version", "pangolin_version", "scorpio_version", 
-        "constellation_version", "qc_status", "qc_notes", "note", "ConsensusID", "IsCurrent",
+        "PangolinID", "lineage", "version", "pangolin_version", "scorpio_version", 
+        "constellation_version", "qc_status", "qc_notes", "note", "QcVariantConsensusID", "IsCurrent",
         "TimestampCreated", "TimestampUpdated"
     ]
 
@@ -535,12 +572,12 @@ if __name__ == '__main__':
 
     #make them csv files
     print("Writing data to CSV files...")
-    write_to_csv('output/Consensus_data.csv', Consensus_data, consensus_headers)
-    write_to_csv('output/NextcladeResult_data.csv', NextcladeResult_data, nextclade_headers)
-    write_to_csv('output/Sample_data.csv', Sample_data, sample_headers)
-    write_to_csv('output/Batch_data.csv', Batch_data, batch_headers)
-    write_to_csv('output/SequencedSample_data.csv', SequencedSample_data, sequencedsample_headers)
-    write_to_csv('output/PangolinResult_data.csv', PangolinResult_data, pangolin_headers)
+    write_to_csv('output/QcVariantConsensus_data.csv', Consensus_data, consensus_headers)
+    write_to_csv('output/ResultsNextclade_data.csv', NextcladeResult_data, nextclade_headers)
+    write_to_csv('output/CaseSample_data.csv', Sample_data, sample_headers)
+    write_to_csv('output/Run_data.csv', Batch_data, batch_headers)
+    write_to_csv('output/SampleSequenced_data.csv', SequencedSample_data, sequencedsample_headers)
+    write_to_csv('output/ResultsPangolin_data.csv', PangolinResult_data, pangolin_headers)
 
     end_time = time.time()
     print(f"Execution time: {end_time - start_time:.2f} seconds")

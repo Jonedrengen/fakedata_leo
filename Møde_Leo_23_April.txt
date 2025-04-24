@@ -1,0 +1,7 @@
+alignmentscore skal ligne reelle data (særligt NULLS)
+flere sequecedSamples pr. casesample (og de skal tilføjes og ikke erstattes!) (8,45)
+
+resequencing sker typisk hvis der er sket noget i en batch, dvs. en batch der skal resequences indeholder "fails"
+    CurrentConsensusID i Sample_data er bare den seneste lavet consensusID til samplet (i reel case ville det være den med lavest NCount eller noget)
+sample -> batches -> SequencedSamples -> Consensus sekvens -> Nextclade og Pango
+

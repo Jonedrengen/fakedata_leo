@@ -1,9 +1,0 @@
-1. Lav en function der fjerner alle kolonner som er eksluderet post generering (NextcladeResult_data) ✓
-2. gør noter tomme (qc_notes) og notes eller (fyld med random fis, måske med faker) ✓ (tomme for nu)
-3. Consensus AmbiguousSites, hvis over 5, så er SequenceExclude = Mixed_strain ✓
-4. NCount over 3000 er SequenceExclude=TooManyNS ✓
-5. SequencingType baseret på BatchSource (samme SequencingType som BatchSource): hvis BatchSource = Hogwarts, så SequencingType = Hogwarts_sequencing_sent_to_Panem 
-6. TODO: Måske, en SampleID kan have 2 SequencedSampleIDer, det kunne eventuelt være at engang i mellem trækker jeg en genereret Sample ud og placerer den ind igen i næste batch
-- SampleID reuse kan endnu ikke generere to sequencedsampleIDer der har den samme WhoVariant i consensusID
-
-

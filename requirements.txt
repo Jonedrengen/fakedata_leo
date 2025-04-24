@@ -1,5 +1,4 @@
-#see notes.txt for library documentation
-#must be installed with pip
+#Requirements
 
 Faker
 pandas

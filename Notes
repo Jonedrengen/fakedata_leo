@@ -20,7 +20,31 @@ Sample-687436,Human,28.91034,2021-08-01,Consensus-498457,2025-01-28 16:46:36.355
 
 Du kan se consensusID'erne matcher i disse 2 rækker, men datoen i sample_data rækken matcher en Alpha lineageofinterest og i Consensus rækken er det en BA.1 lineageofinterest
 
-######### DateSampling #########
+######### AmbiguousSites, NCount, SequenceExclude #########
+
+===== LØST =====
+
+if ambiguoussites below 5, there should be no chance of "mixed_strain" in SequenceExclude and related columns 
+if NCount below 3k, no "Too_many_NS" in SeqExclude and related columns
+
+######### NextcladeResult data (SQL ccourse test 1) #########
+
+discovered from SQL course task 2e) Retrieve the top 50 rows based on the lowest alignmentScore, where the alignmentScore is not NULL.
+
+task:
+if clade is NULL, then all other columns should be null from Frameshifts to qc.frameshifts.frameshiftsignored should also be null in nextcladeresult data
 
 
+######### NextcladeResult data (SQL ccourse test 1) #########
 
+SQL course task 2a)
+Join the tables called Batch and SequencedSample and retrieve all rows where the BatchSource is Agrabah.
+
+in real data where BatchSource is Agrabah, all platform datapoints are nanopore, but in my data this is not the case and is instead random
+
+SQL CODE USED:
+SELECT *
+from Jon.Batch
+LEFT JOIN Jon.SequencedSample
+ON Batch.BatchID = SequencedSample.BatchID
+WHERE Batch.BatchSource = 'Agrabah'

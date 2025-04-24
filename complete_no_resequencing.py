@@ -36,7 +36,9 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
     existing_BatchIDs = set()
     existing_PangolinResultIDs = set()
 
-
+    #SequencedSample
+    # for when a Sample is resequenced
+    SampleID_reuse = {}
 
     #Datasets
     Consensus_data = []
@@ -370,6 +372,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             # if we get here, the sample passed all constraints
             valid_samples += 1
 
+
             ######################## RECORDS ########################
 
             Consensus_record = {
@@ -460,6 +463,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "TimestampUpdated": TimestampUpdated
             }
 
+
             SequencedSample_record = {
                 "SequencedSampleID": SequencedSampleID,
                 "SequencingType": SequencingType,
@@ -491,7 +495,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 8500
+    batch_amount = 100
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [

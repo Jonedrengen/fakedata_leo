@@ -2,7 +2,7 @@ import pandas as pd
 from utility import write_to_csv
 import csv
 
-Nextclade_data = pd.read_csv("output/NextcladeResult_data.csv")
+Nextclade_data = pd.read_csv("output/ResultsNextclade_data.csv")
 #print(Nextclade_data)
 
 Nextclade_data = Nextclade_data.drop(["frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "substitutions",
@@ -12,7 +12,7 @@ Nextclade_data = Nextclade_data.drop(["frameShifts", "aaSubstitutions", "aaDelet
 print(Nextclade_data[:3])
 
 
-def remove_unused_columns(file="output/NextcladeResult_data.csv"):
+def remove_unused_columns(file="output/ResultsNextclade_data.csv"):
     """
     Removes unused columns from Nextclade data and writes back to CSV.
     
@@ -24,10 +24,10 @@ def remove_unused_columns(file="output/NextcladeResult_data.csv"):
     """
     # Define columns to keep
     nextclade_headers = [
-        "NextcladeResultID", "alignmentScore",
+        "ResultsNextcladeID", "alignmentScore",
         "clade", "Nextclade_pango", "qc.mixedSites.totalMixedSites", 
         "qc.overallScore", "qc.overallStatus",
-        "NextcladeVersion", "ConsensusID", 
+        "NextcladeVersion", "QcVariantConsensusID", 
         "IsCurrent", "TimestampCreated", "TimestampUpdated"
     ]
     
