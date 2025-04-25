@@ -1,3 +1,7 @@
+#NOTE:
+når du installerer pakker i R scriptet skal du huske følgende for odbc isntallationen
+sudo apt install unixodbc-dev
+
 #1 Install Docker
 sudo apt install docker.io docker-compose
 systemctl enable --now docker
