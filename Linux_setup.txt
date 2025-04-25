@@ -65,6 +65,15 @@ sudo apt-get update
 sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
 
+#install Azure data Studio
+#4 Installer Azure
+cp /media/gebt/FC8B-1E07/SQL_Course/azuredatastudio-linux-1.48.0.deb ~/Downloads/.
+cd ~
+sudo dpkg -i ./Downloads/azuredatastudio-linux-1.48.0.deb
+Klik oppe i venstre hjørne og søg efter Azure Data Studio, højreklik og pin to dash
+Åben Azure
+Gå til Extensions og hent SQL Server Import
+
 #################################
 ## Test if driver is correctly installed - should print [ODBC Driver 18 for SQL Server] ##
 odbcinst -q -d -n "ODBC Driver 18 for SQL Server"
