@@ -7,16 +7,19 @@ sudo apt install docker.io docker-compose
 systemctl enable --now docker
 
 #2 Installer SQL Server
-sudo docker pull mcr.microsoft.com/mssql/server:2022-latest
-sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+sudo docker pull mcr.microsoft.com/mssql/server:2017-latest
+sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2017-latest
 
 #2.1 Installer rstudio server
 docker pull rocker/rstudio
 sudo docker run -d --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio rocker/rstudio
 sudo docker cp /media/gebt/NO\ NAME/SQL_Course/SQL24_data/'Module 4'/SQL_Course_Report_Local.Rmd rstudio:/home/rstudio/.
 
+#2.2 REMEMBER TO RUN! for the libraries to work in the container
+sudo apt-get update
+
 #3 Kopier Data over på Sql Server Docker container
-sudo docker cp "/media/gebt/NO\ NAME/data/" rstudio:/tmp/.
+sudo docker cp "/media/gebt/NO\ NAME/data/" sqlserver:/tmp/.
  
 #4 Installer Azure (Ikke ændret fra 2024)
 cp /media/gebt/NO\ NAME/SQL_Course/azuredatastudio-linux-1.48.0.deb ~/Downloads/.
@@ -51,7 +54,7 @@ sudo apt-get update && sudo apt-get install libreoffice
 ##################################################################################################################################
 ## Preparing customised RStudio image (Only needed to create the image once, and then that image is used on the other computers)
 docker pull rocker/rstudio
-sudo docker run --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio rocker/rstudio
+sudo docker run -d --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio rocker/rstudio
 sudo docker cp /media/gebt/NO\ NAME/SQL_Course/SQL24_data/'Module 4'/SQL_Course_Report_Local.Rmd rstudio:/home/rstudio/.
 sudo docker exec -it rstudio bash
 sudo apt-get update
@@ -65,13 +68,6 @@ sudo apt-get update
 sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
 
-#4 Installer Azure data studio
-cp /media/gebt/FC8B-1E07/SQL_Course/azuredatastudio-linux-1.48.0.deb ~/Downloads/.
-cd ~
-sudo dpkg -i ./Downloads/azuredatastudio-linux-1.48.0.deb
-Klik oppe i venstre hjørne og søg efter Azure Data Studio, højreklik og pin to dash
-Åben Azure
-Gå til Extensions og hent SQL Server Import
 
 #################################
 ## Test if driver is correctly installed - should print [ODBC Driver 18 for SQL Server] ##
