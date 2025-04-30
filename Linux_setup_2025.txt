@@ -1,0 +1,32 @@
+# 1: Installer r - from "https://cran.r-project.org/"
+sudo apt update -qq
+sudo apt install --no-install-recommends software-properties-common dirmngr
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+sudo apt install --no-install-recommends r-base
+
+# 2: installer docker
+sudo apt install docker.io docker-compose
+systemctl enable --now docker
+
+# 3: installer SQL server "passwork=Gebt123456"
+sudo docker pull mcr.microsoft.com/mssql/server:2022-latest
+sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+
+# 3.1: check om SQL server kører 
+sudo docker ps 
+
+# 4: Kopier data ind på SQL serveren - erstat "vejen til din data" ("" skal også erstattes) 
+sudo docker cp "vejen til din data" sqlserver:/tmp/.
+
+# 5: Installer Azure (Ikke ændret fra 2024)
+cp /media/gebt/NO\ NAME/SQL_Course/azuredatastudio-linux-1.48.0.deb ~/Downloads/.
+cd ~
+sudo dpkg -i ./Downloads/azuredatastudio-linux-1.48.0.deb
+Klik oppe i venstre hjørne og søg efter Azure Data Studio, højreklik og pin to dash
+Åben Azure
+Gå til Extensions og hent SQL Server Import
+
+# 6: load og start den modificerede rstudio container (gennemfør 6.1, hvis dette er den første pc der sættes op)
+sudo docker load -i vejen/til/rstudio_modifed
+sudo docker run -d --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio_modified rstudio_modified

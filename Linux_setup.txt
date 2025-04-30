@@ -41,8 +41,8 @@ New Query på localhost
 Copy/Paste fra SQL_Setup.txt
 
 ## Load and start modified RStudio container
-sudo docker load -i /home/gebt/Desktop/SQL_Course/SQL_Course/rstudio_modifed
-sudo docker run --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio_modified rstudio_modified
+sudo docker load -i /home/gebt/Desktop/SQL_course_2025/rstudio_modified
+sudo docker run -d --restart=always -p 8888:8787 -e PASSWORD=password --name rstudio_modified rstudio_modified
 ## if odbc not able to be installed, run
     sudo apt-get update
     sudo apt-get install unixodbc-dev
