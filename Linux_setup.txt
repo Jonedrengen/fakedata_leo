@@ -7,8 +7,8 @@ sudo apt install docker.io docker-compose
 systemctl enable --now docker
 
 #2 Installer SQL Server
-sudo docker pull mcr.microsoft.com/mssql/server:2018-latest
-sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2018-latest
+sudo docker pull mcr.microsoft.com/mssql/server:2022-latest
+sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt123456" -e "TZ=Europe/Copenhagen" -p 1433:1433 --name sqlserver --hostname sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
 
 #2.1 Installer rstudio server
 docker pull rocker/rstudio
