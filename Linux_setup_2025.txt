@@ -33,41 +33,22 @@ sudo docker run -d --restart=always -p 8888:8787 -e PASSWORD=password --name rst
 sudo apt-get update
 sudo apt-get install unixodbc-dev
 
-# 6.1: hvis pakker ikke virker i r, selv hvis du har installeret dem så prøv
-sudo apt-get update
-sudo apt-get install -y build-essential
-
-# 7: download unixodbc uden for docker container
-sudo apt update
-sudo apt install unixodbc unixodbc-dev odbcinst
-
-sudo apt install libodbc1 odbcinst1debian2 odbcinst unixodbc-bin
-
-sudo apt update
-sudo ACCEPT_EULA=Y apt install msodbcsql18
-sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
-
-
-sudo su
-curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
-exit
-
-
-# 7.1: installer pakker inden i R
-#
-
 
 ###### possible errors and fixes ######
 
-#install ODBC
-
-# load fail for tidyverse when knitting
+#1: load fail for tidyverse when knitting
 stringi needs reinstall
 install.packages("stringi", type = "source")
 
-# tidyverse does not exist in the system, even when installed. Likely beacause of missing dev tools
+#2: tidyverse does not exist in the system, even when installed. Likely beacause of missing dev tools
 find missing tool on working pc (might be something like curl.h, zlib.h or some variantion of x.h)
+
+#2.1: first try:
+sudo apt-get update
+sudo apt-get install -y build-essential
+
+#2.2: så gør dette hvis 2.1 ikke virker
+
 dpkg -S tool
 
 eksempel på computer der virker
@@ -80,4 +61,8 @@ apt search zlib1g-dev
 installer toolet der mangler på pc der ikke virker
 sudo apt install zlib1g-dev
 
+#3: unable to locate msodbcsql18
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+sudo apt update
+sudo ACCEPT_EULA=Y apt install -y msodbcsql18
 
