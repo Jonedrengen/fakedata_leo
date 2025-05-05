@@ -41,7 +41,11 @@ sudo apt-get install unixodbc-dev
 
 #1: load fail for tidyverse when knitting
 stringi needs reinstall
-install.packages("stringi", type = "source")
+install.packages("stringi", type = "source")'
+
+#1.1: if reinstalling stringi does not work
+library(dplyr)
+library(lubridate)
 
 #2: tidyverse does not exist in the system, even when installed. Likely beacause of missing dev tools
 find missing tool on working pc (might be something like curl.h, zlib.h or some variantion of x.h)
