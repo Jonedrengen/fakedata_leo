@@ -43,9 +43,6 @@ sudo apt-get install unixodbc-dev
 stringi needs reinstall
 install.packages("stringi", type = "source")'
 
-#1.1: if reinstalling stringi does not work
-library(dplyr)
-library(lubridate)
 
 #2: tidyverse does not exist in the system, even when installed. Likely beacause of missing dev tools
 find missing tool on working pc (might be something like curl.h, zlib.h or some variantion of x.h)
@@ -74,3 +71,22 @@ curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /et
 sudo apt update
 sudo ACCEPT_EULA=Y apt install -y msodbcsql18
 
+#4: mutate() function does not exist (and try if other functions have the same issue)
+- install these
+library(dplyr)
+library(lubridate)
+
+#5: cache lock error (odbc)
+der er nok en process der ikke gøres færdig under "ps -p 7791", så dræb den og start forfra
+sudo kill 7791
+
+tjek om den er der
+ps -p 7791
+hvis den stadig er kør:
+sudo kill -9 7791
+
+sudo rm /var/lib/dpkg/lock-frontend -a
+sudo dpkg --configure -a 
+
+kør igen 
+sudo apt install unixodbc
