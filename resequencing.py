@@ -4,6 +4,9 @@ import random
 from datetime import datetime, timedelta
 from id_generators_V2 import GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
 from utility import clean_string_fields, write_to_csv
+from faker import Faker
+
+fake = Faker()
 
 def clean_nan_values(record):
     for key, value in record.items():
@@ -60,8 +63,12 @@ new_batch_records = []
 pangolin_ids_original = set(PangolinResult_data["PangolinID"])
 additional_pangolin_ids = []
 
+batch_counter = 0
+total_batches = len(batches_to_reuse)
+
 # looper gennem batches xxx
 for i, batch in batches_to_reuse.iterrows():
+    batch_counter += 1
     original_batch_id = batch["RunID"]
     #print(original_batch_id)
 
@@ -73,15 +80,15 @@ for i, batch in batches_to_reuse.iterrows():
     #new resequencing date (remember data must match from original, otherwise the plots will be wrong)
     original_batch_date = pd.to_datetime(batch["RunDate"]).date()
     #print(original_batch_date)
-    reseq_batch_date = original_batch_date - timedelta(days=random.randint(10, 40))
+    first_batch_date = original_batch_date - timedelta(days=random.randint(10, 40))
     #print(reseq_batch_date)
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # Create a new batch record
+    # create a new batch record (should i make NCount higher? or ambiguoussites?)
     new_batch = { 
         "RunID": new_batch_id,
-        "RunDate": reseq_batch_date,
-        "Platform": batch["Platform"],  # Usually same platform
+        "RunDate": first_batch_date,
+        "Platform": batch["Platform"],  # same platform
         "RunSource": batch["RunSource"],  # Usually same source
         "TimestampCreated": timestamp,
         "TimestampUpdated": timestamp
@@ -113,15 +120,15 @@ for i, batch in batches_to_reuse.iterrows():
         if new_pangolin_id in pangolin_ids_original:
             print(f"{new_pangolin_id} found in original data!")
 
-        # Create new sequenced sample record
+        # Create new sequenced sample record fake.date_between(start_date=BatchDate, end_date=BatchDate + timedelta(days=4))
         new_sequencedsample = {
             "SampleSequencedID": new_sequenced_id,
             "SequencingType": sequenced_sample["SequencingType"],
-            "DateSequencing": reseq_batch_date - timedelta(days=2),  # Updated to new batch date
+            "DateSequencing": fake.date_between(start_date=first_batch_date, end_date=first_batch_date + timedelta(days=4)),
             "SampleContent": sequenced_sample["SampleContent"],
             "RunID": new_batch_id,  # Link to new batch
             "CurrentQcVariantConsensusID": new_consensus_id,
-            "CaseSampleID": original_sample_id,  # Same sample
+            "CaseSampleID": original_sample_id,  #same sample
             "TimestampCreated": timestamp,
             "TimestampUpdated": timestamp
         }
@@ -149,6 +156,9 @@ for i, batch in batches_to_reuse.iterrows():
             "NCount": int(orig_consensus["NCount"]) if not pd.isna(orig_consensus["NCount"]) else None,
             "AmbiguousSites": int(orig_consensus["AmbiguousSites"]) if not pd.isna(orig_consensus["AmbiguousSites"]) else None,
             "NwAmb": int(orig_consensus["NwAmb"]) if not pd.isna(orig_consensus["NwAmb"]) else None,
+            "QcScore": "Fail",
+            "SequenceExclude": "ManuallyExcluded",
+            "ManualExclude": "ManuallyExcluded: Sequencing_Fail",
             "SampleSequencedID": new_sequenced_id,
             "CurrentResultsNextcladeID": new_nextclade_id,
             "CurrentPangolinID": new_pangolin_id,
@@ -184,7 +194,7 @@ for i, batch in batches_to_reuse.iterrows():
         })
         new_pangolin_records.append(new_pangolin)
 
-    print(f"Created {len(samples_in_batch)} new records for resequenced batch {original_batch_id}")
+    print(f"Created {len(samples_in_batch)} new records for resequenced batch {original_batch_id} num {batch_counter} of {len(batch_ids_to_reuse)}")
     new_batch_records.append(new_batch)
 #append til eksisterende csv fil
 def append_to_csv(filename, records, headers):

@@ -101,27 +101,35 @@ def generate_NumbAlignedReads():
 
 
 def generate_qc_values(csv_file):
-    dataframe = pd.read_csv(csv_file).dropna()
-
+    # Remove .dropna() to keep NULL values
+    dataframe = pd.read_csv(csv_file, na_values=['NULL'])
+    
     # extract the weights (last column)
     qc_sites_weights = dataframe['counted']
 
     # Sample a row from the dataframe based on the weights
     sample = dataframe.sample(n=1, weights=qc_sites_weights).iloc[0]
 
-    # Extract the values from the sampled row
-    qc_mixedsites_totalmixedsites = int(sample['qc.mixedSites.totalMixedSites'])
-    
-    #random overall score based on the distribution from real data
-    qc_overallstatus = random.choices(['good', 'mediocre', 'bad'],
-                                    weights=[0.806, 0.140, 0.038], #weights based on real data
-                                    k=1)[0] # k=take only 1
-    if qc_overallstatus == 'good':
-        qc_overallscore = random.randint(0, 29)
-    elif qc_overallstatus == 'mediocre':
-        qc_overallscore = random.randint(30, 99)
+    # Extract the values from the sampled row, checking for NULL/NaN
+    if pd.isna(sample['qc.mixedSites.totalMixedSites']):
+        qc_mixedsites_totalmixedsites = None
     else:
-        qc_overallscore = random.randint(100, 24702)
+        qc_mixedsites_totalmixedsites = int(sample['qc.mixedSites.totalMixedSites'])
+    
+    # Only generate status if we have mixedsites
+    if qc_mixedsites_totalmixedsites is None:
+        qc_overallscore = None
+        qc_overallstatus = None
+    else:
+        qc_overallstatus = random.choices(['good', 'mediocre', 'bad'],
+                                      weights=[0.806, 0.140, 0.038],
+                                      k=1)[0]
+        if qc_overallstatus == 'good':
+            qc_overallscore = random.randint(0, 29)
+        elif qc_overallstatus == 'mediocre':
+            qc_overallscore = random.randint(30, 99)
+        else:
+            qc_overallscore = random.randint(100, 24702)
 
     return qc_mixedsites_totalmixedsites, qc_overallscore, qc_overallstatus
 

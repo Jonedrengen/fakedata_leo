@@ -255,7 +255,11 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
             qc_mixedSites_totalMixedSites = qc_data[0]
             qc_overallScore = qc_data[1]
-            qc_ocerallStatus = qc_data[2]
+            qc_overallStatus = qc_data[2]
+
+            #alignmentscore - qc_overallScore connection
+            if pd.isna(qc_overallScore):
+                alignmentScore = None
 
             #qc.frameShifts.status, qc.frameShifts.frameShiftsIgnored
             qc_frameShifts_status = None #excluded
@@ -421,7 +425,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "pcrPrimerChanges": pcrPrimerChanges, #excluded
                 "qc.mixedSites.totalMixedSites": qc_mixedSites_totalMixedSites,
                 "qc.overallScore": qc_overallScore,
-                "qc.overallStatus": qc_ocerallStatus,
+                "qc.overallStatus": qc_overallStatus,
                 "qc.frameShifts.status": qc_frameShifts_status, #excluded
                 "qc.frameShifts.frameShiftsIgnored": qc_frameShifts_frameShiftsIgnored, #excluded
                 "NextcladeVersion": NextcladeVersion,
@@ -487,7 +491,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 1500
+    batch_amount = 6500
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [

@@ -77,12 +77,12 @@ library(dplyr)
 library(lubridate)
 
 #5: cache lock error (odbc)
-der er nok en process der ikke gøres færdig under "ps -p 7791", så dræb den og start forfra
+der er nok en process der ikke gøres færdig under "ps -p 7791", så dræb den og start forfra (kan være en anden port)
 sudo kill 7791
 
 tjek om den er der
 ps -p 7791
-hvis den stadig er kør:
+hvis den stadig er kører:
 sudo kill -9 7791
 
 sudo rm /var/lib/dpkg/lock-frontend -a
@@ -90,3 +90,6 @@ sudo dpkg --configure -a
 
 kør igen 
 sudo apt install unixodbc
+
+# azuredatastudio kan ikke åbne 
+gå ind i azuredatastudio filen via texteditoren (path: /usr/share/applications/azuredatastudio.desktop) og sæt --no-sandbox azuredatastudio i de to executables. Før --unity-launch og før --new-window

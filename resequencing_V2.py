@@ -17,7 +17,7 @@ def clean_nan_values(record):
 # Read all the necessary data files
 Sample_data = pd.read_csv("output/CaseSample_data.csv")
 Consensus_data = pd.read_csv("output/QcVariantConsensus_data.csv", dtype={"NCount": "Int64", "AmbiguousSites": "Int64", "NwAmb": "Int64"})
-NextcladeResult_data = pd.read_csv("output/ResultsNextclade_data.csv")
+NextcladeResult_data = pd.read_csv("output/ResultsNextclade_data.csv", dtype={"alignmentScore": "Int64", "qc.mixedSites.totalMixedSites":"Int64", "qc.overallScore":"Int64"})
 PangolinResult_data = pd.read_csv("output/ResultsPangolin_data.csv")
 SequencedSample_data = pd.read_csv("output/SampleSequenced_data.csv")
 Batch_data = pd.read_csv("output/Run_data.csv")

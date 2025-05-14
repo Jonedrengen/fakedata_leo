@@ -7,7 +7,7 @@ Nextclade_data = pd.read_csv("output/ResultsNextclade_data.csv")
 
 Nextclade_data = Nextclade_data.drop(["frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", "substitutions",
                                       "deletions", "insertions", "missing", "nonACGTNs", "pcrPrimerChanges", 
-                                      "qc.frameShifts.status", "qc.frameShifts.frameShiftsIgnored"],axis=1)
+                                      "qc.frameShifts.status", "qc.frameShifts.frameShiftsIgnored"], axis=1)
 
 print(Nextclade_data[:3])
 
@@ -22,25 +22,32 @@ def remove_unused_columns(file="output/ResultsNextclade_data.csv"):
     Returns:
         None: Writes cleaned data directly to CSV
     """
-    # Define columns to keep
-    nextclade_headers = [
-        "ResultsNextcladeID", "alignmentScore",
-        "clade", "Nextclade_pango", "qc.mixedSites.totalMixedSites", 
-        "qc.overallScore", "qc.overallStatus",
-        "NextcladeVersion", "QcVariantConsensusID", 
-        "IsCurrent", "TimestampCreated", "TimestampUpdated"
+    # Define columns to drop
+    columns_to_drop = [
+        "frameShifts", "aaSubstitutions", "aaDeletions", "aaInsertions", 
+        "substitutions", "deletions", "insertions", "missing", 
+        "nonACGTNs", "pcrPrimerChanges", "qc.frameShifts.status", 
+        "qc.frameShifts.frameShiftsIgnored"
     ]
     
-    # Read and filter data
-    nextclade_data = pd.read_csv(file)
-    nextclade_data = nextclade_data[nextclade_headers]
+    # Read with appropriate dtypes for critical columns
+    dtypes = {
+        "qc.mixedSites.totalMixedSites": "Int64",
+        "qc.overallScore": "Int64",
+        "alignmentScore": "Int64",
+        "IsCurrent": "Int64"
+    }
     
-    # Write to CSV manually
-    with open(file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=nextclade_headers)
-        writer.writeheader()
-        for i, row in nextclade_data.iterrows():
-            writer.writerow(row.to_dict())
+    # Read data - recognize both NULL and nan as NaN values
+    nextclade_data = pd.read_csv(file, dtype=dtypes)
+    
+    # Drop unwanted columns (only if they exist)
+    columns_to_drop = [col for col in columns_to_drop if col in nextclade_data.columns]
+    nextclade_data = nextclade_data.drop(columns_to_drop, axis=1)
+    
+    # Write back with appropriate formatting - leave NA values as empty strings
+    nextclade_data.to_csv(file, index=False, na_rep='')
+
 
 if __name__ == "__main__":
     remove_unused_columns()

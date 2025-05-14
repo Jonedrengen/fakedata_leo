@@ -255,6 +255,8 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
             qc_mixedSites_totalMixedSites = qc_data[0]
             qc_overallScore = qc_data[1]
+            if pd.isna(qc_overallScore):
+                alignmentScore == None
             qc_ocerallStatus = qc_data[2]
 
             #qc.frameShifts.status, qc.frameShifts.frameShiftsIgnored
