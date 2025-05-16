@@ -181,7 +181,7 @@ GO
 
 -- Batch
 BULK INSERT [GenEpiBioTrain].[Runs]
-    FROM '/tmp/Run_data.csv'
+    FROM '/tmp/data/Run_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -192,7 +192,7 @@ BULK INSERT [GenEpiBioTrain].[Runs]
 
 -- Sample
 BULK INSERT [GenEpiBioTrain].[CaseSample]
-    FROM '/tmp/CaseSample_data.csv'
+    FROM '/tmp/data/CaseSample_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -203,7 +203,7 @@ BULK INSERT [GenEpiBioTrain].[CaseSample]
 
 -- SampleSequenced
 BULK INSERT [GenEpiBioTrain].[SampleSequenced]
-    FROM '/tmp/SampleSequenced_data.csv'
+    FROM '/tmp/data/SampleSequenced_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -214,7 +214,7 @@ BULK INSERT [GenEpiBioTrain].[SampleSequenced]
 
 -- QcVariantConsensus
 BULK INSERT [GenEpiBioTrain].[QcVariantConsensus]
-    FROM '/tmp/QcVariantConsensus_data.csv'
+    FROM '/tmp/data/QcVariantConsensus_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -225,7 +225,7 @@ BULK INSERT [GenEpiBioTrain].[QcVariantConsensus]
 
 -- PangolinResult
 BULK INSERT [GenEpiBioTrain].[ResultsPangolin]
-    FROM '/tmp/ResultsPangolin_data.csv'
+    FROM '/tmp/data/ResultsPangolin_data.csv'
     WITH
     (
         FIRSTROW = 2,
@@ -236,7 +236,7 @@ BULK INSERT [GenEpiBioTrain].[ResultsPangolin]
 
 -- ResultsNextclade
 BULK INSERT [GenEpiBioTrain].[ResultsNextclade]
-    FROM '/tmp/ResultsNextclade_data.csv'
+    FROM '/tmp/data/ResultsNextclade_data.csv'
     WITH
     (
         FIRSTROW = 2,
