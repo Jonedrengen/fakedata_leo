@@ -438,7 +438,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "CaseSampleID": SampleID,
                 "Host": Host,
                 "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
-                "DateSampling": DateSampling,
+                "DateSampling": DateSampling, #TODO: skal ændres til SampleDate
                 "SampleDateTime": SampleDateTime,
                 "CurrentQcVariantConsensusID": ConsensusID,
                 "TimestampCreated": TimestampCreated,
