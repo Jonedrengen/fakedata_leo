@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime as datetime, timedelta
 import time
 from id_generators_V2 import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
-from utility import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields, gen_SequencingType
+from utility_V1 import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_datesampling, generate_exclusion_values, generate_BatchSource, clean_string_fields, gen_SequencingType
 import pandas as pd
 from collections import Counter
 
@@ -255,9 +255,11 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             qc_data = generate_qc_values('important_files/qc_mixedsites_possibilities.csv')
             qc_mixedSites_totalMixedSites = qc_data[0]
             qc_overallScore = qc_data[1]
+            qc_overallStatus = qc_data[2]
+
+            #alignmentscore - qc_overallScore connection
             if pd.isna(qc_overallScore):
-                alignmentScore == None
-            qc_ocerallStatus = qc_data[2]
+                alignmentScore = None
 
             #qc.frameShifts.status, qc.frameShifts.frameShiftsIgnored
             qc_frameShifts_status = None #excluded
@@ -368,43 +370,6 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
             # if we get here, the sample passed all constraints
             valid_samples += 1
 
-            ######################## Reuse_SampleIDs ########################
-
-            if 1 == random.randint(1, 5):
-                SampleID_reuse[SampleID] = {
-                    'CaseSampleID': SampleID,
-                    'sample_row': sample_row, #SampleRow generated from complete_ref_data
-                    'DateSampling': DateSampling,
-                    'Ct': Ct,
-                    'Host': Host,
-                    'SampleDateTime': SampleDateTime,
-                    'RunID': BatchID,
-                    'DateSequencing': DateSequencing
-                }
-                print(f"saved a sample for reuse: {SampleID}")
-            
-            # Reuse a sample (if any are available)
-            if SampleID_reuse and random.random() < 0.0845:
-                # Get a random SampleID from the stored samples
-                reuse_sampleID = random.choice(list(SampleID_reuse.keys()))
-                reuse_data = SampleID_reuse[reuse_sampleID]
-                
-                # Store the reused SampleID separately
-                reused_SampleID = reuse_data['CaseSampleID']
-                
-                # Generate new IDs for everything else
-                #SampleID = GenerateUniqueSampleID(existing_SampleIDs)  # Generate new SampleID for Sample_record
-                ConsensusID = GenerateUniqueConsensusID(existing_ConsensusIDs)
-                SequencedSampleID = GenerateUniqueSequencedSampleID(existing_SequencedSampleIDs)
-                NextcladeResultID = GenerateUniqueNextcladeResultID(existing_NextcladeResultIDs)
-                PangolinResultID = GenerateUniquePangolinResultID(existing_PangolinResultIDs)
-                
-
-                # Remove the sample from reuse dictionary after using it
-                del SampleID_reuse[reuse_sampleID]
-                print(f"reused and removed sample: {reuse_sampleID}")
-                print(len(SampleID_reuse))
-
             ######################## RECORDS ########################
 
             Consensus_record = {
@@ -460,7 +425,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "pcrPrimerChanges": pcrPrimerChanges, #excluded
                 "qc.mixedSites.totalMixedSites": qc_mixedSites_totalMixedSites,
                 "qc.overallScore": qc_overallScore,
-                "qc.overallStatus": qc_ocerallStatus,
+                "qc.overallStatus": qc_overallStatus,
                 "qc.frameShifts.status": qc_frameShifts_status, #excluded
                 "qc.frameShifts.frameShiftsIgnored": qc_frameShifts_frameShiftsIgnored, #excluded
                 "NextcladeVersion": NextcladeVersion,
@@ -473,7 +438,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "CaseSampleID": SampleID,
                 "Host": Host,
                 "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
-                "DateSampling": DateSampling,
+                "DateSampling": DateSampling, #TODO: skal ændres til SampleDate
                 "SampleDateTime": SampleDateTime,
                 "CurrentQcVariantConsensusID": ConsensusID,
                 "TimestampCreated": TimestampCreated,
@@ -495,8 +460,6 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "TimestampUpdated": TimestampUpdated
             }
 
-            #assigning reused SampleID, if available
-
             SequencedSample_record = {
                 "SampleSequencedID": SequencedSampleID,
                 "SequencingType": SequencingType,
@@ -504,12 +467,10 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "SampleContent": SampleContent,
                 "RunID": BatchID,  # Assign BatchID from the current batch
                 "CurrentQcVariantConsensusID": ConsensusID,
-                "CaseSampleID": reused_SampleID if 'reused_SampleID' in locals() else SampleID,  # Use reused SampleID if it exists
+                "CaseSampleID": SampleID,  # Use reused SampleID if it exists
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
-            if 'reused_SampleID' in locals():
-                del reused_SampleID
 
             # Clean the records before appending (mostly just for "20I (Alpha, V1)" -> "20I (Alpha; V1)")
             Consensus_record = clean_string_fields(Consensus_record)
@@ -530,7 +491,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 85
+    batch_amount = 6500
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [
