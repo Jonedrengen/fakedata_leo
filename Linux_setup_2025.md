@@ -62,6 +62,12 @@ sudo docker run --restart=always -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Gebt12
 ```bash
 sudo docker ps
 ```
+
+### Kopier Data over på Sql Server Docker container
+```bash
+sudo docker cp "/media/gebt/NO\ NAME/data/" sqlserver:/tmp/.
+```
+
 ## 6. Installer ODBC-driver til SQL Server
 
 Dette tillader R og andre programmer at oprette forbindelse til SQL Server.
