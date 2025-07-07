@@ -3,7 +3,7 @@ import pandas as pd
 import random
 from datetime import datetime, timedelta
 from id_generators_V2 import GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
-from utility import clean_string_fields, write_to_csv
+from utility_V1 import clean_string_fields, write_to_csv
 from faker import Faker
 
 fake = Faker()

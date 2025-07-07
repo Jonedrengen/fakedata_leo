@@ -1,5 +1,5 @@
 import pandas as pd
-from utility import write_to_csv
+from utility_V2 import write_to_csv
 import csv
 
 Nextclade_data = pd.read_csv("output/ResultsNextclade_data.csv")

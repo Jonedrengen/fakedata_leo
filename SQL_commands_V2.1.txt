@@ -1,0 +1,277 @@
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[Runs]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[Runs]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[QcVariantConsensus]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[QcVariantConsensus]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[ResultsNextclade]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[ResultsNextclade]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[ResultsPangolin]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[ResultsPangolin]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[CaseSample]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[CaseSample]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[GenEpiBioTrain].[SampleSequenced]') AND type in (N'U'))
+DROP TABLE [GenEpiBioTrain].[SampleSequenced]
+GO
+DROP VIEW [GenEpiBioTrain].[V_CovidPlots]
+GO
+-- Create schema
+CREATE SCHEMA GenEpiBioTrain
+GO
+
+-- Create tables
+--Runs
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[Runs](
+    [RunID] [nvarchar](200) NOT NULL,
+    [RunDate] [date] NULL,
+    [Platform] [nvarchar](50) NULL,
+    [RunSource] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT RunID PRIMARY KEY (RunID)
+) ON [PRIMARY]
+GO
+
+--QcVariantConsensus
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[QcVariantConsensus](
+  [QcVariantConsensusID] [nvarchar](50) NOT NULL,
+  [NCount] [int] NULL,
+  [AmbiguousSites] [int] NULL,
+  [NwAmb] [int] NULL,
+  [NCountQC] [nvarchar](50) NULL,
+  [NumAlignedReads] [int] NULL,
+  [PctCoveredBases] [decimal](18, 2) NULL,
+  [SeqLength] [int] NULL,
+  [QcScore] [nvarchar](50) NULL,
+  [SequenceExclude] [nvarchar](1000) NULL,
+  [ManualExclude] [nvarchar](50) NULL,
+  [Alpha] [bit] NULL,
+  [Beta] [bit] NULL,
+  [Gamma] [bit] NULL,
+  [Delta] [bit] NULL,
+  [Eta] [bit] NULL,
+  [Omicron] [bit] NULL,
+  [BA.1] [bit] NULL,
+  [BA.2] [bit] NULL,
+  [BG] [bit] NULL,
+  [BA.4] [bit] NULL,
+  [BA.5] [bit] NULL,
+  [BA.2.75] [bit] NULL,
+  [BF.7] [bit] NULL,
+  [WhoVariant] [nvarchar](50) NULL,
+  [LineagesOfInterest] [nvarchar](50) NULL,
+  [UnaliasedPango] [nvarchar](200) NULL,
+  [SampleSequencedID] [nvarchar](200) NULL,
+  [CurrentNextcladeID] [nvarchar](50) NULL,
+  [CurrentPangolinID] [nvarchar](50) NULL,
+  [IsCurrent] [bit] NULL,
+  [TimestampCreated] [datetime2](7) NOT NULL,
+  [TimestampUpdated] [datetime2](7) NOT NULL,
+  CONSTRAINT QcVariantConsensusID PRIMARY KEY (QcVariantConsensusID)
+) ON [PRIMARY]
+GO
+
+--ResultsNextclade
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[ResultsNextclade](
+    [ResultsNextcladeID] [nvarchar](50) NOT NULL,
+    [alignmentScore] [int] NULL,
+    [clade] [nvarchar](50) NULL,
+    [Nextclade_pango] [nvarchar](50) NULL,
+    [qc.mixedSites.totalMixedSites] [int] NULL,
+    [qc.overallScore] [int] NULL,
+    [qc.overallStatus] [nvarchar](50) NULL,
+    [NextcladeVersion] [nvarchar](50) NULL,
+    [QcVariantConsensusID] [nvarchar](50) NULL,
+    [IsCurrent] [bit] NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT ResultsNextcladeID PRIMARY KEY (ResultsNextcladeID)
+) ON [PRIMARY]
+GO
+
+
+
+--ResultsPangolin
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[ResultsPangolin](
+  [ResultsPangolinID] [nvarchar](50) NOT NULL,
+  [lineage] [nvarchar](50) NULL,
+  [version] [nvarchar](50) NULL,
+  [pangolin_version] [nvarchar](50) NULL,
+  [scorpio_version] [nvarchar](50) NULL,
+  [constellation_version] [nvarchar](50) NULL,
+  [qc_status] [nvarchar](50) NULL,
+  [qc_notes] [nvarchar](50) NULL,
+  [note] [nvarchar](4000) NULL,
+  [QcVariantConsensusID] [nvarchar](50) NULL,
+  [IsCurrent] [bit] NULL,
+  [TimestampCreated] [datetime2](7) NOT NULL,
+  [TimestampUpdated] [datetime2](7) NOT NULL,
+  CONSTRAINT PangolinID PRIMARY KEY (ResultsPangolinID)
+) ON [PRIMARY]
+GO
+
+
+
+--Sample
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[CaseSample](
+    [CaseSampleID] [nvarchar](50) NOT NULL,
+    [Host] [nvarchar](50) NULL,
+    [Ct] [decimal](18, 13) NULL,
+    [DateSampling] [date] NULL,
+    [SampleDateTime] [datetime2] (7) NOT NULL,
+    [CurrentQcVariantConsensusID] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL
+    CONSTRAINT CaseSampleID PRIMARY KEY (CaseSampleID)
+) ON [PRIMARY]
+GO
+
+
+--SampleSequenced
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [GenEpiBioTrain].[SampleSequenced](
+    [SampleSequencedID] [nvarchar](200) NOT NULL,
+    [SequencingType] [nvarchar](50) NULL,
+    [DateSequencing] [date] NULL,
+    [SampleContent] [nvarchar](50) NULL,
+    [RunID] [nvarchar](200) NULL,
+    [CurrentQcVariantConsensusID] [nvarchar](50) NULL,
+    [CaseSampleID] [nvarchar](50) NULL,
+    [TimestampCreated] [datetime2](7) NOT NULL,
+    [TimestampUpdated] [datetime2](7) NOT NULL,
+    CONSTRAINT SampleSequencedID PRIMARY KEY (SampleSequencedID)
+) ON [PRIMARY]
+GO
+
+
+-- Insert data into tables
+-- Bulk insert
+
+-- Batch
+BULK INSERT [GenEpiBioTrain].[Runs]
+    FROM '/tmp/Run_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- Sample
+BULK INSERT [GenEpiBioTrain].[CaseSample]
+    FROM '/tmp/CaseSample_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- SampleSequenced
+BULK INSERT [GenEpiBioTrain].[SampleSequenced]
+    FROM '/tmp/SampleSequenced_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- QcVariantConsensus
+BULK INSERT [GenEpiBioTrain].[QcVariantConsensus]
+    FROM '/tmp/QcVariantConsensus_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- PangolinResult
+BULK INSERT [GenEpiBioTrain].[ResultsPangolin]
+    FROM '/tmp/ResultsPangolin_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- ResultsNextclade
+BULK INSERT [GenEpiBioTrain].[ResultsNextclade]
+    FROM '/tmp/ResultsNextclade_data.csv'
+    WITH
+    (
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    )
+    GO
+
+-- Replace ; with , in columns
+UPDATE [GenEpiBioTrain].[ResultsNextclade]
+SET
+    clade = replace(clade, ';', ',')
+
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [GenEpiBioTrain].[V_CovidPlots] AS
+    SELECT
+        A.[SampleSequencedID], A.[SequencingType], A.[DateSequencing], A.[SampleContent],
+        B.[CaseSampleID], B.[SampleDateTime], B.[Host], B.[Ct], B.[DateSampling],
+        C.[RunID], C.[RunDate], C.[Platform], C.[RunSource],
+        F.QcVariantConsensusID, F.[NCount], F.[AmbiguousSites], F.[NwAmb], F.[NCountQC], F.[NumAlignedReads],
+        F.[PctCoveredBases], F.[SeqLength], F.[QcScore], F.[SequenceExclude], F.[ManualExclude],
+        F.[Alpha], F.[Beta], F.[Gamma], F.[Delta], F.[Eta], F.[Omicron], F.[BA.1], F.[BA.2], F.[BG],
+        F.[BA.4], F.[BA.5], F.[BA.2.75], F.[BF.7], F.[WhoVariant], F.[LineagesOfInterest], F.[UnaliasedPango],
+        G.[ResultsPangolinID], G.[lineage], G.[version], G.[pangolin_version], G.[scorpio_version],
+        G.[constellation_version], G.[qc_status], G.[qc_notes], G.[note],
+        H.[ResultsNextcladeID], H.[alignmentScore], H.[clade], H.[Nextclade_pango], H.[qc.mixedSites.totalMixedSites],
+        H.[qc.overallScore], H.[qc.overallStatus],H. [NextcladeVersion]
+    FROM GenEpiBioTrain.SampleSequenced A
+    LEFT JOIN GenEpiBioTrain.CaseSample B ON A.CaseSampleID = B.CaseSampleID
+    LEFT JOIN GenEpiBioTrain.Runs C ON A.RunID = C.RunID
+    LEFT JOIN GenEpiBioTrain.QcVariantConsensus F ON A.SampleSequencedID = F.SampleSequencedID
+    LEFT JOIN GenEpiBioTrain.ResultsPangolin G ON F.CurrentPangolinID = G.ResultsPangolinID
+    LEFT JOIN GenEpiBioTrain.ResultsNextclade H ON F.CurrentNextcladeID = H.ResultsNextcladeID
+GO

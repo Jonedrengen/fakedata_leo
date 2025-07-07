@@ -34,7 +34,7 @@ batch_records = Batch_data.to_dict('records')
 existing_ConsensusIDs = set(Consensus_data["QcVariantConsensusID"])
 existing_SequencedSampleIDs = set(SequencedSample_data["SampleSequencedID"])
 existing_NextcladeResultIDs = set(NextcladeResult_data["ResultsNextcladeID"])
-existing_PangolinResultIDs = set(PangolinResult_data["PangolinID"])
+existing_PangolinResultIDs = set(PangolinResult_data["ResultsPangolinID"])
 existing_BatchIDs = set(Batch_data["RunID"])
 print(len(existing_PangolinResultIDs))
 # Get headers from the original files
@@ -54,7 +54,7 @@ print(f"Selected {len(batch_ids_to_reuse)} batches for resequencing")
 #for perfromance
 consensus_dict = {record["QcVariantConsensusID"]: record for record in consensus_records}
 nextclade_dict = {record["ResultsNextcladeID"]: record for record in nextclade_records}
-pangolin_dict = {record["PangolinID"]: record for record in pangolin_records}
+pangolin_dict = {record["ResultsPangolinID"]: record for record in pangolin_records}
 
 # New collections for resequenced data
 new_consensus_records = []
@@ -65,7 +65,7 @@ new_batch_records = []
 
 
 # To properly compare against the original data (not the modified set):
-pangolin_ids_original = set(PangolinResult_data["PangolinID"])
+pangolin_ids_original = set(PangolinResult_data["ResultsPangolinID"])
 additional_pangolin_ids = []
 
 batch_counter = 0
@@ -93,7 +93,7 @@ for i, batch in batches_to_reuse.iterrows():
     new_batch = { 
         "RunID": new_batch_id,
         "RunDate": first_batch_date,
-        "Platform": batch["Platform"],  # same platform
+        "Platform": batch["Platform"] if not pd.isna(batch["Platform"]) else None,  # same platform
         "RunSource": batch["RunSource"],  # Usually same source
         "TimestampCreated": timestamp,
         "TimestampUpdated": timestamp
@@ -109,7 +109,6 @@ for i, batch in batches_to_reuse.iterrows():
         original_sequenced_id = sequenced_sample["SampleSequencedID"]
         original_sample_id = sequenced_sample["CaseSampleID"]
         original_consensus_id = sequenced_sample["CurrentQcVariantConsensusID"]
-
         #nextcladeID er først taget senere, da den ikke er i sequenced sample datasettet, men først i consensus datasettet
         #samme med pangolinID
 
@@ -186,7 +185,7 @@ for i, batch in batches_to_reuse.iterrows():
         new_pangolin = orig_pangolin.copy()
         new_pangolin = clean_nan_values(new_pangolin)
         new_pangolin.update({
-            "PangolinID": new_pangolin_id,
+            "ResultsPangolinID": new_pangolin_id,
             "QcVariantConsensusID": new_consensus_id,
             "IsCurrent": 1,
             "TimestampCreated": timestamp,

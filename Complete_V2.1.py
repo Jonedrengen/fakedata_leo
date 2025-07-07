@@ -5,7 +5,7 @@ import csv
 import numpy as np
 from datetime import datetime as datetime, timedelta
 import time
-from id_generators_V2 import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
+from id_generators_V2_1 import GenerateUniqueSampleID, GenerateUniqueConsensusID, GenerateUniqueNextcladeResultID, GenerateUniqueSequencedSampleID, GenerateUniquePangolinResultID, GenerateUniqueBatchID
 from utility_V2 import write_to_csv, generate_ct_value, generate_qc_values, generate_NumbAlignedReads, generate_ncount_value, generate_ambiguoussites, gen_whovariant_SampleDate, generate_exclusion_values, generate_BatchSource, clean_string_fields, gen_SequencingType
 import pandas as pd
 from collections import Counter
@@ -438,15 +438,15 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
                 "CaseSampleID": SampleID,
                 "Host": Host,
                 "Ct": Ct, #check korreletion med ncount eller ncountQC eller SeqLength
-                "SampleDate": SampleDate, #TODO: skal ændres til SampleDate
+                "SampleDate": SampleDate, 
                 "SampleDateTime": SampleDateTime,
                 "CurrentQcVariantConsensusID": ConsensusID,
                 "TimestampCreated": TimestampCreated,
                 "TimestampUpdated": TimestampUpdated
             }
             PangolinResult_record = {
-                "PangolinID": PangolinResultID,
-                "lineage": lineage, #skal vælges ud fra Nextclade_Pango
+                "ResultsPangolinID": PangolinResultID,
+                "lineage": lineage, 
                 "version": version,
                 "pangolin_version": pangolin_version, #real data: 4.2 = 26, 4.1.2 = 525417, NULL = 85643
                 "scorpio_version": scopio_version, #real data: 0.3.17 = 525443, NULL = 85643
@@ -491,7 +491,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 65
+    batch_amount = 6500
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [
@@ -525,7 +525,7 @@ if __name__ == '__main__':
     ]
 
     pangolin_headers = [
-        "PangolinID", "lineage", "version", "pangolin_version", "scorpio_version", 
+        "ResultsPangolinID", "lineage", "version", "pangolin_version", "scorpio_version", 
         "constellation_version", "qc_status", "qc_notes", "note", "QcVariantConsensusID", "IsCurrent",
         "TimestampCreated", "TimestampUpdated"
     ]

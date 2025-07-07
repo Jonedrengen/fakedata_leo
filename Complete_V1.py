@@ -491,7 +491,7 @@ def Generate_complete_data(Batch_amount: int, Batch_size: int):
 if __name__ == '__main__':
     start_time = time.time()
 
-    batch_amount = 6500
+    batch_amount = 65
     batch_size = 96 #maybe: random.randint(36,96) for af distributed range of batch sizes
 
     consensus_headers = [
